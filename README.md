@@ -6,9 +6,16 @@
 - Backend: Supabase (Postgres + Storage + нэг Edge Function `parade`)
 - Хуучин `Burtgel`, `auction` сайтуудыг **өөрчлөөгүй**. Энэ нь шинэ, тусдаа төсөл.
 
-## 1. Supabase төсөл үүсгэх
+## Одоогийн байршил
 
-1. supabase.com дээр шинэ төсөл үүсгэнэ (хуучин Burtgel-ийн төслийг ашиглахгүй).
+- Сайт: **parad.mn** — GitHub Pages (`Moriton-tech/parad`, `main` салбар, `CNAME`). DNS: Datacom (A ×4 → GitHub, `www` CNAME).
+- Backend: Supabase төсөл **`parad`** (`mfghbmsqdksbxpnbvmbs`, бүс **ap-northeast-2 Сөүл** — Монголд ойр).
+- `data/horses.json`: азаргын жагсаалтын статик хуулбар — `.github/workflows/snapshot.yml` 30 мин тутам шинэчилнэ. Хуудас эхлээд үүгээр шууд зурж, дараа нь API-аар шинэчлэгдэнэ.
+- Зураг: `img/horses/*.webp` (жижиг зураг `-s.webp`, 480px).
+
+## 1. Supabase төсөл үүсгэх (шинээр суулгах бол)
+
+1. supabase.com дээр шинэ төсөл үүсгэнэ — бүсийг **Seoul (ap-northeast-2)** эсвэл Tokyo сонгоно.
 2. **SQL Editor** дээр дарааллаар ажиллуулна:
    1. `supabase/schema.sql` — тасалбар, захиалга, ажилтан
    2. `supabase/horses.sql` — адуу, гүү тавих, хүсэлт, дуудлага, Storage `horses` bucket
