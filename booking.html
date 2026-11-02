@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Гүү тавих захиалга — Морьтон | parad.mn</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pm.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" id="site-header"></header>
+<main class="container" id="root"></main>
+<footer class="site-footer" id="site-footer"></footer>
+<script type="module">
+import { api, esc, money, mnt, fmtDT, renderChrome, param, store, rememberStud, photoOf } from './js/app.js';
+const $root = document.getElementById('root');
+const STATUS = { pending: 'Баталгаажуулалт хүлээж байна', confirmed: 'Баталгаажсан', done: 'Хийгдсэн', cancelled: 'Цуцлагдсан', expired: 'Хугацаа дууссан' };
+renderChrome({}, 'booking');
+
+function lookupForm(msg = '') {
+  const mine = store.get('stud', []);
+  $root.innerHTML = `<div class="bk-card"><div class="hd2"><div class="eyebrow">Миний захиалга</div><h1>Захиалгаа шалгах</h1></div><div class="bd2">
+    ${msg ? `<div class="alert error" style="margin-bottom:14px">${esc(msg)}</div>` : ''}
+    <form class="form" id="f" style="grid-template-columns:1fr auto;align-items:end"><div><label>Захиалгын код</label><input class="input" id="code" placeholder="GT-XXXXXX" autocapitalize="characters" maxlength="12" required></div><button class="btn btn-gold" type="submit">Шалгах</button></form>
+    ${mine.length ? '<p class="small muted" style="margin:16px 0 6px">Энэ төхөөрөмж дээрх захиалгууд:</p>' + mine.map(c => `<a class="btn btn-light btn-sm" style="margin:0 6px 6px 0" href="booking.html?code=${encodeURIComponent(c)}">${esc(c)}</a>`).join('') : ''}
+    </div></div>`;
+  document.getElementById('f').onsubmit = e => { e.preventDefault(); location.href = 'booking.html?code=' + encodeURIComponent(document.getElementById('code').value.trim().toUpperCase().replace(/^GT-?/, 'GT-')); };
+}
+
+async function load(code) {
+  try {
+    const { booking: b, horse: h, site } = await api('stud_status', { code });
+    rememberStud(b.code);
+    renderChrome({ contact_phone: site.phone }, 'booking');
+    const ph = h && photoOf(h, 0, true);
+    let note = '';
+    if (b.status === 'pending') note = `<div class="alert warn" style="margin:14px 0">Ажилтан тантай утсаар холбогдож баталгаажуулна. <b>${esc(fmtDT(b.expires_at))}</b>-ээс өмнө баталгаажаагүй бол захиалгын хугацаа дуусна.</div>`;
+    else if (b.status === 'confirmed') note = `<div class="alert ok" style="margin:14px 0">Захиалга баталгаажсан. Таны гүү <b>${b.queue_from}${b.mares > 1 ? '–' + (b.queue_from + b.mares - 1) : ''}-р</b> дараалалд орсон. ${esc(site.season)}-д ажилтан танд өмнө нь мэдэгдэнэ.</div>`;
+    else if (b.status === 'done') note = '<div class="alert ok" style="margin:14px 0">Гүү тавилт хийгдсэн.</div>';
+    else if (b.status === 'cancelled') note = `<div class="alert error" style="margin:14px 0">Захиалга цуцлагдсан.${b.cancel_reason ? ' Шалтгаан: ' + esc(b.cancel_reason) : ''}</div>`;
+    else note = `<div class="alert error" style="margin:14px 0">Баталгаажуулах хугацаа дууссан. Дахин захиалах эсвэл <a href="tel:${esc(String(site.phone).replace(/\D/g, ''))}">${esc(site.phone)}</a> руу залгана уу.</div>`;
+    const pay = ['pending', 'confirmed'].includes(b.status) && site.bank_info ? `<div class="alert info" style="margin-top:10px;white-space:pre-wrap"><b>Төлбөр төлөх:</b>\n${esc(site.bank_info)}\nГүйлгээний утга: <b>${esc(b.code)}</b></div>` : '';
+    $root.innerHTML = `<div class="bk-card"><div class="hd2"><div class="eyebrow">Гүү тавих захиалга</div><h1>${esc(h ? h.name : '—')} азарга</h1></div><div class="bd2">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap"><span class="stat-pill ${b.status}">${STATUS[b.status] || b.status}</span>${b.paid ? '<span class="stat-pill confirmed">Төлөгдсөн</span>' : ''}</div>
+      <div class="codebox">${esc(b.code)}</div>${note}
+      <div class="kv" style="display:grid;grid-template-columns:auto 1fr;gap:6px 16px;font-size:14.5px">
+        <span class="muted">Захиалагч</span><b>${esc(b.owner_name)}</b>
+        <span class="muted">Утас</span><b>${esc(b.phone)}</b>
+        <span class="muted">Гүүний тоо</span><b>${b.mares}</b>
+        <span class="muted">Нэг гүүний үнэ</span><b>${mnt(b.unit_price)}</b>
+        <span class="muted">Нийт дүн</span><b>${mnt(b.amount)}</b>
+        ${b.location ? `<span class="muted">Аймаг, сум</span><b>${esc(b.location)}</b>` : ''}
+        ${b.mare_info ? `<span class="muted">Гүүний мэдээлэл</span><b>${esc(b.mare_info)}</b>` : ''}
+        <span class="muted">Үүсгэсэн</span><b>${esc(fmtDT(b.created_at))}</b></div>
+      ${pay}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">${h ? `<a class="btn btn-light" href="horse.html?s=${encodeURIComponent(h.slug)}">Азарганы хуудас</a>` : ''}<a class="btn btn-ghost" href="booking.html">Өөр код шалгах</a>
+      <a class="btn btn-gold" href="tel:${esc(String(site.phone).replace(/\D/g, ''))}">${esc(site.phone)}</a></div>
+      <p class="small muted" style="margin:14px 0 0">Энэ хуудасны холбоосыг хадгалаарай — кодоороо хэзээ ч шалгаж болно.</p>
+    </div></div>`;
+  } catch (e) { lookupForm(e.message); }
+}
+const code = (param('code') || '').trim();
+code ? load(code) : lookupForm();
+</script>
+</body>
+</html>

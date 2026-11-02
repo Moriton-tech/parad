@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Адуу — Морьтон | parad.mn</title>
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pm.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" id="site-header"></header>
+<main class="section" style="padding-top:24px"><div class="container">
+  <p class="small"><a href="stallions.html">← Бүх адуу</a></p>
+  <div id="root"><div class="empty-box">Ачаалж байна…</div></div>
+</div></main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<div class="modal-bg" id="modal" aria-hidden="true"><div class="modal">
+  <div class="modal-head"><b id="m-title"></b><button type="button" id="m-close" aria-label="Хаах">×</button></div>
+  <div class="modal-body" id="m-body"></div>
+</div></div>
+<div class="lightbox" id="lb"><img alt=""></div>
+
+<script type="module">
+import { api, esc, money, mnt, million, fmtDT, renderChrome, param, store, rememberStud, KIND, photoOf, studPriceHtml, studState, auctionState } from './js/app.js';
+const $ = id => document.getElementById(id);
+const slug = param('s') || '';
+let D = null, offset = 0, cur = 0, poll = null, tick = null;
+const phoneOk = v => /^\+?\d{8,15}$/.test(String(v).replace(/[\s-]/g, ''));
+
+function allImages(h) {
+  const a = (h.photos || []).map((p, i) => ({ big: p.u, small: p.t || p.u, label: 'Зураг ' + (i + 1) }));
+  if (h.pedigree_img) a.push({ big: h.pedigree_img, small: h.pedigree_img, label: 'Удмын бичиг' });
+  return a;
+}
+function gallery(h) {
+  const imgs = allImages(h);
+  if (!imgs.length) return '<div class="gal"><div class="big empty">М</div></div>';
+  const i = Math.min(cur, imgs.length - 1);
+  return `<div class="gal"><div class="big" id="big" style="background-image:url('${esc(imgs[i].big)}')" data-i="${i}"></div>
+    ${imgs.length > 1 ? `<div class="thumbs">${imgs.map((m, k) => `<button class="${k === i ? 'active' : ''}" data-k="${k}" title="${esc(m.label)}"><img src="${esc(m.small)}" alt=""></button>`).join('')}</div>` : ''}</div>`;
+}
+
+function studCard(h, site) {
+  if (!h.stud_enabled) return '';
+  const s = studState(h);
+  const pct = s.cap ? Math.min(100, (h.confirmed_mares / s.cap) * 100) : 0;
+  const btn = s.st === 'open' ? '<button class="btn btn-gold btn-lg btn-block" id="stud-btn" type="button">Гүү тавих захиалга</button>'
+    : `<div class="soldout">${s.st === 'full' ? 'Уучлаарай, энэ азарга дүүрсэн' : 'Захиалга түр хаалттай'}</div>`;
+  const q = (D.queue || []);
+  return `<div class="bcard"><div class="top"><b>Азарганд гүү тавих</b><span>${esc(site.season)}</span></div><div class="body">
+    <div class="big-price">${studPriceHtml(h)} <small>${h.stud_fee == null ? '(үнийг тохиролцоно)' : '/ нэг гүү'}</small></div>
+    <div class="bar2${s.st === 'full' ? ' full' : ''}"><i style="width:${pct}%"></i></div>
+    <div class="lbl2"><span>Үлдсэн <b>${s.left}</b> суудал</span><span>Нийт ${s.cap}</span></div>
+    ${h.pending_mares > 0 ? `<p class="small muted" style="margin:6px 0 0">Баталгаажуулалт хүлээж буй: ${h.pending_mares} гүү</p>` : ''}
+    <div style="margin-top:14px">${btn}</div>
+    <ul class="terms">${(site.terms || []).map(t => `<li>${esc(t)}</li>`).join('')}</ul>
+    ${q.length ? `<details style="margin-top:12px"><summary style="cursor:pointer;font-weight:700">Баталгаажсан дараалал (${q.length})</summary><table class="qlist"><tr><th>Дараалал</th><th>Код</th><th>Гүү</th></tr>${q.map(r => `<tr><td>${r.queue_from}${r.mares > 1 ? '–' + (r.queue_from + r.mares - 1) : ''}</td><td class="mono">${esc(r.code)}</td><td>${r.mares}</td></tr>`).join('')}</table></details>` : ''}
+  </div></div>`;
+}
+
+function saleCard(h, site) {
+  if (h.sale_mode === 'fixed') {
+    const avail = h.sale_status === 'available';
+    return `<div class="bcard"><div class="top"><b>Зарна</b><span>${avail ? 'Худалдаанд байгаа' : h.sale_status === 'sold' ? 'Зарагдсан' : 'Захиалагдсан'}</span></div><div class="body">
+      <div class="big-price">${h.sale_price == null ? 'Тохиролцоно' : money(h.sale_price)}</div>
+      <p class="small muted">${esc(site.sale_note)}</p>
+      ${avail ? '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold btn-lg" style="flex:1" id="reserve-btn" type="button">Авах хүсэлт</button><button class="btn btn-light btn-lg" style="flex:1" id="offer-btn" type="button">Үнийн санал өгөх</button></div>'
+        : '<div class="soldout">Одоогоор боломжгүй</div>'}
+    </div></div>`;
+  }
+  if (h.sale_mode === 'auction') {
+    const st = auctionState(h, Date.now() + offset);
+    const top = h.top_bid, next = top ? top + h.auction_step : (h.auction_start_price || h.auction_step);
+    let head = '', form = '';
+    if (st === 'scheduled') head = `<div class="alert info">Дуудлага ${esc(fmtDT(h.auction_starts_at))}-д эхэлнэ.</div>`;
+    else if (st === 'open') {
+      head = `<div class="small muted">Дуудлага дуустал</div><div class="timer-big" id="timer">—</div>`;
+      form = `<form class="form" id="bid-form" novalidate style="margin-top:14px">
+        <div style="display:none"><input name="website" tabindex="-1" autocomplete="off"></div>
+        <div><label>Нэр <span class="req">*</span></label><input class="input" name="name" maxlength="80" autocomplete="name" required></div>
+        <div><label>Утас <span class="req">*</span></label><input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" required></div>
+        <div><label>Бооцоо (₮) <span class="req">*</span></label><input class="input" name="amount" type="number" inputmode="numeric" step="${h.auction_step}" min="${next}" value="${next}" required>
+          <div class="hint small muted">Хамгийн багадаа <b>${money(next)}</b> · алхам ${money(h.auction_step)}</div></div>
+        <div id="bid-err"></div>
+        <button class="btn btn-gold btn-lg btn-block" type="submit" id="bid-btn">Бооцоо тавих</button>
+        <p class="small muted" style="margin:0;text-align:center">Сүүлийн ${site.extend_min} минутад бооцоо тавибал дуудлага ${site.extend_min} минутаар уртасна.</p></form>`;
+    } else {
+      head = `<div class="alert ${h.sale_status === 'available' ? 'warn' : 'ok'}">${h.sale_status === 'available' ? 'Дуудлага дууслаа. Ажилтан үр дүнг шалгаж байна.' : 'Дуудлага дууссан.'}</div>`;
+      if (h.sold_price) head += `<p style="margin:10px 0 0">Эцсийн үнэ: <b>${money(h.sold_price)}</b></p>`;
+    }
+    return `<div class="bcard"><div class="top"><b>Дуудлага худалдаа</b><span>${st === 'open' ? 'Явагдаж байна' : st === 'scheduled' ? 'Удахгүй' : 'Дууссан'}</span></div><div class="body">
+      <div class="big-price">${money(top || h.auction_start_price || 0)} <small>${top ? 'одоогийн бооцоо' : 'эхлэх үнэ'}</small></div>
+      <div style="margin:10px 0">${head}</div>${form}
+      ${(D.bids || []).length ? `<ul class="bids">${D.bids.map(b => `<li><span>${esc(b.name)} <small>${esc(fmtDT(b.at))}</small></span><b>${money(b.amount)}</b></li>`).join('')}</ul>` : '<p class="small muted">Одоогоор бооцоо алга.</p>'}
+      <p class="small muted" style="margin:10px 0 0">${esc(site.sale_note)}</p>
+    </div></div>`;
+  }
+  return '';
+}
+
+function render() {
+  const { horse: h, site } = D;
+  document.title = `${h.name} — Морьтон | parad.mn`;
+  const facts = [['Төрөл', KIND[h.kind]], ['Төрсөн', h.foaled && h.foaled + ' он'], ['Үүлдэр', h.breed], ['Зүс', h.color], ['Тамга', h.tamga], ['Эцэг', h.sire], ['Эх', h.dam], ['Чипийн дугаар', h.microchip]]
+    .filter(([, v]) => v);
+  $('root').innerHTML = `<div class="hd"><div>${gallery(h)}</div><div>
+    <div class="eyebrow">${esc(KIND[h.kind] || '')}${h.sort && h.sort < 100 ? ' · №' + h.sort : ''}</div>
+    <h1>${esc(h.name)}</h1>${h.name_en ? `<div class="muted" style="font-weight:700;letter-spacing:1px">${esc(h.name_en)}</div>` : ''}
+    <div class="facts2">${facts.map(([k, v]) => `<div><small>${k}</small><b>${esc(v)}</b></div>`).join('')}</div>
+    ${h.description ? `<p class="pre">${esc(h.description)}</p>` : ''}
+    ${h.notes ? `<p class="pre muted small">${esc(h.notes)}</p>` : ''}
+    ${studCard(h, site)}${saleCard(h, site)}
+    ${!h.stud_enabled && h.sale_mode === 'none' ? '<div class="alert info" style="margin-top:16px">Энэ адуу одоогоор захиалга, худалдаанд ороогүй байна.</div>' : ''}
+  </div></div>`;
+  bind();
+  clearInterval(tick);
+  if (auctionState(h, Date.now() + offset) === 'open') { tickTimer(); tick = setInterval(tickTimer, 1000); }
+}
+
+function tickTimer() {
+  const el = $('timer'); if (!el) return;
+  const ms = new Date(D.horse.auction_ends_at).getTime() - (Date.now() + offset);
+  if (ms <= 0) { clearInterval(tick); refresh(); return; }
+  const s = Math.floor(ms / 1000), d = Math.floor(s / 86400), hh = Math.floor(s % 86400 / 3600), m = Math.floor(s % 3600 / 60), ss = s % 60, p = n => String(n).padStart(2, '0');
+  el.textContent = (d ? d + ' өдөр ' : '') + `${p(hh)}:${p(m)}:${p(ss)}`;
+}
+
+function modal(title, html) {
+  $('m-title').textContent = title; $('m-body').innerHTML = html;
+  $('modal').classList.add('open'); $('modal').setAttribute('aria-hidden', 'false');
+}
+const closeModal = () => { $('modal').classList.remove('open'); $('modal').setAttribute('aria-hidden', 'true'); };
+$('m-close').onclick = closeModal;
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); $('lb').classList.remove('open'); } });
+$('lb').onclick = () => $('lb').classList.remove('open');
+
+const buyer = () => store.get('pm_buyer', {});
+const field = (k, label, extra = '') => `<div><label>${label}</label>${extra}</div>`;
+
+function bind() {
+  const imgs = allImages(D.horse);
+  document.querySelectorAll('.thumbs button').forEach(b => b.onclick = () => { cur = Number(b.dataset.k); render(); });
+  if ($('big') && imgs.length) $('big').onclick = () => { $('lb').querySelector('img').src = imgs[Math.min(cur, imgs.length - 1)].big; $('lb').classList.add('open'); };
+  if ($('stud-btn')) $('stud-btn').onclick = openStud;
+  if ($('reserve-btn')) $('reserve-btn').onclick = () => openInquiry('reserve');
+  if ($('offer-btn')) $('offer-btn').onclick = () => openInquiry('inquiry');
+  const bf = $('bid-form');
+  if (bf) {
+    const b = buyer(); if (b.name) bf.name.value = b.name; if (b.phone) bf.phone.value = b.phone;
+    bf.onsubmit = async e => {
+      e.preventDefault();
+      const err = $('bid-err'), btn = $('bid-btn'); err.innerHTML = '';
+      if (bf.name.value.trim().length < 2) { err.innerHTML = '<div class="alert error">Нэрээ оруулна уу.</div>'; return; }
+      if (!phoneOk(bf.phone.value)) { err.innerHTML = '<div class="alert error">Утасны дугаараа зөв оруулна уу (8 оронтой).</div>'; return; }
+      const amount = Number(bf.amount.value);
+      if (!confirm(`${money(amount)} бооцоо тавих уу?\nБооцоо тавьсан бол буцаах боломжгүй.`)) return;
+      btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
+      try {
+        const r = await api('bid', { slug, name: bf.name.value, phone: bf.phone.value, amount, website: bf.website.value });
+        store.set('pm_buyer', { name: bf.name.value.trim(), phone: bf.phone.value.trim() });
+        await refresh();
+        const e2 = $('bid-err'); if (e2) e2.innerHTML = `<div class="alert ok">Таны ${money(r.amount)} бооцоо бүртгэгдлээ.${r.extended ? ' Дуудлагын хугацаа уртасгагдлаа.' : ''}</div>`;
+      } catch (ex) {
+        err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; btn.disabled = false; btn.textContent = 'Бооцоо тавих'; refresh(true);
+      }
+    };
+  }
+}
+
+function openStud() {
+  const h = D.horse, s = studState(h), site = D.site, b = buyer();
+  const max = Math.max(1, Math.min(site.max_mares, s.left));
+  modal(`${h.name} — гүү тавих захиалга`, `<form class="form" id="sf" novalidate>
+    <div style="display:none"><input name="website" tabindex="-1" autocomplete="off"></div>
+    ${field('name', 'Захиалагчийн нэр <span class="req">*</span>', `<input class="input" name="name" maxlength="80" autocomplete="name" value="${esc(b.name || '')}" required>`)}
+    ${field('phone', 'Утасны дугаар <span class="req">*</span>', `<input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(b.phone || '')}" required>`)}
+    ${field('mares', 'Гүүний тоо <span class="req">*</span>', `<select class="input" name="mares">${Array.from({ length: max }, (_, i) => `<option value="${i + 1}">${i + 1} гүү${h.stud_price ? ' — ' + money((i + 1) * h.stud_price) : ''}</option>`).join('')}</select>`)}
+    ${field('loc', 'Аймаг, сум', `<input class="input" name="location" maxlength="120" value="${esc(b.location || '')}" placeholder="Жишээ: Төв, Зуунмод">`)}
+    ${field('mi', 'Гүүний мэдээлэл', '<textarea class="input" name="mare_info" rows="2" maxlength="500" placeholder="Нас, зүс, тамга, өмнөх унагалалт…"></textarea>')}
+    ${field('note', 'Тайлбар', '<textarea class="input" name="note" rows="2" maxlength="500"></textarea>')}
+    <div id="sf-err"></div>
+    <button class="btn btn-gold btn-lg btn-block" type="submit" id="sf-btn">Захиалга илгээх</button>
+    <p class="small muted" style="margin:0;text-align:center">${site.hold_hours} цагийн дотор ажилтан баталгаажуулна. Үгүй бол хугацаа дуусна.</p></form>`);
+  const f = $('sf');
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const err = $('sf-err'), btn = $('sf-btn'); err.innerHTML = '';
+    if (f.name.value.trim().length < 2) { err.innerHTML = '<div class="alert error">Нэрээ оруулна уу.</div>'; return; }
+    if (!phoneOk(f.phone.value)) { err.innerHTML = '<div class="alert error">Утасны дугаараа зөв оруулна уу (8 оронтой).</div>'; return; }
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
+    try {
+      const r = await api('stud_create', { slug, name: f.name.value, phone: f.phone.value, mares: Number(f.mares.value), location: f.location.value, mare_info: f.mare_info.value, note: f.note.value, website: f.website.value });
+      store.set('pm_buyer', { name: f.name.value.trim(), phone: f.phone.value.trim(), location: f.location.value.trim() });
+      rememberStud(r.code);
+      location.href = 'booking.html?code=' + encodeURIComponent(r.code);
+    } catch (ex) { err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; btn.disabled = false; btn.textContent = 'Захиалга илгээх'; refresh(true); }
+  };
+}
+
+function openInquiry(kind) {
+  const h = D.horse, b = buyer();
+  modal(kind === 'reserve' ? `${h.name} — авах хүсэлт` : `${h.name} — үнийн санал`, `<form class="form" id="qf" novalidate>
+    <div style="display:none"><input name="website" tabindex="-1" autocomplete="off"></div>
+    ${field('name', 'Нэр <span class="req">*</span>', `<input class="input" name="name" maxlength="80" autocomplete="name" value="${esc(b.name || '')}" required>`)}
+    ${field('phone', 'Утас <span class="req">*</span>', `<input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" value="${esc(b.phone || '')}" required>`)}
+    ${kind === 'inquiry' ? field('offer', 'Санал болгох үнэ (₮)', `<input class="input" name="offer" type="number" inputmode="numeric" min="0" step="100000"${h.sale_price ? ` value="${h.sale_price}"` : ''}>`) : ''}
+    ${field('msg', 'Тайлбар', '<textarea class="input" name="message" rows="3" maxlength="800"></textarea>')}
+    <div id="qf-err"></div>
+    <button class="btn btn-gold btn-lg btn-block" type="submit" id="qf-btn">Илгээх</button>
+    <p class="small muted" style="margin:0;text-align:center">${esc(D.site.sale_note)}</p></form>`);
+  const f = $('qf');
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const err = $('qf-err'), btn = $('qf-btn'); err.innerHTML = '';
+    if (f.name.value.trim().length < 2) { err.innerHTML = '<div class="alert error">Нэрээ оруулна уу.</div>'; return; }
+    if (!phoneOk(f.phone.value)) { err.innerHTML = '<div class="alert error">Утасны дугаараа зөв оруулна уу (8 оронтой).</div>'; return; }
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
+    try {
+      await api('inquire', { slug, kind, name: f.name.value, phone: f.phone.value, offer: f.offer ? f.offer.value : '', message: f.message.value, website: f.website.value });
+      store.set('pm_buyer', { name: f.name.value.trim(), phone: f.phone.value.trim() });
+      $('m-body').innerHTML = `<div class="alert ok">Хүсэлт илгээгдлээ. Ажилтан тантай удахгүй утсаар холбогдоно.</div><button class="btn btn-gold btn-block" style="margin-top:12px" type="button" id="ok">За</button>`;
+      $('ok').onclick = closeModal;
+    } catch (ex) { err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; btn.disabled = false; btn.textContent = 'Илгээх'; }
+  };
+}
+
+async function refresh(soft) {
+  try {
+    const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && $('modal').classList.contains('open');
+    D = await api('horse', { slug });
+    offset = new Date(D.now).getTime() - Date.now();
+    if (!typing && !(soft && $('bid-form') && document.activeElement && $('bid-form').contains(document.activeElement))) render();
+    else if (D.horse && $('timer')) tickTimer();
+  } catch (e) { if (!D) $('root').innerHTML = `<div class="empty-box">${esc(e.message)}</div>`; }
+}
+await refresh();
+if (D) {
+  renderChrome({ contact_phone: D.site.phone }, 'horses');
+  poll = setInterval(() => { if (!document.hidden && !$('modal').classList.contains('open')) { const a = auctionState(D.horse, Date.now() + offset); if (a === 'open' || a === 'scheduled' || D.horse.stud_enabled) refreshKeepForm(); } }, 8000);
+} else renderChrome({});
+// Бооцооны маягт дээр бичиж байгаа бол дахин зурахгүй, зөвхөн жагсаалт/үнийг шинэчилнэ
+async function refreshKeepForm() {
+  const bf = $('bid-form');
+  if (bf && bf.contains(document.activeElement)) { try { const n = await api('horse', { slug }); D = n; offset = new Date(n.now).getTime() - Date.now(); } catch {} return; }
+  refresh();
+}
+</script>
+</body>
+</html>

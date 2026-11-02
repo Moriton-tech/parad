@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Азарга, адуу — Морьтон | parad.mn</title>
+<meta name="description" content="Морьтон үржүүлгийн азарга, адууны каталог: азарганд гүү тавих, худалдаа, дуудлага.">
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pm.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" id="site-header"></header>
+<main>
+  <section class="section" style="padding-bottom:10px">
+    <div class="container">
+      <div class="sec-head"><div><h1 style="font-family:var(--display);font-size:clamp(34px,5vw,52px);text-transform:uppercase;color:var(--navy);margin:0">Азарга, адуу</h1>
+        <p class="sub" id="sub">Ачаалж байна…</p></div></div>
+      <div class="filters-bar" id="filters"></div>
+      <div class="hgrid" id="grid"></div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+<script type="module">
+import { api, esc, renderChrome, param, auctionState, KIND } from './js/app.js';
+import { hcard } from './js/pm-ui.js';
+const $ = id => document.getElementById(id);
+let all = [], filter = ['stud', 'sale', 'auction', 'all'].includes(param('f')) ? param('f') : 'all', kind = 'all', text = '';
+
+const match = h => {
+  if (filter === 'stud' && !h.stud_enabled) return false;
+  if (filter === 'sale' && h.sale_mode === 'none') return false;
+  if (filter === 'auction' && h.sale_mode !== 'auction') return false;
+  if (kind !== 'all' && h.kind !== kind) return false;
+  if (text) { const t = text.toLowerCase(); if (!`${h.name} ${h.name_en || ''} ${h.sire || ''} ${h.dam || ''} ${h.tamga || ''}`.toLowerCase().includes(t)) return false; }
+  return true;
+};
+function paint() {
+  const kinds = [...new Set(all.map(h => h.kind))];
+  const chip = (k, label) => `<button class="chip${filter === k ? ' active' : ''}" data-f="${k}">${label}</button>`;
+  $('filters').innerHTML = chip('all', 'Бүгд') + chip('stud', 'Гүү тавина') + chip('sale', 'Зарна') + chip('auction', 'Дуудлага') +
+    (kinds.length > 1 ? `<select class="input" id="kind" style="min-width:140px;margin-left:8px"><option value="all">Бүх төрөл</option>${kinds.map(k => `<option value="${k}"${kind === k ? ' selected' : ''}>${KIND[k] || k}</option>`).join('')}</select>` : '') +
+    `<input class="input" id="q" placeholder="Нэр, удам, тамга хайх" value="${esc(text)}">`;
+  $('filters').querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filter = b.dataset.f; paint(); });
+  if ($('kind')) $('kind').onchange = e => { kind = e.target.value; render(); };
+  $('q').oninput = e => { text = e.target.value; render(); };
+  render();
+}
+function render() {
+  const list = all.filter(match);
+  $('grid').innerHTML = list.length ? list.map(hcard).join('') : '<div class="empty-box" style="grid-column:1/-1">Тохирох адуу олдсонгүй.</div>';
+  $('sub').textContent = `${list.length} адуу${filter !== 'all' || kind !== 'all' || text ? ` (нийт ${all.length}-аас)` : ''}`;
+}
+try {
+  const { horses, site, event } = await api('horses');
+  renderChrome({ ...event, contact_phone: site.phone }, 'horses');
+  all = horses;
+  paint();
+} catch (e) { renderChrome({}, 'horses'); $('sub').textContent = ''; $('grid').innerHTML = `<div class="empty-box" style="grid-column:1/-1">${esc(e.message)}</div>`; }
+</script>
+</body>
+</html>

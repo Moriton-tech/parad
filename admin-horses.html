@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Админ — Адуу · Гүү тавих · Зарах | parad.mn</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pm.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<style>
+  body { background: #eef0ee; }
+  .login { max-width: 400px; margin: 60px auto; }
+  .login .panel { padding: 26px; }
+  .login .mark { width: 64px; height: 64px; background: var(--logo) center / contain no-repeat; margin: 0 auto 10px; }
+  .topbar { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; }
+  .topbar .who { opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
+  .role { background: var(--gold); color: var(--navy-dd); font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+  .tabs { display: flex; gap: 4px; overflow-x: auto; background: #fff; border-radius: 14px; padding: 6px; margin: 18px 0; box-shadow: var(--shadow); scrollbar-width: none; }
+  .tabs button { border: none; background: none; padding: 10px 14px; border-radius: 10px; font-weight: 700; color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 14px; }
+  .tabs button.active { background: var(--navy); color: #fff; }
+  .tabs .dot { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--red); color: #fff; font-size: 11px; margin-left: 5px; }
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .kpi { background: #fff; border-radius: 14px; padding: 16px; box-shadow: var(--shadow); }
+  .kpi span { color: var(--muted); font-size: 12.5px; font-weight: 600; }
+  .kpi b { display: block; font-family: var(--display); font-size: 32px; color: var(--navy); line-height: 1.1; margin-top: 2px; }
+  .kpi small { color: var(--muted); font-size: 12px; }
+  .kpi.warn { background: var(--red-l); } .kpi.warn b { color: var(--red); }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; align-items: center; }
+  .filters .input { width: auto; min-width: 140px; padding: 9px 12px; font-size: 14px; }
+  .filters .grow { flex: 1; min-width: 200px; }
+  .table-wrap { background: #fff; border-radius: 14px; box-shadow: var(--shadow); overflow-x: auto; margin-bottom: 16px; }
+  table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 860px; }
+  table.tbl th, table.tbl td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  table.tbl th { background: #f7f5ef; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .4px; position: sticky; top: 0; }
+  table.tbl tr:hover td { background: #fbfaf6; }
+  table.tbl td small { color: var(--muted); display: block; }
+  .tag { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
+  .tag.pending { background: var(--amber-l); color: #7a5b12; } .tag.confirmed, .tag.done, .tag.contacted { background: var(--ok-l); color: var(--ok); }
+  .tag.cancelled, .tag.expired { background: var(--red-l); color: var(--red); } .tag.new { background: #dfeaf5; color: #1d4f7a; } .tag.closed { background: #eceae2; color: var(--muted); }
+  .acts { display: flex; gap: 5px; flex-wrap: wrap; }
+  .panel2 { background: #fff; border-radius: 14px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 16px; }
+  .panel2 h3 { margin: 0 0 10px; color: var(--navy); font-size: 17px; }
+  .capgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin-bottom: 14px; }
+  .cap { background: #fff; border-radius: 12px; box-shadow: var(--shadow); padding: 12px 14px; cursor: pointer; border: 2px solid transparent; }
+  .cap.sel { border-color: var(--gold); }
+  .cap b { display: block; font-size: 14px; } .cap small { color: var(--muted); }
+  .modal.wide { width: min(760px, 100%); }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+  .photo-edit { display: flex; gap: 10px; flex-wrap: wrap; }
+  .photo-edit .pe { position: relative; width: 96px; height: 96px; border-radius: 10px; overflow: hidden; border: 2px solid var(--line); }
+  .photo-edit img { width: 100%; height: 100%; object-fit: cover; }
+  .photo-edit .pe button { position: absolute; top: 2px; right: 2px; border: none; background: rgba(0,0,0,.65); color: #fff; width: 22px; height: 22px; border-radius: 11px; cursor: pointer; line-height: 1; }
+  .photo-edit .pe .first { position: absolute; left: 2px; bottom: 2px; background: var(--gold); color: var(--navy-dd); font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 5px; }
+  .sect { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }
+  .sect h4 { margin: 0 0 8px; color: var(--navy); font-size: 15px; }
+  .chk { display: flex; align-items: center; gap: 8px; font-weight: 600; }
+  .chk input { width: 18px; height: 18px; }
+  @media (max-width: 640px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="site-header"><div class="container">
+  <a class="brand" href="index.html"><span class="mark"></span><span><b>МОРЬТОН</b><small>parad.mn · Админ</small></span></a>
+  <a class="btn btn-ghost btn-sm" href="admin.html" style="margin-left:auto;margin-right:10px">Тасалбар · Сугалаа</a>
+  <div class="topbar hidden" id="topbar"><span class="role" id="role"></span><span class="who" id="who"></span><button class="btn btn-ghost btn-sm" id="logout">Гарах</button></div>
+</div></header>
+
+<main class="container">
+  <section class="login hidden" id="login"><div class="panel"><div class="mark"></div>
+    <h2 style="text-align:center;color:var(--navy);font-size:20px">Админ нэвтрэх</h2>
+    <form class="form" id="login-form">
+      <div><label for="l-email">Имэйл</label><input class="input" id="l-email" type="email" autocomplete="username" required></div>
+      <div><label for="l-pass">Нууц үг</label><input class="input" id="l-pass" type="password" autocomplete="current-password" required></div>
+      <div id="l-err"></div><button class="btn btn-navy btn-block" type="submit">Нэвтрэх</button>
+    </form></div></section>
+
+  <section class="hidden" id="app">
+    <nav class="tabs" id="tabs"></nav>
+    <div id="view"></div>
+  </section>
+</main>
+
+<div class="modal-bg" id="modal" aria-hidden="true"><div class="modal" id="modal-box">
+  <div class="modal-head"><b id="m-title"></b><button type="button" id="m-close" aria-label="Хаах">×</button></div>
+  <div class="modal-body" id="m-body"></div></div></div>
+
+<script type="module">
+import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured } from './js/app.js';
+const $ = id => document.getElementById(id);
+let me = null, H = [], site = null, tab = 'dash';
+let B = [], Q = [], stats = null, bookingHorse = '', bookingStatus = '', bookingText = '';
+
+async function api(action, body = {}) {
+  const tok = await auth.token();
+  if (!tok) { showLogin(); throw new Error('Дахин нэвтэрнэ үү.'); }
+  try { return await rawApi(action, body, tok); }
+  catch (e) { if (e.status === 401) { auth.logout(); showLogin(); } throw e; }
+}
+const fail = e => toast(e.message || String(e), 4500);
+
+// ---------- цаг (Улаанбаатар UTC+8) ----------
+const toLocalInput = v => v ? new Date(new Date(v).getTime() + 8 * 3600_000).toISOString().slice(0, 16) : '';
+const fromLocalInput = v => v ? new Date(v + ':00+08:00').toISOString() : null;
+
+// ---------- нэвтрэх ----------
+function showLogin(msg) {
+  $('app').classList.add('hidden'); $('topbar').classList.add('hidden'); $('login').classList.remove('hidden');
+  if (msg) $('l-err').innerHTML = `<div class="alert error">${esc(msg)}</div>`;
+}
+$('login-form').onsubmit = async e => {
+  e.preventDefault(); $('l-err').innerHTML = '';
+  try { await auth.login($('l-email').value.trim(), $('l-pass').value); await boot(); }
+  catch (ex) { $('l-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+};
+$('logout').onclick = () => { auth.logout(); location.reload(); };
+
+// ---------- модаль ----------
+function modal(title, html, wide) {
+  $('m-title').textContent = title; $('m-body').innerHTML = html;
+  $('modal-box').classList.toggle('wide', !!wide);
+  $('modal').classList.add('open'); $('modal').setAttribute('aria-hidden', 'false');
+}
+const closeModal = () => { $('modal').classList.remove('open'); $('modal').setAttribute('aria-hidden', 'true'); };
+$('m-close').onclick = closeModal;
+$('modal').addEventListener('click', e => { if (e.target === $('modal')) closeModal(); });
+
+// ---------- табууд ----------
+const TABS = [['dash', 'Самбар'], ['horses', 'Адуу'], ['stud', 'Гүү тавих'], ['sale', 'Зарах'], ['settings', 'Тохиргоо']];
+function buildTabs() {
+  const dots = { stud: stats?.stud_pending, sale: (stats?.sale_new || 0) };
+  $('tabs').innerHTML = TABS.map(([k, l]) => `<button data-t="${k}" class="${tab === k ? 'active' : ''}">${l}${dots[k] ? `<span class="dot">${dots[k]}</span>` : ''}</button>`).join('');
+  $('tabs').querySelectorAll('button').forEach(b => b.onclick = () => { tab = b.dataset.t; show(); });
+}
+async function show() {
+  buildTabs();
+  $('view').innerHTML = '<div class="empty-box">Ачаалж байна…</div>';
+  try { await ({ dash: vDash, horses: vHorses, stud: vStud, sale: vSale, settings: vSettings })[tab](); } catch (e) { $('view').innerHTML = `<div class="alert error">${esc(e.message)}</div>`; }
+}
+async function loadHorses() { const r = await api('admin_horses'); H = r.horses; site = r.site; }
+async function loadStats() { stats = await api('admin_pm_stats'); buildTabs(); }
+
+// ================== САМБАР ==================
+async function vDash() {
+  await Promise.all([loadHorses(), loadStats()]);
+  const s = stats;
+  $('view').innerHTML = `<div class="kpis">
+    <div class="kpi"><span>Бүртгэлтэй адуу</span><b>${s.horses}</b><small>${s.stallions} азарга</small></div>
+    <div class="kpi ${s.stud_pending ? 'warn' : ''}"><span>Баталгаажуулалт хүлээж буй</span><b>${s.stud_pending}</b><small>гүү тавих захиалга</small></div>
+    <div class="kpi"><span>Баталгаажсан захиалга</span><b>${s.stud_confirmed}</b><small>${s.stud_mares} гүү</small></div>
+    <div class="kpi"><span>Баталгаажсан дүн</span><b style="font-size:24px">${money(s.stud_amount)}</b><small>төлөгдсөн ${money(s.stud_paid)}</small></div>
+    <div class="kpi ${s.sale_new ? 'warn' : ''}"><span>Шинэ хүсэлт (зарах)</span><b>${s.sale_new}</b></div>
+    <div class="kpi"><span>Явагдаж буй дуудлага</span><b>${s.auctions_open}</b><small>${s.bids} бооцоо</small></div></div>
+    <div class="panel2"><h3>Азарга бүрийн суудал</h3>${capTable()}</div>`;
+}
+function capTable() {
+  const rows = H.filter(h => h.stud_enabled).map(h => `<tr><td><b>${esc(h.name)}</b></td><td>${h.stud_active ? '' : '<span class="tag closed">Хаалттай</span>'}</td><td>${h.confirmed_mares}/${h.stud_capacity}</td><td>${h.pending_mares}</td><td>${h.stud_fee == null ? 'Private' : money(h.stud_price)}</td></tr>`).join('');
+  return `<div class="table-wrap" style="box-shadow:none;margin:0"><table class="tbl" style="min-width:520px"><tr><th>Азарга</th><th></th><th>Баталгаажсан / суудал</th><th>Хүлээгдэж буй</th><th>Үнэ</th></tr>${rows || '<tr><td colspan="5" class="muted">Гүү тавих азарга алга</td></tr>'}</table></div>`;
+}
+
+// ================== АДУУ ==================
+async function vHorses() {
+  await loadHorses();
+  const rows = H.map(h => `<tr data-id="${h.id}"><td style="width:64px">${photoOf(h, 0, true) ? `<img src="${esc(photoOf(h, 0, true))}" style="width:54px;height:54px;object-fit:cover;border-radius:8px" alt="">` : ''}</td>
+    <td><b>${esc(h.name)}</b><small>${esc(KIND[h.kind])}${h.foaled ? ' · ' + h.foaled : ''}${h.breed ? ' · ' + esc(h.breed) : ''}</small></td>
+    <td>${h.stud_enabled ? `Гүү тавина · ${h.stud_fee == null ? 'Private' : money(h.stud_price)}<small>${h.confirmed_mares}/${h.stud_capacity}${h.stud_active ? '' : ' · хаалттай'}</small>` : '<span class="muted">—</span>'}</td>
+    <td>${{ none: '<span class="muted">—</span>', fixed: `Тогтмол · ${mnt(h.sale_price)}`, auction: `Дуудлага · ${h.top_bid ? money(h.top_bid) : 'бооцоо алга'}` }[h.sale_mode]}${h.sale_mode !== 'none' ? `<small>${{ available: 'Худалдаанд', reserved: 'Захиалагдсан', sold: 'Зарагдсан' }[h.sale_status]}</small>` : ''}</td>
+    <td>${h.published ? '<span class="tag confirmed">Сайтад</span>' : '<span class="tag closed">Нууц</span>'}</td>
+    <td><button class="btn btn-light btn-sm" data-edit="${h.id}">Засах</button> <a class="btn btn-ghost btn-sm" href="horse.html?s=${encodeURIComponent(h.slug)}" target="_blank" rel="noopener">Харах</a></td></tr>`).join('');
+  $('view').innerHTML = `<div class="filters"><button class="btn btn-gold" id="new-horse">+ Шинэ адуу бүртгэх</button><span class="muted small">${H.length} адуу</span></div>
+    <div class="table-wrap"><table class="tbl"><tr><th></th><th>Адуу</th><th>Гүү тавих</th><th>Зарах</th><th>Төлөв</th><th></th></tr>${rows || '<tr><td colspan="6" class="muted">Адуу бүртгэгдээгүй байна</td></tr>'}</table></div>`;
+  $('new-horse').onclick = () => editHorse(null);
+  $('view').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editHorse(H.find(h => h.id === b.dataset.edit)));
+}
+
+// зургийг хөтөч дээр жижгэрүүлнэ (хамгийн урт тал 1600px, JPEG 0.85)
+function resizeImage(file, max = 1600) {
+  return new Promise((res, rej) => {
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const k = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      c.toBlob(b => b ? res(b) : rej(new Error('Зураг боловсруулж чадсангүй')), 'image/jpeg', .85);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Зураг уншиж чадсангүй')); };
+    img.src = url;
+  });
+}
+const toB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
+
+function editHorse(h) {
+  const isNew = !h; h = h || { kind: 'stallion', published: true, stud_capacity: site?.max_mares ? 10 : 10, stud_active: true, stud_discount: 0, sale_mode: 'none', sale_status: 'available', auction_step: 500000, photos: [], sort: 100 };
+  let photos = JSON.parse(JSON.stringify(h.photos || [])), pedigree = h.pedigree_img || '';
+  const v = x => esc(x == null ? '' : x);
+  const sel = (k, list) => list.map(([a, l]) => `<option value="${a}"${h[k] === a ? ' selected' : ''}>${l}</option>`).join('');
+  modal(isNew ? 'Шинэ адуу бүртгэх' : `${h.name} — засах`, `<form class="form" id="hf" novalidate>
+    <div class="grid2"><div><label>Нэр <span class="req">*</span></label><input class="input" name="name" value="${v(h.name)}" required maxlength="80"></div>
+      <div><label>Латин нэр</label><input class="input" name="name_en" value="${v(h.name_en)}" maxlength="80"></div></div>
+    <div class="grid3"><div><label>Төрөл</label><select class="input" name="kind">${sel('kind', Object.entries(KIND))}</select></div>
+      <div><label>Төрсөн он</label><input class="input" name="foaled" type="number" min="1950" max="2100" value="${v(h.foaled)}"></div>
+      <div><label>Каталогийн дугаар / эрэмбэ</label><input class="input" name="sort" type="number" value="${v(h.sort)}"></div></div>
+    <div class="grid3"><div><label>Үүлдэр</label><input class="input" name="breed" value="${v(h.breed)}" placeholder="Цэвэр англи"></div>
+      <div><label>Зүс</label><input class="input" name="color" value="${v(h.color)}"></div>
+      <div><label>Тамга</label><input class="input" name="tamga" value="${v(h.tamga)}"></div></div>
+    <div class="grid3"><div><label>Эцэг</label><input class="input" name="sire" value="${v(h.sire)}"></div>
+      <div><label>Эх</label><input class="input" name="dam" value="${v(h.dam)}"></div>
+      <div><label>Чипийн дугаар</label><input class="input" name="microchip" value="${v(h.microchip)}"></div></div>
+    <div><label>Тайлбар</label><textarea class="input" name="description" rows="4" maxlength="3000">${v(h.description)}</textarea></div>
+    <div><label>Нэмэлт тэмдэглэл (удам, амжилт)</label><textarea class="input" name="notes" rows="3" maxlength="3000">${v(h.notes)}</textarea></div>
+    <div class="sect"><h4>Зураг</h4><div class="photo-edit" id="pe"></div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap"><label class="btn btn-light btn-sm" style="cursor:pointer">+ Зураг нэмэх<input type="file" id="pf" accept="image/*" multiple hidden></label>
+      <label class="btn btn-ghost btn-sm" style="cursor:pointer">Удмын бичгийн зураг<input type="file" id="pdf" accept="image/*" hidden></label><span class="muted small" id="pd-name"></span></div>
+      <p class="small muted" style="margin:6px 0 0">Эхний зураг нь картан дээр гарна. Зураг автоматаар жижгэрнэ. Зураг нэмэхийн өмнө адууг нэг удаа хадгална.</p></div>
+    <div class="sect"><h4>Азарганд гүү тавих</h4>
+      <label class="chk"><input type="checkbox" name="stud_enabled"${h.stud_enabled ? ' checked' : ''}> Гүү тавих захиалга авна</label>
+      <div class="grid3" style="margin-top:8px"><div><label>Нэг гүүний үнэ (₮)</label><input class="input" name="stud_fee" type="number" min="0" step="100000" value="${v(h.stud_fee)}" placeholder="Хоосон = Private"></div>
+        <div><label>Хямдрал (%)</label><input class="input" name="stud_discount" type="number" min="0" max="90" value="${v(h.stud_discount)}"></div>
+        <div><label>Суудлын тоо</label><input class="input" name="stud_capacity" type="number" min="1" max="200" value="${v(h.stud_capacity)}"></div></div>
+      <label class="chk" style="margin-top:8px"><input type="checkbox" name="stud_active"${h.stud_active ? ' checked' : ''}> Захиалга нээлттэй</label></div>
+    <div class="sect"><h4>Зарах</h4>
+      <div class="grid3"><div><label>Хэлбэр</label><select class="input" name="sale_mode">${sel('sale_mode', [['none', 'Зарахгүй'], ['fixed', 'Тогтмол үнээр'], ['auction', 'Дуудлага худалдаа']])}</select></div>
+        <div><label>Төлөв</label><select class="input" name="sale_status">${sel('sale_status', [['available', 'Худалдаанд'], ['reserved', 'Захиалагдсан'], ['sold', 'Зарагдсан']])}</select></div>
+        <div><label>Тогтмол үнэ (₮)</label><input class="input" name="sale_price" type="number" min="0" step="100000" value="${v(h.sale_price)}" placeholder="Хоосон = тохиролцоно"></div></div>
+      <div class="grid3" style="margin-top:8px"><div><label>Дуудлагын эхлэх үнэ (₮)</label><input class="input" name="auction_start_price" type="number" min="0" step="100000" value="${v(h.auction_start_price)}"></div>
+        <div><label>Бооцооны алхам (₮)</label><input class="input" name="auction_step" type="number" min="1" step="50000" value="${v(h.auction_step)}"></div>
+        <div style="display:flex;align-items:end"><label class="chk"><input type="checkbox" name="auction_closed"${h.auction_closed ? ' checked' : ''}> Дуудлага хаагдсан</label></div></div>
+      <div class="grid2" style="margin-top:8px"><div><label>Дуудлага эхлэх (УБ цаг)</label><input class="input" name="auction_starts_at" type="datetime-local" value="${toLocalInput(h.auction_starts_at)}"></div>
+        <div><label>Дуудлага дуусах (УБ цаг)</label><input class="input" name="auction_ends_at" type="datetime-local" value="${toLocalInput(h.auction_ends_at)}"></div></div></div>
+    <div class="sect"><label class="chk"><input type="checkbox" name="published"${h.published ? ' checked' : ''}> Сайтад харуулах</label></div>
+    <div id="hf-err"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold btn-lg" style="flex:1" type="submit" id="hf-save">Хадгалах</button>${isNew ? '' : '<button class="btn btn-danger" type="button" id="hf-del">Устгах</button>'}</div></form>`, true);
+
+  const f = $('hf');
+  const paintPhotos = () => {
+    $('pe').innerHTML = photos.map((p, i) => `<div class="pe"><img src="${esc(p.t || p.u)}" alt="">${i === 0 ? '<span class="first">Үндсэн</span>' : `<span class="first" data-first="${i}" style="cursor:pointer;background:#fff">↑</span>`}<button type="button" data-rm="${i}" title="Устгах">×</button></div>`).join('') || '<span class="muted small">Зураг алга</span>';
+    $('pe').querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { photos.splice(Number(b.dataset.rm), 1); paintPhotos(); });
+    $('pe').querySelectorAll('[data-first]').forEach(b => b.onclick = () => { const i = Number(b.dataset.first); photos.unshift(photos.splice(i, 1)[0]); paintPhotos(); });
+    $('pd-name').textContent = pedigree ? '✓ удмын бичиг оруулсан' : '';
+  };
+  paintPhotos();
+  const upload = async (file, slug) => {
+    const blob = await resizeImage(file);
+    const r = await api('admin_horse_photo', { slug, data: await toB64(blob), type: 'image/jpeg' });
+    return r.url;
+  };
+  $('pf').onchange = async e => {
+    if (isNew) { $('hf-err').innerHTML = '<div class="alert warn">Эхлээд адууг хадгалаад, дараа нь зураг нэмнэ үү.</div>'; return; }
+    try { for (const file of e.target.files) { toast('Зураг хуулж байна…'); const u = await upload(file, h.slug); photos.push({ u, t: u }); paintPhotos(); } } catch (ex) { fail(ex); }
+    e.target.value = '';
+  };
+  $('pdf').onchange = async e => {
+    if (isNew) { $('hf-err').innerHTML = '<div class="alert warn">Эхлээд адууг хадгална уу.</div>'; return; }
+    try { pedigree = await upload(e.target.files[0], h.slug); paintPhotos(); } catch (ex) { fail(ex); }
+    e.target.value = '';
+  };
+  if ($('hf-del')) $('hf-del').onclick = async () => {
+    if (!confirm(`«${h.name}»-г бүр мөсөн устгах уу?`)) return;
+    try { await api('admin_horse_delete', { id: h.id }); closeModal(); toast('Устгагдлаа'); show(); } catch (ex) { $('hf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+  f.onsubmit = async e => {
+    e.preventDefault();
+    const g = n => f.elements[n];
+    const num = n => g(n).value === '' ? null : Number(g(n).value);
+    const horse = {
+      id: h.id, slug: h.slug,
+      name: g('name').value, name_en: g('name_en').value, kind: g('kind').value, foaled: num('foaled'), sort: num('sort') ?? 100,
+      breed: g('breed').value, color: g('color').value, tamga: g('tamga').value, sire: g('sire').value, dam: g('dam').value, microchip: g('microchip').value,
+      description: g('description').value, notes: g('notes').value, photos, pedigree_img: pedigree || null,
+      stud_enabled: g('stud_enabled').checked, stud_active: g('stud_active').checked, stud_fee: num('stud_fee'), stud_discount: num('stud_discount') ?? 0, stud_capacity: num('stud_capacity') ?? 10,
+      sale_mode: g('sale_mode').value, sale_status: g('sale_status').value, sale_price: num('sale_price'),
+      auction_start_price: num('auction_start_price'), auction_step: num('auction_step') ?? 500000, auction_closed: g('auction_closed').checked,
+      auction_starts_at: fromLocalInput(g('auction_starts_at').value), auction_ends_at: fromLocalInput(g('auction_ends_at').value),
+      published: g('published').checked,
+    };
+    if (!horse.name.trim()) { $('hf-err').innerHTML = '<div class="alert error">Нэрийг оруулна уу.</div>'; return; }
+    if (horse.sale_mode === 'auction' && !horse.auction_ends_at) { if (!confirm('Дуудлагын дуусах цаг тохируулаагүй тул бооцоо авахгүй. Үргэлжлүүлэх үү?')) return; }
+    const btn = $('hf-save'); btn.disabled = true; btn.textContent = 'Хадгалж байна…';
+    try {
+      const r = await api('admin_horse_save', { horse });
+      toast('Хадгалагдлаа');
+      if (isNew) { await loadHorses(); const nh = H.find(x => x.id === r.id); if (nh) { editHorse(nh); $('hf-err').innerHTML = '<div class="alert ok">Хадгалагдлаа. Одоо зураг нэмж болно.</div>'; } if (tab === 'horses') vHorses(); return; }
+      closeModal(); show();
+    } catch (ex) { $('hf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; btn.disabled = false; btn.textContent = 'Хадгалах'; }
+  };
+}
+
+// ================== ГҮҮ ТАВИХ ==================
+const SM = { pending: 'Хүлээгдэж буй', confirmed: 'Баталгаажсан', done: 'Хийгдсэн', cancelled: 'Цуцлагдсан', expired: 'Хугацаа дууссан' };
+const dispStatus = b => b.status === 'pending' && Date.now() - new Date(b.pending_since).getTime() > (site?.hold_hours || 24) * 3600_000 ? 'expired' : b.status;
+
+async function vStud() {
+  const [, r] = await Promise.all([loadHorses(), api('admin_stud_list', {})]);
+  B = r.bookings; site = r.site; await loadStats();
+  paintStud();
+}
+function paintStud() {
+  const list = B.filter(b => (!bookingHorse || b.horse_id === bookingHorse) && (!bookingStatus || dispStatus(b) === bookingStatus)
+    && (!bookingText || `${b.code} ${b.owner_name} ${b.phone} ${b.location || ''}`.toLowerCase().includes(bookingText.toLowerCase())));
+  const sH = H.filter(h => h.stud_enabled);
+  const rows = list.map(b => { const st = dispStatus(b); return `<tr>
+    <td class="mono"><b>${esc(b.code)}</b><small>${esc(fmtDT(b.created_at))}</small></td>
+    <td>${esc(b.horses?.name || '')}</td>
+    <td><b>${esc(b.owner_name)}</b><small>${esc(b.phone)}${b.location ? ' · ' + esc(b.location) : ''}</small>${b.mare_info ? `<small>${esc(b.mare_info)}</small>` : ''}${b.admin_note ? `<small style="color:#7a5b12">📝 ${esc(b.admin_note)}</small>` : ''}</td>
+    <td>${b.mares}${b.queue_from ? `<small>№${b.queue_from}${b.mares > 1 ? '–' + (b.queue_from + b.mares - 1) : ''}</small>` : ''}</td>
+    <td><span class="tag ${st}">${SM[st]}</span>${b.legacy ? '<small>хуучин систем</small>' : ''}${b.cancel_reason ? `<small>${esc(b.cancel_reason)}</small>` : ''}</td>
+    <td>${b.amount != null ? money(b.amount) : (b.unit_price == null && ['confirmed', 'done'].includes(b.status) ? 'тохиролцоно' : '—')}<small>${b.paid ? '✓ төлөгдсөн' : ''}</small></td>
+    <td><div class="acts">
+      ${['pending', 'expired', 'cancelled'].includes(st) ? `<button class="btn btn-ok btn-sm" data-a="confirm" data-c="${b.code}">Баталгаажуулах</button>` : ''}
+      ${['pending', 'expired', 'confirmed'].includes(st) ? `<button class="btn btn-danger btn-sm" data-a="cancel" data-c="${b.code}">Цуцлах</button>` : ''}
+      ${st === 'confirmed' ? `<button class="btn btn-light btn-sm" data-a="done" data-c="${b.code}">Хийгдсэн</button>` : ''}
+      ${['confirmed', 'done'].includes(st) ? `<button class="btn btn-light btn-sm" data-a="paid" data-c="${b.code}">${b.paid ? 'Төлөгдөөгүй' : 'Төлсөн'}</button>` : ''}
+      <button class="btn btn-ghost btn-sm" data-a="edit" data-c="${b.code}">Засах</button></div></td></tr>`; }).join('');
+  $('view').innerHTML = `<div class="capgrid">${sH.map(h => `<div class="cap${bookingHorse === h.id ? ' sel' : ''}" data-h="${h.id}"><b>${esc(h.name)}</b><small>${h.confirmed_mares}/${h.stud_capacity} суудал · ${h.pending_mares} хүлээгдэж буй</small></div>`).join('')}</div>
+    <div class="filters"><select class="input" id="fs"><option value="">Бүх төлөв</option>${Object.entries(SM).map(([k, l]) => `<option value="${k}"${bookingStatus === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+      <input class="input grow" id="ft" placeholder="Код, нэр, утас хайх" value="${esc(bookingText)}">
+      <button class="btn btn-gold" id="add-b">+ Захиалга нэмэх</button><button class="btn btn-light" id="csv-b">CSV татах</button><button class="btn btn-ghost" id="imp-b">Хуучин систем импорт</button></div>
+    <div class="table-wrap"><table class="tbl"><tr><th>Код</th><th>Азарга</th><th>Захиалагч</th><th>Гүү</th><th>Төлөв</th><th>Дүн</th><th></th></tr>${rows || '<tr><td colspan="7" class="muted">Захиалга алга</td></tr>'}</table></div>
+    <p class="small muted">Нийт ${list.length} захиалга. «Баталгаажуулах» дарахад азарганы суудал хасагдаж, дараалал (баталгаажсан цагаар) автоматаар тооцогдоно.</p>`;
+  $('view').querySelectorAll('[data-h]').forEach(c => c.onclick = () => { bookingHorse = bookingHorse === c.dataset.h ? '' : c.dataset.h; paintStud(); });
+  $('fs').onchange = e => { bookingStatus = e.target.value; paintStud(); };
+  $('ft').oninput = e => { bookingText = e.target.value; const pos = e.target.selectionStart; paintStud(); const el = $('ft'); el.focus(); el.setSelectionRange(pos, pos); };
+  $('add-b').onclick = addBooking; $('csv-b').onclick = () => csv(list); $('imp-b').onclick = importLegacy;
+  $('view').querySelectorAll('[data-a]').forEach(b => b.onclick = () => studAction(b.dataset.a, b.dataset.c));
+}
+async function studAction(a, code) {
+  const b = B.find(x => x.code === code);
+  try {
+    if (a === 'confirm') { await api('admin_stud_confirm', { code }); toast('Баталгаажлаа'); }
+    else if (a === 'cancel') { const reason = prompt(`${code} захиалгыг цуцлах. Шалтгаан (заавал биш):`, ''); if (reason === null) return; await api('admin_stud_cancel', { code, reason }); toast('Цуцлагдлаа'); }
+    else if (a === 'done') { await api('admin_stud_update', { code, status: 'done' }); toast('Хийгдсэн гэж тэмдэглэлээ'); }
+    else if (a === 'paid') { await api('admin_stud_update', { code, paid: !b.paid }); }
+    else if (a === 'edit') return editBooking(b);
+    await vStud();
+  } catch (e) { fail(e); vStud(); }
+}
+function editBooking(b) {
+  modal(`${b.code} — засах`, `<form class="form" id="ef"><div class="grid2"><div><label>Нэр</label><input class="input" name="owner_name" value="${esc(b.owner_name)}"></div><div><label>Утас</label><input class="input" name="phone" value="${esc(b.phone)}"></div></div>
+    <div class="grid2"><div><label>Аймаг, сум</label><input class="input" name="location" value="${esc(b.location || '')}"></div><div><label>Нэг гүүний үнэ (₮, хоосон = тохиролцоно)</label><input class="input" name="unit_price" type="number" value="${b.unit_price ?? ''}"></div></div>
+    <div><label>Гүүний мэдээлэл</label><textarea class="input" name="mare_info" rows="2">${esc(b.mare_info || '')}</textarea></div>
+    <div><label>Админы тэмдэглэл (нийтэд харагдахгүй)</label><textarea class="input" name="admin_note" rows="2">${esc(b.admin_note || '')}</textarea></div>
+    <div id="ef-err"></div><button class="btn btn-gold btn-block" type="submit">Хадгалах</button></form>`);
+  $('ef').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    try { await api('admin_stud_update', { code: b.code, owner_name: f.owner_name.value, phone: f.phone.value, location: f.location.value, unit_price: f.unit_price.value, mare_info: f.mare_info.value, admin_note: f.admin_note.value }); closeModal(); toast('Хадгалагдлаа'); vStud(); }
+    catch (ex) { $('ef-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+function addBooking() {
+  const sH = H.filter(h => h.stud_enabled);
+  modal('Захиалга нэмэх (утсаар / биечлэн)', `<form class="form" id="af"><div><label>Азарга</label><select class="input" name="horse_id">${sH.map(h => `<option value="${h.id}"${h.id === bookingHorse ? ' selected' : ''}>${esc(h.name)} (${h.stud_capacity - h.confirmed_mares} суудал)</option>`).join('')}</select></div>
+    <div class="grid2"><div><label>Нэр *</label><input class="input" name="name" required></div><div><label>Утас *</label><input class="input" name="phone" type="tel" required></div></div>
+    <div class="grid2"><div><label>Гүүний тоо</label><input class="input" name="mares" type="number" min="1" max="${site?.max_mares || 5}" value="1"></div><div><label>Аймаг, сум</label><input class="input" name="location"></div></div>
+    <div><label>Гүүний мэдээлэл</label><textarea class="input" name="mare_info" rows="2"></textarea></div>
+    <label class="chk"><input type="checkbox" name="confirm" checked> Шууд баталгаажуулах</label>
+    <div id="af-err"></div><button class="btn btn-gold btn-block" type="submit">Нэмэх</button></form>`);
+  $('af').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    try { const r = await api('admin_stud_add', { horse_id: f.horse_id.value, name: f.name.value, phone: f.phone.value, mares: Number(f.mares.value), location: f.location.value, mare_info: f.mare_info.value, confirm: f.confirm.checked }); closeModal(); toast('Нэмэгдлээ: ' + r.code); vStud(); }
+    catch (ex) { $('af-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+function csv(list) {
+  const q = v => `"${String(v ?? '').replace(/"/g, '""')}"`;
+  const head = ['Код', 'Азарга', 'Нэр', 'Утас', 'Аймаг, сум', 'Гүү', 'Дараалал', 'Төлөв', 'Нэг гүүний үнэ', 'Дүн', 'Төлсөн', 'Гүүний мэдээлэл', 'Тэмдэглэл', 'Үүсгэсэн'];
+  const rows = list.map(b => [b.code, b.horses?.name, b.owner_name, b.phone, b.location, b.mares, b.queue_from, SM[dispStatus(b)], b.unit_price, b.amount, b.paid ? 'тийм' : '', b.mare_info, b.admin_note, fmtDT(b.created_at)]);
+  const blob = new Blob(['﻿' + [head, ...rows].map(r => r.map(q).join(',')).join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'guu-tavih-zahialga.csv'; a.click();
+}
+function importLegacy() {
+  modal('Хуучин «гүү тавих» системээс импорт', `<p class="small">Хуучин сайтын (Firebase) админ хуудсанд нэвтэрсэн хөтөчийн Console-д доорх кодыг ажиллуулбал <b>gut-bookings.json</b> татагдана. Дараа нь энд сонгоно уу. Кодууд (GT-…) хэвээр хадгалагдах тул захиалагчид хуучин холбоосоороо шалгаж чадна.</p>
+    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
+    <div style="margin-top:12px"><input type="file" id="imp-f" accept=".json,application/json"></div><div id="imp-out" style="margin-top:10px"></div>
+    <p class="small muted">Азаргын нэр (slug) нь seed.sql-ээр орсон каталогтой таарах ёстой. Давхардсан код алгасагдана.</p>`);
+  $('imp-f').onchange = async e => {
+    const out = $('imp-out'); out.innerHTML = '<div class="alert info">Импортолж байна…</div>';
+    try {
+      const rows = JSON.parse(await e.target.files[0].text());
+      const r = await api('admin_stud_import', { rows: Array.isArray(rows) ? rows : [rows] });
+      out.innerHTML = `<div class="alert ok">Нэмсэн: <b>${r.added}</b> · алгассан: ${r.skipped}${r.errors.length ? ` · алдаа: ${r.errors.length}` : ''}</div>${r.errors.length ? `<pre class="small" style="white-space:pre-wrap">${esc(r.errors.join('\n'))}</pre>` : ''}`;
+      vStud();
+    } catch (ex) { out.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+
+// ================== ЗАРАХ ==================
+async function vSale() {
+  const [, inq] = await Promise.all([loadHorses(), api('admin_inquiries', {}), loadStats()]);
+  const sale = H.filter(h => h.sale_mode !== 'none');
+  const SL = { available: 'Худалдаанд', reserved: 'Захиалагдсан', sold: 'Зарагдсан' };
+  const now = Date.now();
+  const hrows = sale.map(h => {
+    const ended = h.sale_mode === 'auction' && (h.auction_closed || (h.auction_ends_at && new Date(h.auction_ends_at).getTime() <= now));
+    return `<tr><td><b>${esc(h.name)}</b></td>
+      <td>${h.sale_mode === 'fixed' ? 'Тогтмол' : 'Дуудлага'}<small>${h.sale_mode === 'fixed' ? mnt(h.sale_price) : `эхлэх ${money(h.auction_start_price || 0)} · алхам ${money(h.auction_step)}`}</small></td>
+      <td>${h.sale_mode === 'auction' ? `${h.top_bid ? '<b>' + money(h.top_bid) + '</b>' : 'бооцоо алга'}<small>${h.bid_count} бооцоо · ${h.auction_closed ? 'хаагдсан' : h.auction_ends_at ? (ended ? 'хугацаа дууссан' : 'дуусах ' + fmtDT(h.auction_ends_at)) : 'цаг тохируулаагүй'}</small>` : '—'}</td>
+      <td><span class="tag ${h.sale_status === 'available' ? 'new' : 'confirmed'}">${SL[h.sale_status]}</span>${h.sold_to_name ? `<small>${esc(h.sold_to_name)} · ${esc(h.sold_to_phone || '')}</small>` : ''}${h.sold_price ? `<small>${money(h.sold_price)}</small>` : ''}</td>
+      <td><div class="acts">${h.sale_mode === 'auction' ? `<button class="btn btn-light btn-sm" data-bids="${h.id}">Бооцоонууд</button>` : ''}
+        ${h.sale_mode === 'auction' && !h.auction_closed ? `<button class="btn btn-ok btn-sm" data-close="${h.id}">Дуудлага хаах</button>` : ''}
+        ${h.sale_status !== 'sold' ? `<button class="btn btn-gold btn-sm" data-sold="${h.id}">Зарагдсан</button>` : `<button class="btn btn-ghost btn-sm" data-reopen="${h.id}">Буцаах</button>`}</div></td></tr>`;
+  }).join('');
+  const irows = inq.inquiries.map(i => `<tr><td>${esc(fmtDT(i.created_at))}</td><td><b>${esc(i.horses?.name || '')}</b></td>
+    <td><b>${esc(i.name)}</b><small>${esc(i.phone)}</small></td><td>${i.kind === 'reserve' ? 'Авах хүсэлт' : 'Санал'}${i.offer ? `<small>${money(i.offer)}</small>` : ''}${i.message ? `<small>${esc(i.message)}</small>` : ''}</td>
+    <td><span class="tag ${i.status}">${{ new: 'Шинэ', contacted: 'Холбогдсон', closed: 'Хаасан' }[i.status]}</span>${i.admin_note ? `<small>📝 ${esc(i.admin_note)}</small>` : ''}</td>
+    <td><div class="acts">${i.status === 'new' ? `<button class="btn btn-ok btn-sm" data-i="${i.id}" data-s="contacted">Холбогдсон</button>` : ''}${i.status !== 'closed' ? `<button class="btn btn-light btn-sm" data-i="${i.id}" data-s="closed">Хаах</button>` : `<button class="btn btn-ghost btn-sm" data-i="${i.id}" data-s="new">Нээх</button>`}<button class="btn btn-ghost btn-sm" data-note="${i.id}">Тэмдэглэл</button></div></td></tr>`).join('');
+  $('view').innerHTML = `<div class="panel2"><h3>Зарагдах адуу, дуудлага</h3><div class="table-wrap" style="box-shadow:none;margin:0"><table class="tbl" style="min-width:760px"><tr><th>Адуу</th><th>Хэлбэр</th><th>Бооцоо</th><th>Төлөв</th><th></th></tr>${hrows || '<tr><td colspan="5" class="muted">Зарах адуу алга. «Адуу» табаас хэлбэрийг сонгоно уу.</td></tr>'}</table></div></div>
+    <div class="panel2"><h3>Худалдан авах хүсэлт, саналууд</h3><div class="table-wrap" style="box-shadow:none;margin:0"><table class="tbl"><tr><th>Огноо</th><th>Адуу</th><th>Хүн</th><th>Хүсэлт</th><th>Төлөв</th><th></th></tr>${irows || '<tr><td colspan="6" class="muted">Хүсэлт алга</td></tr>'}</table></div></div>`;
+  const q = s => $('view').querySelectorAll(s);
+  q('[data-i]').forEach(b => b.onclick = async () => { try { await api('admin_inquiry_set', { id: b.dataset.i, status: b.dataset.s }); vSale(); } catch (e) { fail(e); } });
+  q('[data-note]').forEach(b => b.onclick = async () => { const i = inq.inquiries.find(x => x.id === b.dataset.note); const n = prompt('Тэмдэглэл:', i.admin_note || ''); if (n === null) return; try { await api('admin_inquiry_set', { id: i.id, admin_note: n }); vSale(); } catch (e) { fail(e); } });
+  q('[data-bids]').forEach(b => b.onclick = () => showBids(H.find(h => h.id === b.dataset.bids)));
+  q('[data-close]').forEach(b => b.onclick = async () => {
+    const h = H.find(x => x.id === b.dataset.close);
+    if (!confirm(`«${h.name}» дуудлагыг хаах уу? Хамгийн өндөр бооцоотой хүн ялагчаар тэмдэглэгдэнэ.`)) return;
+    try { const r = await api('admin_auction_close', { horse_id: h.id }); alert(r.result.winner ? `Ялагч: ${r.result.winner} · ${r.result.phone}\nДүн: ${money(r.result.amount)}\n\nХолбогдож баталгаажуулна уу.` : 'Бооцоо тавигдаагүй тул ялагч алга.'); vSale(); } catch (e) { fail(e); }
+  });
+  q('[data-sold]').forEach(b => b.onclick = () => markSold(H.find(h => h.id === b.dataset.sold)));
+  q('[data-reopen]').forEach(b => b.onclick = async () => { if (!confirm('Зарагдсан төлвийг буцаах уу?')) return; try { await api('admin_horse_save', { horse: { id: b.dataset.reopen, sale_status: 'available', sold_to_name: '', sold_to_phone: '', sold_price: null, sold_at: null } }); vSale(); } catch (e) { fail(e); } });
+}
+async function showBids(h) {
+  try {
+    const { bids } = await api('admin_bids', { horse_id: h.id });
+    modal(`${h.name} — бооцоонууд`, `<div class="table-wrap" style="box-shadow:none"><table class="tbl" style="min-width:520px"><tr><th>Дүн</th><th>Нэр</th><th>Утас</th><th>Цаг</th><th></th></tr>${bids.map(b => `<tr style="${b.voided ? 'opacity:.45;text-decoration:line-through' : ''}"><td><b>${money(b.amount)}</b></td><td>${esc(b.name)}</td><td>${esc(b.phone)}</td><td>${esc(fmtDT(b.created_at))}</td><td><button class="btn btn-ghost btn-sm" data-v="${b.id}" data-x="${b.voided ? 0 : 1}">${b.voided ? 'Сэргээх' : 'Хүчингүй'}</button></td></tr>`).join('') || '<tr><td colspan="5" class="muted">Бооцоо алга</td></tr>'}</table></div>
+      <p class="small muted">Хуурамч бооцоог «Хүчингүй» болгоно — одоогийн үнэ дараагийн хамгийн өндөр бооцоо руу буцна.</p>`, true);
+    $('m-body').querySelectorAll('[data-v]').forEach(b => b.onclick = async () => { try { await api('admin_bid_void', { id: Number(b.dataset.v), voided: b.dataset.x === '1' }); showBids(h); } catch (e) { fail(e); } });
+  } catch (e) { fail(e); }
+}
+function markSold(h) {
+  modal(`${h.name} — зарагдсан`, `<form class="form" id="sf"><div class="grid2"><div><label>Худалдан авагч</label><input class="input" name="n" value="${esc(h.sold_to_name || '')}"></div><div><label>Утас</label><input class="input" name="p" value="${esc(h.sold_to_phone || '')}"></div></div>
+    <div><label>Зарсан үнэ (₮)</label><input class="input" name="price" type="number" value="${h.sold_price ?? h.top_bid ?? h.sale_price ?? ''}"></div>
+    <div id="sf-err"></div><button class="btn btn-gold btn-block" type="submit">Зарагдсан гэж тэмдэглэх</button></form>`);
+  $('sf').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    try { await api('admin_horse_save', { horse: { id: h.id, sale_status: 'sold', sold_to_name: f.n.value, sold_to_phone: f.p.value, sold_price: f.price.value === '' ? null : Number(f.price.value), sold_at: new Date().toISOString(), auction_closed: h.sale_mode === 'auction' ? true : h.auction_closed } }); closeModal(); vSale(); }
+    catch (ex) { $('sf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+
+// ================== ТОХИРГОО ==================
+async function vSettings() {
+  const { settings: s } = await api('admin_pm_settings_get');
+  $('view').innerHTML = `<form class="panel2 form" id="pf2"><h3>Гүү тавих · зарах тохиргоо</h3>
+    <div class="grid2"><div><label>Гүү тавих улирал</label><input class="input" name="stud_season" value="${esc(s.stud_season)}"></div><div><label>Лавлах утас</label><input class="input" name="contact_phone" value="${esc(s.contact_phone)}"></div></div>
+    <div class="grid3"><div><label>Баталгаажуулах хугацаа (цаг)</label><input class="input" name="stud_hold_hours" type="number" min="1" value="${s.stud_hold_hours}"></div>
+      <div><label>Нэг захиалгад дээд тал нь (гүү)</label><input class="input" name="stud_max_mares" type="number" min="1" value="${s.stud_max_mares}"></div>
+      <div><label>Дуудлага уртасгах (минут)</label><input class="input" name="auction_extend_min" type="number" min="0" value="${s.auction_extend_min}"></div></div>
+    <div><label>Мэдэгдэл очих имэйл (таслалаар)</label><input class="input" name="notify_email" value="${esc(s.notify_email)}"></div>
+    <div><label>Төлбөр төлөх данс (захиалгын хуудсанд гарна)</label><textarea class="input" name="bank_info" rows="3" placeholder="Банк, дансны дугаар, хүлээн авагч">${esc(s.bank_info)}</textarea></div>
+    <div><label>Нөхцөл (мөр бүр нэг заалт)</label><textarea class="input" name="stud_terms" rows="6">${esc((s.stud_terms || []).join('\n'))}</textarea></div>
+    <div><label>Худалдааны тайлбар</label><textarea class="input" name="sale_note" rows="2">${esc(s.sale_note)}</textarea></div>
+    <div id="ps-err"></div><button class="btn btn-gold" type="submit" style="align-self:start">Хадгалах</button></form>
+    <div class="panel2"><h3>Парад, тасалбар</h3><p class="small muted" style="margin:0 0 10px">Парадын огноо, байршил, тасалбарын үнэ, QPay, ажилтны эрхийг «Тасалбар · Сугалаа» админ хуудасны <b>Тохиргоо</b> таб дээр засна. Огноог оруулаад «парад зарлагдсан» болгох хүртэл нүүр хуудсанд «удахгүй» гэж харагдана.</p><a class="btn btn-light" href="admin.html">Тасалбарын админ →</a></div>`;
+  $('pf2').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    const settings = {}; for (const el of f.elements) if (el.name) settings[el.name] = el.type === 'number' ? Number(el.value) : el.value;
+    try { await api('admin_pm_settings_save', { settings }); toast('Хадгалагдлаа'); } catch (ex) { $('ps-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
+
+// ---------- эхлүүлэх ----------
+async function boot() {
+  if (!configured) { showLogin('Тохиргоо дутуу: js/config.js-д Supabase URL, түлхүүрээ оруулна уу.'); return; }
+  const tok = await auth.token();
+  if (!tok) { showLogin(); return; }
+  try { me = await api('admin_me'); } catch (e) { auth.logout(); showLogin(e.message); return; }
+  if (me.role !== 'admin') { auth.logout(); showLogin('Энэ хуудсанд админ эрх хэрэгтэй.'); return; }
+  $('login').classList.add('hidden'); $('app').classList.remove('hidden'); $('topbar').classList.remove('hidden');
+  $('role').textContent = me.role; $('who').textContent = me.email;
+  await loadStats().catch(() => {});
+  show();
+}
+boot();
+</script>
+</body>
+</html>

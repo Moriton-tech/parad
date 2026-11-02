@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Морьтон — Парад · Азарганд гүү тавих · Азарга зарах | parad.mn</title>
+<meta name="description" content="Морьтон адуу үржүүлгийн газар: үржүүлгийн парад, тасалбар, азарганд гүү тавих онлайн захиалга, азарга зарах, дуудлага худалдаа.">
+<meta property="og:title" content="Морьтон — parad.mn">
+<meta property="og:description" content="Парад, азарганд гүү тавих, азарга зарах — нэг дор.">
+<meta property="og:image" content="img/hero.jpg">
+<meta name="theme-color" content="#072a35">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pm.css">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+</head>
+<body>
+<header class="site-header" id="site-header"></header>
+<main>
+  <section class="home-hero">
+    <div class="container">
+      <div class="eyebrow">Морьтон адуу үржүүлгийн газар</div>
+      <h1>Парад<br><span>Азарга · Үржүүлэг</span></h1>
+      <p class="lead">Үржүүлгийн парад, тасалбар, азарганд гүү тавих онлайн захиалга, азарга худалдаа — бүгд нэг дор.</p>
+      <div class="actions">
+        <a class="btn btn-gold btn-lg" href="stallions.html">Азарга үзэх</a>
+        <a class="btn btn-ghost btn-lg" href="tickets.html" id="hero-parade" style="color:#fff;border-color:rgba(255,255,255,.5)">Парадын мэдээлэл</a>
+      </div>
+      <div class="countdown" id="countdown"></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container">
+      <div class="tiles" id="tiles"></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:20px" id="featured-sec">
+    <div class="container">
+      <div class="sec-head"><div><h2>Азаргууд</h2><p class="sub" id="feat-sub"></p></div><a class="btn btn-light" href="stallions.html">Бүгдийг харах →</a></div>
+      <div class="hgrid" id="featured"><div class="empty-box">Ачаалж байна…</div></div>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="container">
+      <h2 style="color:#fff">Азарганд гүү тавих — хэрхэн ажилладаг вэ</h2>
+      <div class="steps4">
+        <div><b>1</b>Азаргаа сонгоно. Нэг азарганд хязгаартай суудал (жишээ нь 10 гүү) байдаг.</div>
+        <div><b>2</b>Нэр, утас, гүүний тоогоо бөглөж захиалга үүсгэнэ. Танд <b style="display:inline;font-size:inherit">GT-XXXXXX</b> код гарна.</div>
+        <div><b>3</b>Ажилтан утсаар холбогдож, үнийн төлбөрийг тохирч баталгаажуулна.</div>
+        <div><b>4</b>Баталгаажсан дарааллаар хавар гүүгээ азарганд тавина.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="lookup">
+    <div class="container" style="max-width:620px">
+      <h2>Захиалгаа шалгах</h2>
+      <p class="sub muted">Гүү тавих захиалгын кодоо (GT-XXXXXX) оруулна уу.</p>
+      <form class="form" id="lookup-form" style="grid-template-columns:1fr auto;align-items:end">
+        <div><input class="input" id="lookup-code" placeholder="GT-XXXXXX" autocapitalize="characters" maxlength="12" required></div>
+        <button class="btn btn-gold" type="submit">Шалгах</button>
+      </form>
+      <div id="my-bookings" style="margin-top:12px"></div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script type="module">
+import { api, esc, money, fmtDay, fmtTime, fmtWeekday, startCountdown, renderChrome, store, auctionState, studState } from './js/app.js';
+import { hcard } from './js/pm-ui.js';
+const $ = id => document.getElementById(id);
+
+$('lookup-form').addEventListener('submit', e => {
+  e.preventDefault();
+  const c = $('lookup-code').value.trim().toUpperCase().replace(/^GT-?/, 'GT-');
+  location.href = 'booking.html?code=' + encodeURIComponent(c);
+});
+const mine = store.get('stud', []);
+if (mine.length) $('my-bookings').innerHTML = '<p class="small muted" style="margin:0 0 6px">Энэ төхөөрөмж дээрх захиалгууд:</p>' +
+  mine.map(c => `<a class="btn btn-light btn-sm" style="margin:0 6px 6px 0" href="booking.html?code=${encodeURIComponent(c)}">${esc(c)}</a>`).join('');
+
+try {
+  const { horses, site, event } = await api('horses');
+  renderChrome({ ...event, contact_phone: site.phone });
+  const ev = event.event_public;
+  const parade = ev
+    ? { t: event.event_name, p: `${fmtDay(event.event_at)} · ${fmtWeekday(event.event_at)} · ${fmtTime(event.event_at)} · ${event.location}`, g: event.sales_open && event.available > 0 ? 'Тасалбар авах →' : 'Дэлгэрэнгүй →' }
+    : { t: 'Парад', p: 'Дараагийн парадын огноо, байршил удахгүй зарлагдана.', g: 'Мэдээлэл →' };
+  const studH = horses.filter(h => h.stud_enabled && h.stud_active);
+  const seats = studH.reduce((a, h) => a + studState(h).left, 0);
+  const saleH = horses.filter(h => h.sale_mode !== 'none' && h.sale_status !== 'sold');
+  const live = horses.filter(h => auctionState(h) === 'open').length;
+  $('tiles').innerHTML = `
+    <a class="tile" href="tickets.html"><div class="tt">${esc(parade.t)}</div><div class="tp">${esc(parade.p)}</div><div class="go">${parade.g}</div></a>
+    <a class="tile" href="stallions.html?f=stud"><div class="tt">Азарганд гүү тавих</div><div class="tp">${esc(site.season)} · ${studH.length} азарга · ${seats} суудал үлдсэн</div><div class="go">Азарга сонгох →</div></a>
+    <a class="tile" href="stallions.html?f=sale"><div class="tt">Азарга зарах</div><div class="tp">${saleH.length} адуу худалдаанд${live ? ` · <b style="color:var(--red)">${live} дуудлага явагдаж байна</b>` : ''}</div><div class="go">Үзэх →</div></a>`;
+  if (ev) {
+    $('hero-parade').textContent = event.sales_open ? 'Тасалбар авах' : 'Парадын мэдээлэл';
+    if (new Date(event.event_at) > new Date()) startCountdown($('countdown'), event.event_at, event.now);
+  }
+  const feat = [...horses].sort((a, b) => (auctionState(b) === 'open') - (auctionState(a) === 'open') || a.sort - b.sort).slice(0, 6);
+  $('feat-sub').textContent = `Нийт ${horses.length} адуу`;
+  $('featured').innerHTML = feat.length ? feat.map(hcard).join('') : '<div class="empty-box">Одоогоор адуу бүртгэгдээгүй байна.</div>';
+} catch (e) {
+  renderChrome({});
+  $('tiles').innerHTML = '';
+  $('featured').innerHTML = `<div class="empty-box">${esc(e.message)}</div>`;
+}
+</script>
+</body>
+</html>
