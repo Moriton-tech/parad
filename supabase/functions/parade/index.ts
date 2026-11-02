@@ -39,7 +39,7 @@ const SMTP_HOST = env('SMTP_HOST', 'smtp.gmail.com');
 const SMTP_PORT = Number(env('SMTP_PORT', '465'));
 const RESEND_KEY = env('RESEND_API_KEY');
 const RESEND_URL = env('RESEND_API_URL', 'https://api.resend.com').replace(/\/+$/, '');
-const MAIL_FROM = env('MAIL_FROM', SMTP_USER ? `Морьтон <${SMTP_USER}>` : 'Морьтон Парад <onboarding@resend.dev>');
+const MAIL_FROM = env('MAIL_FROM', SMTP_USER ? `Морьтон Парад <${SMTP_USER}>` : 'Морьтон Парад <onboarding@resend.dev>');
 const MAIL_ON = !!(RESEND_KEY || (SMTP_USER && SMTP_PASS));
 
 const CORS = {
