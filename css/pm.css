@@ -23,8 +23,13 @@
 .tile .tp { color: var(--muted); font-size: 14px; flex: 1; }
 .tile .go { font-weight: 800; color: var(--gold-d); font-size: 14px; }
 .steps4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 14px; }
-.steps4 div { background: var(--gold-bg); border-radius: 14px; padding: 16px; }
+.steps4 div { background: var(--gold-bg); border-radius: 14px; padding: 16px; color: var(--ink, #1b211f); line-height: 1.55; }
 .steps4 b { display: block; font-family: var(--display); font-size: 28px; color: var(--gold-d); }
+.steps4 .code { display: inline; font-family: ui-monospace, Consolas, monospace; font-size: .95em; font-weight: 800; color: var(--navy, #0b3a48); background: rgba(201,162,74,.22); padding: 1px 6px; border-radius: 6px; }
+/* Бараан хэсэг дээр: тунгалаг бараан карт, цайвар текст */
+.section.dark .steps4 div { background: rgba(255,255,255,.06); border: 1px solid rgba(212,182,101,.28); color: #d5e0df; }
+.section.dark .steps4 b { color: var(--gold); }
+.section.dark .steps4 .code { color: var(--gold); background: rgba(212,182,101,.14); }
 
 /* каталог */
 .filters-bar { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 20px; align-items: center; }
