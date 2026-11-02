@@ -59,6 +59,13 @@ h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 .5em; }
   .nav a { padding: 8px 9px; font-size: 13px; }
   .nav a.hide-sm { display: none; }
 }
+/* Утасны нарийн дэлгэц: лого + цэс давхцахгүй — брэндийн бичгийг нууж, зөвхөн тэмдэг үлдээнэ */
+@media (max-width: 440px) {
+  .site-header .container { gap: 6px; }
+  .brand > span:not(.mark) { display: none; }
+  .nav { gap: 2px; }
+  .nav a { padding: 8px 8px; }
+}
 
 /* ---------- товч ---------- */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: none; cursor: pointer; border-radius: 11px;

@@ -53,6 +53,7 @@
             <button class="btn btn-gold btn-lg btn-block" id="buy-btn" type="button">Тасалбар авах</button>
             <p class="small muted" id="pay-note" style="margin:10px 0 0;text-align:center">QPay-р төлнө · QR тасалбар шууд гарна</p>
           </div>
+          <div id="buy-msg" hidden></div>
         </div>
       </aside>
     </div>
@@ -194,6 +195,13 @@ function salesState() {
   return 'open';
 }
 
+// Худалдан авах хэсгийг устгалгүйгээр нууж/харуулна (дараа нь борлуулалт нээгдэхэд буцааж гарна)
+function buyMessage(msg) {
+  $('buy-controls').hidden = !!msg;
+  $('buy-msg').hidden = !msg;
+  $('buy-msg').innerHTML = msg ? `<div class="soldout">${msg}</div><p class="small muted" style="margin:10px 0 0;text-align:center">Лавлах: ${esc(info.phone)}</p>` : '';
+}
+
 function render() {
   renderChrome(info, 'parade');
   bindLookupLinks();
@@ -203,7 +211,7 @@ function render() {
     $('countdown').innerHTML = '';
     $('price').innerHTML = '—';
     $('meter').innerHTML = '';
-    $('buy-controls').innerHTML = `<div class="soldout">Парадын огноо, тасалбарын мэдээлэл удахгүй зарлагдана</div><p class="small muted" style="margin:10px 0 0;text-align:center">Лавлах: ${esc(info.phone)}</p>`;
+    buyMessage('Парадын огноо, тасалбарын мэдээлэл удахгүй зарлагдана');
     $('mbar-btn').disabled = true; $('mbar-btn').textContent = 'Удахгүй'; $('mbar-price').textContent = 'Тасалбар'; $('mbar-left').textContent = 'Удахгүй зарлагдана';
     $('info-kv').innerHTML = `<div class="ic">${ICONS.pin}</div><div><small>Мэдээлэл</small><b>Огноо, байршлыг удахгүй зарлана</b></div>`;
     return;
@@ -230,11 +238,13 @@ function render() {
     <div class="ic">${ICONS.ticket.replace('<svg', '<svg class="ico"')}</div><div><small>Тасалбар</small><b>${money(info.price)} · дугаар ${info.start_no || 11111}–${(info.start_no || 11111) + total - 1}</b></div>`;
 
   const st = salesState();
-  const ctrl = $('buy-controls');
   if (st !== 'open') {
     const msg = { soldout: 'Тасалбар дууслаа', closed: 'Онлайн борлуулалт түр хаагдсан', ended: 'Онлайн борлуулалт дууссан', nopay: 'Борлуулалт удахгүй нээгдэнэ' }[st];
-    ctrl.innerHTML = `<div class="soldout">${msg}</div><p class="small muted" style="margin:10px 0 0;text-align:center">Лавлах: ${esc(info.phone)}</p>`;
-    $('mbar-btn').disabled = true; $('mbar-btn').textContent = msg.split(' ').slice(-1)[0] === 'дууслаа' ? 'Дууссан' : 'Хаагдсан';
+    buyMessage(msg);
+    $('mbar-btn').disabled = true; $('mbar-btn').textContent = st === 'soldout' ? 'Дууссан' : 'Хаагдсан';
+  } else {
+    buyMessage('');
+    $('mbar-btn').disabled = false; $('mbar-btn').textContent = 'Тасалбар авах';
   }
   $('pay-note').textContent = info.pay_mode === 'transfer' ? 'Дансаар төлнө · баталгаажмагц QR тасалбар гарна' : 'QPay-р төлнө · QR тасалбар шууд гарна';
   $('f-submit').textContent = info.pay_mode === 'transfer' ? 'Захиалах' : 'QPay-р төлөх';
@@ -334,6 +344,7 @@ async function loadInfo() {
     const i = await api('info');
     const changed = !stopCd || i.event_at !== info.event_at;
     info = { ...info, ...i };
+    try { localStorage.setItem('parad_info', JSON.stringify(i)); } catch { /* хувийн цонх */ }
     render();
     if (changed && info.event_public) { stopCd && stopCd(); stopCd = startCountdown($('countdown'), info.event_at, info.now); }
   } catch (ex) {
@@ -341,6 +352,8 @@ async function loadInfo() {
     if (configured) toast(ex.message);
   }
 }
+// Өмнө нь ачаалсан мэдээлэл байвал шууд түүгээр зурна (сервер хариулахыг хүлээлгүй)
+try { const c = JSON.parse(localStorage.getItem('parad_info') || 'null'); if (c) info = { ...info, ...c }; } catch { /* хоосон */ }
 render();
 loadInfo();
 apiCached('horses', {}, r => {
