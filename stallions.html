@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/pm.css">
+<link rel="preconnect" href="https://bgbmbycjjiaqvfutefws.supabase.co" crossorigin>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -27,7 +28,7 @@
 </main>
 <footer class="site-footer" id="site-footer"></footer>
 <script type="module">
-import { api, esc, renderChrome, param, auctionState, KIND } from './js/app.js';
+import { api, apiCached, esc, renderChrome, param, auctionState, KIND } from './js/app.js';
 import { hcard } from './js/pm-ui.js';
 const $ = id => document.getElementById(id);
 let all = [], filter = ['stud', 'sale', 'auction', 'all'].includes(param('f')) ? param('f') : 'all', kind = 'all', text = '';
@@ -57,10 +58,12 @@ function render() {
   $('sub').textContent = `${list.length} адуу${filter !== 'all' || kind !== 'all' || text ? ` (нийт ${all.length}-аас)` : ''}`;
 }
 try {
-  const { horses, site, event } = await api('horses');
-  renderChrome({ ...event, contact_phone: site.phone }, 'horses');
-  all = horses;
-  paint();
+  let painted = false;
+  await apiCached('horses', {}, ({ horses, site, event }) => {
+    renderChrome({ ...event, contact_phone: site.phone }, 'horses');
+    all = horses;
+    if (!painted) { painted = true; paint(); } else render();
+  });
 } catch (e) { renderChrome({}, 'horses'); $('sub').textContent = ''; $('grid').innerHTML = `<div class="empty-box" style="grid-column:1/-1">${esc(e.message)}</div>`; }
 </script>
 </body>

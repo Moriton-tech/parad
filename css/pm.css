@@ -8,7 +8,7 @@
 
 /* нүүр хуудас */
 .home-hero { position: relative; color: #fff; background: var(--navy-dd); overflow: hidden; }
-.home-hero::before { content: ""; position: absolute; inset: 0; background: url('../img/hero.jpg') center 35% / cover no-repeat; opacity: .55; }
+.home-hero::before { content: ""; position: absolute; inset: 0; background: url('../img/hero.webp') center 35% / cover no-repeat; opacity: .55; }
 .home-hero::after { content: ""; position: absolute; inset: 0; background: linear-gradient(0deg, rgba(4,29,37,.95) 0%, rgba(4,29,37,.55) 55%, rgba(4,29,37,.8) 100%); }
 .home-hero .container { position: relative; z-index: 1; padding: 74px 0 70px; max-width: 880px; }
 .home-hero h1 { font-family: var(--display); font-size: clamp(46px, 8vw, 92px); line-height: .95; text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 16px; }

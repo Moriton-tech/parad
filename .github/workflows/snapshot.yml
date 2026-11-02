@@ -1,0 +1,48 @@
+# Нүүр болон азаргын хуудсыг шууд зурахын тулд азаргын жагсаалтын статик хуулбарыг (data/horses.json)
+# 30 минут тутам API-аас татаж шинэчилнэ. Өөрчлөгдсөн үед л commit хийнэ.
+name: Азаргын жагсаалтын snapshot
+
+on:
+  schedule:
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ['js/config.js', '.github/workflows/snapshot.yml']
+
+permissions:
+  contents: write
+
+concurrency:
+  group: snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: API-аас татах
+        run: |
+          URL=$(grep -oE "SUPABASE_URL: *'[^']+'" js/config.js | sed -E "s/.*'([^']+)'/\1/")
+          KEY=$(grep -oE "SUPABASE_KEY: *'[^']+'" js/config.js | sed -E "s/.*'([^']+)'/\1/")
+          curl -fsS --retry 3 --max-time 30 "$URL/functions/v1/parade" \
+            -H 'Content-Type: application/json' -H "apikey: $KEY" \
+            -d '{"action":"horses"}' -o /tmp/r.json
+          # Карт зурахад хэрэггүй урт текстүүдийг хасаж, "now"-г арилгана (дэмий commit гаргахгүйн тулд)
+          jq -c '{d: (del(.now) | .horses |= map(del(.notes, .description, .achievements)))}' /tmp/r.json > /tmp/s.json
+          jq -e '.d.horses | length > 0' /tmp/s.json > /dev/null
+          mkdir -p data
+          cp /tmp/s.json data/horses.json
+
+      - name: Commit (өөрчлөгдсөн бол)
+        run: |
+          if git diff --quiet -- data/horses.json && git ls-files --error-unmatch data/horses.json >/dev/null 2>&1; then
+            echo "Өөрчлөлтгүй"; exit 0
+          fi
+          git config user.name 'parad-bot'
+          git config user.email 'parad-bot@users.noreply.github.com'
+          git add data/horses.json
+          git commit -m 'data: азаргын жагсаалтын snapshot шинэчлэв'
+          git push

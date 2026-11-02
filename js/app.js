@@ -28,6 +28,35 @@ export async function api(action, body = {}, token) {
   return j;
 }
 
+// ---- Хурдан ачаалалт: өмнөх хариу (localStorage) эсвэл статик snapshot-оор шууд зурж, дараа нь серверээс шинэчилнэ.
+// onData(data, stale) хоёр удаа дуудагдаж болно: эхлээд кэшээр (stale=true), дараа нь шинэ датаар (stale=false).
+const SNAPSHOT = { horses: 'data/horses.json' };
+const ckey = (action, body) => 'parad_c:' + action + ':' + JSON.stringify(body || {});
+export async function apiCached(action, body, onData) {
+  const key = ckey(action, body);
+  let shown = false;
+  let cached = null;
+  try { cached = JSON.parse(localStorage.getItem(key) || 'null'); } catch { /* хувийн цонх */ }
+  const fresh = api(action, body);
+  if (!cached && SNAPSHOT[action]) {
+    // Анхны зочин: CDN дээрх статик хуулбар нь API-аас хамаагүй хурдан ирнэ
+    cached = await Promise.race([
+      fetch(SNAPSHOT[action], { cache: 'no-cache' }).then(r => (r.ok ? r.json() : null)).catch(() => null),
+      fresh.then(() => null, () => null),
+    ]);
+  }
+  if (cached && cached.d) { shown = true; try { onData(cached.d, true); } catch (e) { console.error(e); } }
+  try {
+    const d = await fresh;
+    try { localStorage.setItem(key, JSON.stringify({ t: Date.now(), d })); } catch { /* дүүрсэн */ }
+    onData(d, false);
+    return d;
+  } catch (e) {
+    if (shown) { console.warn(e); return cached.d; }
+    throw e;
+  }
+}
+
 // ---- Supabase нэвтрэлт (админ) — номын сангүйгээр
 export const auth = {
   key: 'parad_admin_session',

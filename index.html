@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/pm.css">
+<link rel="preconnect" href="https://bgbmbycjjiaqvfutefws.supabase.co" crossorigin>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -72,7 +73,7 @@
 <footer class="site-footer" id="site-footer"></footer>
 
 <script type="module">
-import { api, esc, money, fmtDay, fmtTime, fmtWeekday, startCountdown, renderChrome, store, auctionState, studState } from './js/app.js';
+import { api, apiCached, esc, money, fmtDay, fmtTime, fmtWeekday, startCountdown, renderChrome, store, auctionState, studState } from './js/app.js';
 import { hcard } from './js/pm-ui.js';
 const $ = id => document.getElementById(id);
 
@@ -85,8 +86,8 @@ const mine = store.get('stud', []);
 if (mine.length) $('my-bookings').innerHTML = '<p class="small muted" style="margin:0 0 6px">Энэ төхөөрөмж дээрх захиалгууд:</p>' +
   mine.map(c => `<a class="btn btn-light btn-sm" style="margin:0 6px 6px 0" href="booking.html?code=${encodeURIComponent(c)}">${esc(c)}</a>`).join('');
 
-try {
-  const { horses, site, event } = await api('horses');
+let cdStarted = false;
+function show({ horses, site, event }, stale) {
   renderChrome({ ...event, contact_phone: site.phone });
   const ev = event.event_public;
   const parade = ev
@@ -102,11 +103,14 @@ try {
     <a class="tile" href="stallions.html?f=sale"><div class="tt">Азарга зарах</div><div class="tp">${saleH.length} адуу худалдаанд${live ? ` · <b style="color:var(--red)">${live} дуудлага явагдаж байна</b>` : ''}</div><div class="go">Үзэх →</div></a>`;
   if (ev) {
     $('hero-parade').textContent = event.sales_open ? 'Тасалбар авах' : 'Парадын мэдээлэл';
-    if (new Date(event.event_at) > new Date()) startCountdown($('countdown'), event.event_at, event.now);
+    if (!stale && !cdStarted && new Date(event.event_at) > new Date()) { cdStarted = true; startCountdown($('countdown'), event.event_at, event.now); }
   }
   const feat = [...horses].sort((a, b) => (auctionState(b) === 'open') - (auctionState(a) === 'open') || a.sort - b.sort).slice(0, 6);
   $('feat-sub').textContent = `Нийт ${horses.length} адуу`;
   $('featured').innerHTML = feat.length ? feat.map(hcard).join('') : '<div class="empty-box">Одоогоор адуу бүртгэгдээгүй байна.</div>';
+}
+try {
+  await apiCached('horses', {}, show);
 } catch (e) {
   renderChrome({});
   $('tiles').innerHTML = '';

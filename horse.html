@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/pm.css">
+<link rel="preconnect" href="https://bgbmbycjjiaqvfutefws.supabase.co" crossorigin>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body>
@@ -27,7 +28,7 @@
 <div class="lightbox" id="lb"><img alt=""></div>
 
 <script type="module">
-import { api, esc, money, mnt, million, fmtDT, renderChrome, param, store, rememberStud, KIND, photoOf, studPriceHtml, studState, auctionState } from './js/app.js';
+import { api, apiCached, esc, money, mnt, million, fmtDT, renderChrome, param, store, rememberStud, KIND, photoOf, studPriceHtml, studState, auctionState } from './js/app.js';
 const $ = id => document.getElementById(id);
 const slug = param('s') || '';
 let D = null, offset = 0, cur = 0, poll = null, tick = null;
@@ -240,7 +241,14 @@ async function refresh(soft) {
     else if (D.horse && $('timer')) tickTimer();
   } catch (e) { if (!D) $('root').innerHTML = `<div class="empty-box">${esc(e.message)}</div>`; }
 }
-await refresh();
+// Эхний ачаалалт: өмнөх хариу (кэш) байвал шууд зурна, дараа нь серверээс шинэчилнэ
+try {
+  await apiCached('horse', { slug }, (d, stale) => {
+    D = d; offset = new Date(d.now).getTime() - Date.now();
+    if (stale) offset = 0;
+    render();
+  });
+} catch (e) { if (!D) $('root').innerHTML = `<div class="empty-box">${esc(e.message)}</div>`; }
 if (D) {
   renderChrome({ contact_phone: D.site.phone }, 'horses');
   poll = setInterval(() => { if (!document.hidden && !$('modal').classList.contains('open')) { const a = auctionState(D.horse, Date.now() + offset); if (a === 'open' || a === 'scheduled' || D.horse.stud_enabled) refreshKeepForm(); } }, 8000);

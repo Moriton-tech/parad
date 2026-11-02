@@ -14,6 +14,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/pm.css">
+<link rel="preconnect" href="https://bgbmbycjjiaqvfutefws.supabase.co" crossorigin>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 </head>
 <body class="has-mbar">
@@ -166,7 +167,7 @@
 </div>
 
 <script type="module">
-import { api, esc, money, fmtDT, fmtDay, fmtWeekday, fmtTime, startCountdown, renderChrome, ICONS, toast, rememberOrder, store, siteBase, configured } from './js/app.js';
+import { api, apiCached, esc, money, fmtDT, fmtDay, fmtWeekday, fmtTime, startCountdown, renderChrome, ICONS, toast, rememberOrder, store, siteBase, configured } from './js/app.js';
 import { hcard } from './js/pm-ui.js';
 
 const $ = id => document.getElementById(id);
@@ -338,7 +339,7 @@ async function loadInfo() {
 }
 render();
 loadInfo();
-api('horses').then(r => {
+apiCached('horses', {}, r => {
   const list = r.horses.filter(h => h.stud_enabled || h.sale_mode !== 'none').slice(0, 6);
   document.getElementById('parade-horses').innerHTML = list.length ? list.map(hcard).join('') : '<div class="empty-box" style="grid-column:1/-1">Азарганы мэдээлэл удахгүй нэмэгдэнэ.</div>';
 }).catch(() => {});
