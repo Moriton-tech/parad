@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Тасалбар — Морьтон Парад</title>
+<title>Тасалбар — Парад | parad.mn</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#041d25">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 <body class="ticket-page">
 <main id="root"><div class="et-actions" style="margin-top:60px"><div class="status-line" style="color:#c9d6d6"><span class="spinner"></span> Ачаалж байна…</div></div></main>
@@ -38,7 +39,7 @@ async function load() {
     root.innerHTML = `
       <article class="eticket">
         <div class="et-top">
-          <div class="et-brand"><span class="mark"></span><div><b>МОРЬТОН</b><small>Адуу үржүүлгийн газар</small></div></div>
+          <div class="et-brand"><img src="img/parad-wordmark-light.png" alt="Parad.mn"></div>
           <div class="et-title"><span>Тасалбар</span><b>Парад</b></div>
           <div class="et-row">
             <div class="et-no"><small>ДУГААР</small><b>№${t.number}</b></div>
@@ -61,7 +62,7 @@ async function load() {
         <div class="et-cd countdown" id="cd"></div>
         <div class="tip">Дэлгэцийн гэрэлтүүлгээ нэмж, QR кодыг үүдэнд уншуулна уу. Энэ хуудсыг хадгалах эсвэл скриншот авч болно.</div>
         <button class="btn btn-gold" id="print">Хэвлэх / PDF</button>
-        <a class="btn btn-ghost" href="tickets.html">Морьтон Парад нүүр</a>
+        <a class="btn btn-ghost" href="tickets.html">Парад нүүр</a>
       </div>`;
     document.getElementById('print').onclick = () => print();
     startCountdown(document.getElementById('cd'), ev.event_at, ev.now, { compact: true });

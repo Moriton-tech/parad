@@ -39,7 +39,7 @@ const SMTP_HOST = env('SMTP_HOST', 'smtp.gmail.com');
 const SMTP_PORT = Number(env('SMTP_PORT', '465'));
 const RESEND_KEY = env('RESEND_API_KEY');
 const RESEND_URL = env('RESEND_API_URL', 'https://api.resend.com').replace(/\/+$/, '');
-const MAIL_FROM = env('MAIL_FROM', SMTP_USER ? `Морьтон Парад <${SMTP_USER}>` : 'Морьтон Парад <onboarding@resend.dev>');
+const MAIL_FROM = env('MAIL_FROM', SMTP_USER ? `Parad.mn <${SMTP_USER}>` : 'Parad.mn <onboarding@resend.dev>');
 const MAIL_ON = !!(RESEND_KEY || (SMTP_USER && SMTP_PASS));
 
 const CORS = {
@@ -279,8 +279,8 @@ function ticketEmail(o: any, tickets: any[], s: any) {
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;font-family:Arial,sans-serif;color:#1b211f">
     <tr><td style="background:${NAVY_D};padding:22px 24px;border-bottom:3px solid ${GOLD}">
-      <div style="color:${GOLD};font-size:20px;font-weight:bold;letter-spacing:1px">МОРЬТОН</div>
-      <div style="color:#e9e4d4;font-size:12px">Адуу үржүүлгийн газар</div>
+      <div style="color:${GOLD};font-size:20px;font-weight:bold;letter-spacing:1px">PARAD.MN</div>
+      <div style="color:#e9e4d4;font-size:12px">Үе дамжсан домогт угшил</div>
     </td></tr>
     <tr><td style="padding:24px">
       <h1 style="margin:0 0 6px;font-size:22px;color:${NAVY}">${esc(s.event_name)} — таны тасалбар</h1>
@@ -294,10 +294,10 @@ function ticketEmail(o: any, tickets: any[], s: any) {
         </td></tr>
       </table>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${cards}</table>
-      <p style="font-size:13px;color:#555;margin:6px 0 0"><b>Тасалбарт багтсан:</b> сугалаа (25% эр сарваа, TRM брэнд 10 бүтээгдэхүүн, Морьтон Үндэсний Адууны эмнэлгээр үйлчлүүлэх 10 эрх), хоол, ус ундаа. Тасалбарын дугаар нь сугалааны дугаар болно.</p>
+      <p style="font-size:13px;color:#555;margin:6px 0 0"><b>Тасалбарт багтсан:</b> сугалаа (25% эр сарваа, TRM брэнд 10 бүтээгдэхүүн, Адууны эмнэлгээр үйлчлүүлэх 10 эрх), хоол, ус ундаа. Тасалбарын дугаар нь сугалааны дугаар болно.</p>
       <p style="font-size:13px;color:#555">Асуух зүйл байвал: <b>${esc(s.phone)}</b></p>
     </td></tr>
-    <tr><td style="background:${NAVY_D};color:#cfd8d6;font-size:12px;padding:14px 24px">Морьтон адуу үржүүлгийн газар · ${esc(s.location)} · ${esc(s.phone)}</td></tr>
+    <tr><td style="background:${NAVY_D};color:#cfd8d6;font-size:12px;padding:14px 24px">Parad.mn · ${esc(s.location)} · ${esc(s.phone)}</td></tr>
   </table></td></tr></table></body></html>`;
   const text = `${s.event_name} — таны тасалбар\n\n${o.name}, төлбөр баталгаажлаа.\nОгноо: ${fmtEvent(s.event_at)}\nБайршил: ${s.location}\nЗахиалга: ${o.code}\nТасалбар: ${nums}\n\n` +
     tickets.map(t => `№${t.number}: ${ticketUrl(base, t.token)}`).join('\n') + `\n\nУтас: ${s.phone}`;

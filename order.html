@@ -3,14 +3,15 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Төлбөр — Морьтон Парад</title>
+<title>Төлбөр — Парад | parad.mn</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#072a35">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 <body>
 <header class="site-header" id="site-header"></header>
@@ -149,14 +150,14 @@ async function load(manual) {
     render();
     if (manual && data.order.status === 'pending') toast('Төлбөр хараахан орж ирээгүй байна.');
   } catch (e) {
-    if (!data) root.innerHTML = `<div class="pay-card">${head('Морьтон Парад', 'Захиалга олдсонгүй')}<div class="body"><div class="alert error">${esc(e.message)}</div><p><a class="btn btn-gold" href="tickets.html">Нүүр хуудас</a></p></div></div>`;
+    if (!data) root.innerHTML = `<div class="pay-card">${head('Парад', 'Захиалга олдсонгүй')}<div class="body"><div class="alert error">${esc(e.message)}</div><p><a class="btn btn-gold" href="tickets.html">Нүүр хуудас</a></p></div></div>`;
     else if (manual) toast(e.message);
   }
   schedule();
 }
 document.addEventListener('visibilitychange', () => { if (!document.hidden && data?.order?.status === 'pending') load(); });
 
-if (!code || !key) root.innerHTML = `<div class="pay-card">${head('Морьтон Парад', 'Холбоос буруу байна')}<div class="body"><a class="btn btn-gold" href="tickets.html">Нүүр хуудас</a></div></div>`;
+if (!code || !key) root.innerHTML = `<div class="pay-card">${head('Парад', 'Холбоос буруу байна')}<div class="body"><a class="btn btn-gold" href="tickets.html">Нүүр хуудас</a></div></div>`;
 else load();
 </script>
 </body>

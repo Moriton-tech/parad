@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Адуу — Морьтон | parad.mn</title>
+<title>Адуу | parad.mn</title>
 <meta name="theme-color" content="#072a35">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,8 @@
 <link rel="modulepreload" href="js/vendor/qrcode.mjs">
 <link rel="modulepreload" href="js/pm-ui.js">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 <body>
 <header class="site-header" id="site-header"></header>
@@ -111,7 +112,7 @@ function saleCard(h, site) {
 
 function render() {
   const { horse: h, site } = D;
-  document.title = `${h.name} — Морьтон | parad.mn`;
+  document.title = `${h.name} | parad.mn`;
   const facts = [['Төрөл', KIND[h.kind]], ['Төрсөн', h.foaled && h.foaled + ' он'], ['Үүлдэр', h.breed], ['Зүс', h.color], ['Тамга', h.tamga], ['Эцэг', h.sire], ['Эх', h.dam], ['Чипийн дугаар', h.microchip]]
     .filter(([, v]) => v);
   $('root').innerHTML = `<div class="hd"><div>${gallery(h)}</div><div>

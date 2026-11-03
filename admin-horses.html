@@ -11,12 +11,12 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/pm.css">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   body { background: #eef0ee; }
   .login { max-width: 400px; margin: 60px auto; }
   .login .panel { padding: 26px; }
-  .login .mark { width: 64px; height: 64px; background: var(--logo) center / contain no-repeat; margin: 0 auto 10px; }
   .topbar { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; }
   .topbar .who { opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
   .role { background: var(--gold); color: var(--navy-dd); font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
@@ -65,13 +65,13 @@
 </head>
 <body>
 <header class="site-header"><div class="container">
-  <a class="brand" href="index.html"><span class="mark"></span><span><b>МОРЬТОН</b><small>parad.mn · Админ</small></span></a>
+  <a class="brand" href="index.html"><img src="img/parad-wordmark-light.png" alt="Parad.mn"><small>Админ</small></a>
   <a class="btn btn-ghost btn-sm" href="admin.html" style="margin-left:auto;margin-right:10px">Тасалбар · Сугалаа</a>
   <div class="topbar hidden" id="topbar"><span class="role" id="role"></span><span class="who" id="who"></span><button class="btn btn-ghost btn-sm" id="logout">Гарах</button></div>
 </div></header>
 
 <main class="container">
-  <section class="login hidden" id="login"><div class="panel"><div class="mark"></div>
+  <section class="login hidden" id="login"><div class="panel"><img src="img/parad-logo.png" alt="Parad.mn" style="width:240px;max-width:100%;margin:0 auto 12px">
     <h2 style="text-align:center;color:var(--navy);font-size:20px">Админ нэвтрэх</h2>
     <form class="form" id="login-form">
       <div><label for="l-email">Имэйл</label><input class="input" id="l-email" type="email" autocomplete="username" required></div>

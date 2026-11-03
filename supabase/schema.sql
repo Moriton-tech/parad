@@ -1,5 +1,5 @@
 -- =====================================================================
---  parad.mn — Морьтон Парад: тасалбар (Supabase SQL, 1-р файл)
+--  parad.mn — Парад: тасалбар (Supabase SQL, 1-р файл)
 --  Supabase → SQL Editor → New query → энэ файлыг бүтнээр нь хуулж → Run.
 --  Дахин ажиллуулахад аюулгүй (байгаа өгөгдлийг устгахгүй).
 -- =====================================================================
@@ -8,7 +8,7 @@
 
 create table if not exists public.parade_settings (
   id            int primary key default 1 check (id = 1),
-  event_name    text not null default 'Морьтон Парад',
+  event_name    text not null default 'Парад',
   event_at      timestamptz not null default '2027-10-10 10:00:00+08',   -- ТҮР УТГА: Админ → Тохиргоонд бодит огноогоо оруулна
   sales_until   timestamptz,                         -- хоосон бол парадын өдрийн 18:00 хүртэл
   location      text not null default 'Хүй долоон худаг',

@@ -3,19 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Админ — Морьтон Парад</title>
+<title>Админ — Parad.mn</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#072a35">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
-<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
   body { background: #eef0ee; }
   .login { max-width: 400px; margin: 60px auto; }
   .login .panel { padding: 26px; }
-  .login .mark { width: 64px; height: 64px; background: var(--logo) center / contain no-repeat; margin: 0 auto 10px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.2)); }
   .topbar { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; }
   .topbar .who { opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
   .role { background: var(--gold); color: var(--navy-dd); font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
@@ -107,7 +107,7 @@
 </head>
 <body>
 <header class="site-header"><div class="container">
-  <a class="brand" href="index.html"><span class="mark"></span><span><b>МОРЬТОН</b><small>parad.mn · Админ</small></span></a>
+  <a class="brand" href="index.html"><img src="img/parad-wordmark-light.png" alt="Parad.mn"><small>Админ</small></a>
   <a class="btn btn-ghost btn-sm" href="admin-horses.html" style="margin-left:auto;margin-right:10px">Адуу · Гүү тавих · Зарах</a>
   <div class="topbar hidden" id="topbar"><span class="role" id="role"></span><span class="who" id="who"></span><button class="btn btn-ghost btn-sm" id="logout">Гарах</button></div>
 </div></header>
@@ -116,7 +116,7 @@
   <!-- нэвтрэх -->
   <section class="login hidden" id="login">
     <div class="panel">
-      <div class="mark"></div>
+      <img src="img/parad-logo.png" alt="Parad.mn" style="width:240px;max-width:100%;margin:0 auto 12px">
       <h2 style="text-align:center;color:var(--navy);font-size:20px">Админ нэвтрэх</h2>
       <form class="form" id="login-form">
         <div><label for="l-email">Имэйл</label><input class="input" id="l-email" type="email" autocomplete="username" required></div>
@@ -235,7 +235,7 @@
         </div>
         <div class="draw-stage" id="stage">
           <button class="btn btn-ghost btn-sm fs" id="fs" type="button">⛶ Дэлгэц дүүрэн</button>
-          <div class="prize" id="s-prize">Морьтон Парад · Сугалаа</div>
+          <div class="prize" id="s-prize">Парад · Сугалаа</div>
           <div class="num" id="s-num">— — —</div>
           <div class="who" id="s-who"></div>
         </div>
@@ -273,8 +273,8 @@
               <div><label>QPay төлөх хугацаа (минут)</label><input class="input" name="hold_minutes" type="number" min="5" max="1440"></div>
               <div><label>Дансаар төлөх хугацаа (цаг)</label><input class="input" name="transfer_hold_hours" type="number" min="1" max="168"></div>
             </div>
-            <div><label>Дансны мэдээлэл (QPay тохируулаагүй үед)</label><textarea class="input" name="bank_info" placeholder="Хаан банк&#10;Данс: 5000 000 000&#10;Хүлээн авагч: Морьтон ХХК"></textarea></div>
-            <div><label>Шинэ борлуулалтын мэдэгдэл очих имэйл</label><input class="input" name="notify_email" placeholder="ner@moriton.mn, ner2@moriton.mn"><div class="hint">Хүн тасалбар авах бүрт энд имэйл очно. Таслалаар олон хаяг.</div></div>
+            <div><label>Дансны мэдээлэл (QPay тохируулаагүй үед)</label><textarea class="input" name="bank_info" placeholder="Хаан банк&#10;Данс: 5000 000 000&#10;Хүлээн авагч: Нэр ХХК"></textarea></div>
+            <div><label>Шинэ борлуулалтын мэдэгдэл очих имэйл</label><input class="input" name="notify_email" placeholder="ner@example.mn, ner2@example.mn"><div class="hint">Хүн тасалбар авах бүрт энд имэйл очно. Таслалаар олон хаяг.</div></div>
             <div><label>Сайтын хаяг</label><input class="input" name="site_url" placeholder="https://ner.github.io/parade/"><div class="hint">Имэйл дэх QR, холбоосонд ашиглана.</div></div>
             <div id="s-msg"></div>
             <button class="btn btn-navy btn-block" type="submit">Хадгалах</button>
@@ -675,7 +675,7 @@ $('issue-form').onsubmit = async e => {
 };
 
 // ---------------- сугалаа
-const PRESETS = ['25% эр сарваа', 'TRM брэндийн бүтээгдэхүүн', 'Морьтон эмнэлгийн үйлчилгээний эрх'];
+const PRESETS = ['25% эр сарваа', 'TRM брэндийн бүтээгдэхүүн', 'Адууны эмнэлгийн үйлчилгээний эрх'];
 $('presets').innerHTML = PRESETS.map(p => `<button type="button" class="preset">${p}</button>`).join('');
 $('presets').onclick = e => { const b = e.target.closest('.preset'); if (b) { $('d-prize').value = b.textContent; $('s-prize').textContent = b.textContent; } };
 $('d-prize').oninput = e => { $('s-prize').textContent = e.target.value || 'Сугалаа'; };
