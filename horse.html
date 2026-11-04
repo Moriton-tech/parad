@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Адуу | parad.mn</title>
-<meta name="theme-color" content="#072a35">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
@@ -56,7 +56,7 @@ function studCard(h, site) {
   if (!h.stud_enabled) return '';
   const s = studState(h);
   const pct = s.cap ? Math.min(100, (h.confirmed_mares / s.cap) * 100) : 0;
-  const btn = s.st === 'open' ? '<button class="btn btn-gold btn-lg btn-block" id="stud-btn" type="button">Гүү тавих захиалга</button>'
+  const btn = s.st === 'open' ? '<button class="btn btn-accent btn-lg btn-block" id="stud-btn" type="button">Гүү тавих захиалга</button>'
     : `<div class="soldout">${s.st === 'full' ? 'Уучлаарай, энэ азарга дүүрсэн' : 'Захиалга түр хаалттай'}</div>`;
   const q = (D.queue || []);
   return `<div class="bcard"><div class="top"><b>Азарганд гүү тавих</b><span>${esc(site.season)}</span></div><div class="body">
@@ -76,7 +76,7 @@ function saleCard(h, site) {
     return `<div class="bcard"><div class="top"><b>Зарна</b><span>${avail ? 'Худалдаанд байгаа' : h.sale_status === 'sold' ? 'Зарагдсан' : 'Захиалагдсан'}</span></div><div class="body">
       <div class="big-price">${h.sale_price == null ? 'Тохиролцоно' : money(h.sale_price)}</div>
       <p class="small muted">${esc(site.sale_note)}</p>
-      ${avail ? '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold btn-lg" style="flex:1" id="reserve-btn" type="button">Авах хүсэлт</button><button class="btn btn-light btn-lg" style="flex:1" id="offer-btn" type="button">Үнийн санал өгөх</button></div>'
+      ${avail ? '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-accent btn-lg" style="flex:1" id="reserve-btn" type="button">Авах хүсэлт</button><button class="btn btn-light btn-lg" style="flex:1" id="offer-btn" type="button">Үнийн санал өгөх</button></div>'
         : '<div class="soldout">Одоогоор боломжгүй</div>'}
     </div></div>`;
   }
@@ -94,7 +94,7 @@ function saleCard(h, site) {
         <div><label>Бооцоо (₮) <span class="req">*</span></label><input class="input" name="amount" type="number" inputmode="numeric" step="${h.auction_step}" min="${next}" value="${next}" required>
           <div class="hint small muted">Хамгийн багадаа <b>${money(next)}</b> · алхам ${money(h.auction_step)}</div></div>
         <div id="bid-err"></div>
-        <button class="btn btn-gold btn-lg btn-block" type="submit" id="bid-btn">Бооцоо тавих</button>
+        <button class="btn btn-accent btn-lg btn-block" type="submit" id="bid-btn">Бооцоо тавих</button>
         <p class="small muted" style="margin:0;text-align:center">Сүүлийн ${site.extend_min} минутад бооцоо тавибал дуудлага ${site.extend_min} минутаар уртасна.</p></form>`;
     } else {
       head = `<div class="alert ${h.sale_status === 'available' ? 'warn' : 'ok'}">${h.sale_status === 'available' ? 'Дуудлага дууслаа. Ажилтан үр дүнг шалгаж байна.' : 'Дуудлага дууссан.'}</div>`;
@@ -192,7 +192,7 @@ function openStud() {
     ${field('mi', 'Гүүний мэдээлэл', '<textarea class="input" name="mare_info" rows="2" maxlength="500" placeholder="Нас, зүс, тамга, өмнөх унагалалт…"></textarea>')}
     ${field('note', 'Тайлбар', '<textarea class="input" name="note" rows="2" maxlength="500"></textarea>')}
     <div id="sf-err"></div>
-    <button class="btn btn-gold btn-lg btn-block" type="submit" id="sf-btn">Захиалга илгээх</button>
+    <button class="btn btn-accent btn-lg btn-block" type="submit" id="sf-btn">Захиалга илгээх</button>
     <p class="small muted" style="margin:0;text-align:center">${site.hold_hours} цагийн дотор ажилтан баталгаажуулна. Үгүй бол хугацаа дуусна.</p></form>`);
   const f = $('sf');
   f.onsubmit = async e => {
@@ -219,7 +219,7 @@ function openInquiry(kind) {
     ${kind === 'inquiry' ? field('offer', 'Санал болгох үнэ (₮)', `<input class="input" name="offer" type="number" inputmode="numeric" min="0" step="100000"${h.sale_price ? ` value="${h.sale_price}"` : ''}>`) : ''}
     ${field('msg', 'Тайлбар', '<textarea class="input" name="message" rows="3" maxlength="800"></textarea>')}
     <div id="qf-err"></div>
-    <button class="btn btn-gold btn-lg btn-block" type="submit" id="qf-btn">Илгээх</button>
+    <button class="btn btn-accent btn-lg btn-block" type="submit" id="qf-btn">Илгээх</button>
     <p class="small muted" style="margin:0;text-align:center">${esc(D.site.sale_note)}</p></form>`);
   const f = $('qf');
   f.onsubmit = async e => {
@@ -231,7 +231,7 @@ function openInquiry(kind) {
     try {
       await api('inquire', { slug, kind, name: f.name.value, phone: f.phone.value, offer: f.offer ? f.offer.value : '', message: f.message.value, website: f.website.value });
       store.set('pm_buyer', { name: f.name.value.trim(), phone: f.phone.value.trim() });
-      $('m-body').innerHTML = `<div class="alert ok">Хүсэлт илгээгдлээ. Ажилтан тантай удахгүй утсаар холбогдоно.</div><button class="btn btn-gold btn-block" style="margin-top:12px" type="button" id="ok">За</button>`;
+      $('m-body').innerHTML = `<div class="alert ok">Хүсэлт илгээгдлээ. Ажилтан тантай удахгүй утсаар холбогдоно.</div><button class="btn btn-accent btn-block" style="margin-top:12px" type="button" id="ok">За</button>`;
       $('ok').onclick = closeModal;
     } catch (ex) { err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; btn.disabled = false; btn.textContent = 'Илгээх'; }
   };

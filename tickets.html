@@ -8,7 +8,7 @@
 <meta property="og:title" content="Парад — Тасалбар | Parad.mn">
 <meta property="og:description" content="Үржүүлгийн парад — онлайн тасалбар.">
 <meta property="og:image" content="img/hero.jpg">
-<meta name="theme-color" content="#072a35">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
@@ -51,7 +51,7 @@
               <div class="stepper"><button type="button" id="minus" aria-label="Хасах">−</button><output id="qty">1</output><button type="button" id="plus" aria-label="Нэмэх">+</button></div>
             </div>
             <div class="total-row"><span class="muted">Нийт дүн</span><b id="total">50,000₮</b></div>
-            <button class="btn btn-gold btn-lg btn-block" id="buy-btn" type="button">Тасалбар авах</button>
+            <button class="btn btn-accent btn-lg btn-block" id="buy-btn" type="button">Тасалбар авах</button>
             <p class="small muted" id="pay-note" style="margin:10px 0 0;text-align:center">QPay-р төлнө · QR тасалбар шууд гарна</p>
           </div>
           <div id="buy-msg" hidden></div>
@@ -142,7 +142,7 @@
 </main>
 <footer class="site-footer" id="site-footer"></footer>
 
-<div class="mbar" id="mbar"><div><b id="mbar-price">50,000₮</b><small id="mbar-left">Тасалбар</small></div><button class="btn btn-gold" type="button" id="mbar-btn">Тасалбар авах</button></div>
+<div class="mbar" id="mbar"><div><b id="mbar-price">50,000₮</b><small id="mbar-left">Тасалбар</small></div><button class="btn btn-accent" type="button" id="mbar-btn">Тасалбар авах</button></div>
 
 <div class="modal-bg" id="modal" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-labelledby="m-title">
@@ -165,7 +165,7 @@
         <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
         <div><label for="f-qty">Тоо ширхэг</label><select class="input" id="f-qty" name="qty"></select></div>
         <div id="f-err"></div>
-        <button class="btn btn-gold btn-lg btn-block" type="submit" id="f-submit">QPay-р төлөх</button>
+        <button class="btn btn-accent btn-lg btn-block" type="submit" id="f-submit">QPay-р төлөх</button>
         <p class="small muted" style="margin:0;text-align:center" id="f-note">Дараагийн алхамд QPay-ийн QR болон банкны аппын холбоос гарна. Төлбөрөө <b id="f-hold">20</b> минутын дотор хийнэ үү.</p>
       </form>
     </div>

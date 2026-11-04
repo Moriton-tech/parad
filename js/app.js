@@ -99,7 +99,7 @@ export const siteBase = () => location.origin + location.pathname.replace(/[^/]*
 export const ticketLink = token => siteBase() + 'ticket.html?t=' + token;
 
 // ---- QR (SVG)
-export function qrSvg(text, { margin = 2, ecl = 'M', dark = '#04202a' } = {}) {
+export function qrSvg(text, { margin = 2, ecl = 'M', dark = '#050f3d' } = {}) {
   const qr = qrcode(0, ecl);
   qr.addData(text);
   qr.make();
@@ -199,7 +199,7 @@ export function renderChrome(info, active = '') {
   const h = document.getElementById('site-header');
   const ev = info && info.event_public;
   if (h) h.innerHTML = `<div class="container">
-    <a class="brand" href="index.html"><img src="img/parad-wordmark-onnavy.png" alt="Parad.mn"></a>
+    <a class="brand" href="index.html"><img src="img/parad-wordmark.png" alt="Parad.mn"></a>
     <nav class="nav">
       <a href="tickets.html"${active === 'parade' ? ' class="on"' : ''}>Парад</a>
       <a href="stallions.html"${active === 'horses' ? ' class="on"' : ''}>Азарга</a>

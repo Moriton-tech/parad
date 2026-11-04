@@ -4,11 +4,11 @@ import { esc, money, mnt, million, KIND, photoOf, studPriceHtml, studState, auct
 export function badges(h) {
   const out = [];
   const s = studState(h);
-  if (s.st === 'open') out.push('<span class="badge gold">Гүү тавина</span>');
+  if (s.st === 'open') out.push('<span class="badge blue">Гүү тавина</span>');
   else if (s.st === 'full') out.push('<span class="badge red">Дүүрсэн</span>');
   const a = auctionState(h);
   if (a === 'open') out.push('<span class="badge red">Дуудлага</span>');
-  else if (a === 'scheduled') out.push('<span class="badge gold">Дуудлага удахгүй</span>');
+  else if (a === 'scheduled') out.push('<span class="badge blue">Дуудлага удахгүй</span>');
   else if (h.sale_mode === 'auction' && (a === 'ended' || a === 'closed')) out.push(`<span class="badge grey">${h.sale_status === 'sold' ? 'Зарагдсан' : 'Дуудлага дууссан'}</span>`);
   if (h.sale_mode === 'fixed') {
     if (h.sale_status === 'available') out.push('<span class="badge ok">Зарна</span>');

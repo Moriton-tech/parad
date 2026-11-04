@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Гүү тавих захиалга | parad.mn</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#072a35">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
@@ -33,7 +33,7 @@ function lookupForm(msg = '') {
   const mine = store.get('stud', []);
   $root.innerHTML = `<div class="bk-card"><div class="hd2"><div class="eyebrow">Миний захиалга</div><h1>Захиалгаа шалгах</h1></div><div class="bd2">
     ${msg ? `<div class="alert error" style="margin-bottom:14px">${esc(msg)}</div>` : ''}
-    <form class="form" id="f" style="grid-template-columns:1fr auto;align-items:end"><div><label>Захиалгын код</label><input class="input" id="code" placeholder="GT-XXXXXX" autocapitalize="characters" maxlength="12" required></div><button class="btn btn-gold" type="submit">Шалгах</button></form>
+    <form class="form" id="f" style="grid-template-columns:1fr auto;align-items:end"><div><label>Захиалгын код</label><input class="input" id="code" placeholder="GT-XXXXXX" autocapitalize="characters" maxlength="12" required></div><button class="btn btn-accent" type="submit">Шалгах</button></form>
     ${mine.length ? '<p class="small muted" style="margin:16px 0 6px">Энэ төхөөрөмж дээрх захиалгууд:</p>' + mine.map(c => `<a class="btn btn-light btn-sm" style="margin:0 6px 6px 0" href="booking.html?code=${encodeURIComponent(c)}">${esc(c)}</a>`).join('') : ''}
     </div></div>`;
   document.getElementById('f').onsubmit = e => { e.preventDefault(); location.href = 'booking.html?code=' + encodeURIComponent(document.getElementById('code').value.trim().toUpperCase().replace(/^GT-?/, 'GT-')); };
@@ -66,7 +66,7 @@ async function load(code) {
         <span class="muted">Үүсгэсэн</span><b>${esc(fmtDT(b.created_at))}</b></div>
       ${pay}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">${h ? `<a class="btn btn-light" href="horse.html?s=${encodeURIComponent(h.slug)}">Азарганы хуудас</a>` : ''}<a class="btn btn-ghost" href="booking.html">Өөр код шалгах</a>
-      <a class="btn btn-gold" href="tel:${esc(String(site.phone).replace(/\D/g, ''))}">${esc(site.phone)}</a></div>
+      <a class="btn btn-accent" href="tel:${esc(String(site.phone).replace(/\D/g, ''))}">${esc(site.phone)}</a></div>
       <p class="small muted" style="margin:14px 0 0">Энэ хуудасны холбоосыг хадгалаарай — кодоороо хэзээ ч шалгаж болно.</p>
     </div></div>`;
   } catch (e) { lookupForm(e.message); }

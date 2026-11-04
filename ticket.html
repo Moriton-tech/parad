@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Тасалбар — Парад | parad.mn</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#041d25">
+<meta name="theme-color" content="#050f3d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
@@ -14,7 +14,7 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
 <body class="ticket-page">
-<main id="root"><div class="et-actions" style="margin-top:60px"><div class="status-line" style="color:#c9d6d6"><span class="spinner"></span> Ачаалж байна…</div></div></main>
+<main id="root"><div class="et-actions" style="margin-top:60px"><div class="status-line" style="color:#cfd6ee"><span class="spinner"></span> Ачаалж байна…</div></div></main>
 <footer class="site-footer" id="site-footer"></footer>
 
 <script type="module">
@@ -61,14 +61,14 @@ async function load() {
       <div class="et-actions">
         <div class="et-cd countdown" id="cd"></div>
         <div class="tip">Дэлгэцийн гэрэлтүүлгээ нэмж, QR кодыг үүдэнд уншуулна уу. Энэ хуудсыг хадгалах эсвэл скриншот авч болно.</div>
-        <button class="btn btn-gold" id="print">Хэвлэх / PDF</button>
+        <button class="btn btn-accent" id="print">Хэвлэх / PDF</button>
         <a class="btn btn-ghost" href="tickets.html">Парад нүүр</a>
       </div>`;
     document.getElementById('print').onclick = () => print();
     startCountdown(document.getElementById('cd'), ev.event_at, ev.now, { compact: true });
   } catch (e) {
     renderChrome();
-    root.innerHTML = `<div class="et-actions" style="margin-top:40px"><div class="alert error">${esc(e.message)}</div><a class="btn btn-gold" href="tickets.html">Нүүр хуудас</a></div>`;
+    root.innerHTML = `<div class="et-actions" style="margin-top:40px"><div class="alert error">${esc(e.message)}</div><a class="btn btn-accent" href="tickets.html">Нүүр хуудас</a></div>`;
   }
 }
 load();

@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Админ — Адуу · Гүү тавих · Зарах | parad.mn</title>
 <meta name="robots" content="noindex">
-<meta name="theme-color" content="#072a35">
+<meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
@@ -14,12 +14,12 @@
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
-  body { background: #eef0ee; }
+  body { background: #eef0f7; }
   .login { max-width: 400px; margin: 60px auto; }
   .login .panel { padding: 26px; }
-  .topbar { display: flex; align-items: center; gap: 10px; color: #fff; font-size: 13px; }
+  .topbar { display: flex; align-items: center; gap: 10px; color: var(--navy); font-size: 13px; }
   .topbar .who { opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px; }
-  .role { background: var(--gold); color: var(--navy-dd); font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
+  .role { background: var(--accent); color: #fff; font-weight: 800; font-size: 11px; padding: 3px 8px; border-radius: 6px; text-transform: uppercase; }
   .tabs { display: flex; gap: 4px; overflow-x: auto; background: #fff; border-radius: 14px; padding: 6px; margin: 18px 0; box-shadow: var(--shadow); scrollbar-width: none; }
   .tabs button { border: none; background: none; padding: 10px 14px; border-radius: 10px; font-weight: 700; color: var(--muted); cursor: pointer; white-space: nowrap; font-size: 14px; }
   .tabs button.active { background: var(--navy); color: #fff; }
@@ -36,18 +36,18 @@
   .table-wrap { background: #fff; border-radius: 14px; box-shadow: var(--shadow); overflow-x: auto; margin-bottom: 16px; }
   table.tbl { width: 100%; border-collapse: collapse; font-size: 13.5px; min-width: 860px; }
   table.tbl th, table.tbl td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-  table.tbl th { background: #f7f5ef; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .4px; position: sticky; top: 0; }
-  table.tbl tr:hover td { background: #fbfaf6; }
+  table.tbl th { background: #f5f6fb; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .4px; position: sticky; top: 0; }
+  table.tbl tr:hover td { background: #f7f8fd; }
   table.tbl td small { color: var(--muted); display: block; }
   .tag { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11.5px; font-weight: 700; white-space: nowrap; }
   .tag.pending { background: var(--amber-l); color: #7a5b12; } .tag.confirmed, .tag.done, .tag.contacted { background: var(--ok-l); color: var(--ok); }
-  .tag.cancelled, .tag.expired { background: var(--red-l); color: var(--red); } .tag.new { background: #dfeaf5; color: #1d4f7a; } .tag.closed { background: #eceae2; color: var(--muted); }
+  .tag.cancelled, .tag.expired { background: var(--red-l); color: var(--red); } .tag.new { background: #dfeaf5; color: #1d4f7a; } .tag.closed { background: #e9ebf3; color: var(--muted); }
   .acts { display: flex; gap: 5px; flex-wrap: wrap; }
   .panel2 { background: #fff; border-radius: 14px; box-shadow: var(--shadow); padding: 18px; margin-bottom: 16px; }
   .panel2 h3 { margin: 0 0 10px; color: var(--navy); font-size: 17px; }
   .capgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; margin-bottom: 14px; }
   .cap { background: #fff; border-radius: 12px; box-shadow: var(--shadow); padding: 12px 14px; cursor: pointer; border: 2px solid transparent; }
-  .cap.sel { border-color: var(--gold); }
+  .cap.sel { border-color: var(--accent); }
   .cap b { display: block; font-size: 14px; } .cap small { color: var(--muted); }
   .modal.wide { width: min(760px, 100%); }
   .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; } .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
@@ -55,7 +55,7 @@
   .photo-edit .pe { position: relative; width: 96px; height: 96px; border-radius: 10px; overflow: hidden; border: 2px solid var(--line); }
   .photo-edit img { width: 100%; height: 100%; object-fit: cover; }
   .photo-edit .pe button { position: absolute; top: 2px; right: 2px; border: none; background: rgba(0,0,0,.65); color: #fff; width: 22px; height: 22px; border-radius: 11px; cursor: pointer; line-height: 1; }
-  .photo-edit .pe .first { position: absolute; left: 2px; bottom: 2px; background: var(--gold); color: var(--navy-dd); font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 5px; }
+  .photo-edit .pe .first { position: absolute; left: 2px; bottom: 2px; background: var(--accent); color: #fff; font-size: 10px; font-weight: 800; padding: 1px 5px; border-radius: 5px; }
   .sect { border-top: 1px solid var(--line); margin-top: 16px; padding-top: 12px; }
   .sect h4 { margin: 0 0 8px; color: var(--navy); font-size: 15px; }
   .chk { display: flex; align-items: center; gap: 8px; font-weight: 600; }
@@ -65,7 +65,7 @@
 </head>
 <body>
 <header class="site-header"><div class="container">
-  <a class="brand" href="index.html"><img src="img/parad-wordmark-onnavy.png" alt="Parad.mn"><small>Админ</small></a>
+  <a class="brand" href="index.html"><img src="img/parad-wordmark.png" alt="Parad.mn"><small>Админ</small></a>
   <a class="btn btn-ghost btn-sm" href="admin.html" style="margin-left:auto;margin-right:10px">Тасалбар · Сугалаа</a>
   <div class="topbar hidden" id="topbar"><span class="role" id="role"></span><span class="who" id="who"></span><button class="btn btn-ghost btn-sm" id="logout">Гарах</button></div>
 </div></header>
@@ -171,7 +171,7 @@ async function vHorses() {
     <td>${{ none: '<span class="muted">—</span>', fixed: `Тогтмол · ${mnt(h.sale_price)}`, auction: `Дуудлага · ${h.top_bid ? money(h.top_bid) : 'бооцоо алга'}` }[h.sale_mode]}${h.sale_mode !== 'none' ? `<small>${{ available: 'Худалдаанд', reserved: 'Захиалагдсан', sold: 'Зарагдсан' }[h.sale_status]}</small>` : ''}</td>
     <td>${h.published ? '<span class="tag confirmed">Сайтад</span>' : '<span class="tag closed">Нууц</span>'}</td>
     <td><button class="btn btn-light btn-sm" data-edit="${h.id}">Засах</button> <a class="btn btn-ghost btn-sm" href="horse.html?s=${encodeURIComponent(h.slug)}" target="_blank" rel="noopener">Харах</a></td></tr>`).join('');
-  $('view').innerHTML = `<div class="filters"><button class="btn btn-gold" id="new-horse">+ Шинэ адуу бүртгэх</button><span class="muted small">${H.length} адуу</span></div>
+  $('view').innerHTML = `<div class="filters"><button class="btn btn-accent" id="new-horse">+ Шинэ адуу бүртгэх</button><span class="muted small">${H.length} адуу</span></div>
     <div class="table-wrap"><table class="tbl"><tr><th></th><th>Адуу</th><th>Гүү тавих</th><th>Зарах</th><th>Төлөв</th><th></th></tr>${rows || '<tr><td colspan="6" class="muted">Адуу бүртгэгдээгүй байна</td></tr>'}</table></div>`;
   $('new-horse').onclick = () => editHorse(null);
   $('view').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editHorse(H.find(h => h.id === b.dataset.edit)));
@@ -234,7 +234,7 @@ function editHorse(h) {
         <div><label>Дуудлага дуусах (УБ цаг)</label><input class="input" name="auction_ends_at" type="datetime-local" value="${toLocalInput(h.auction_ends_at)}"></div></div></div>
     <div class="sect"><label class="chk"><input type="checkbox" name="published"${h.published ? ' checked' : ''}> Сайтад харуулах</label></div>
     <div id="hf-err"></div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-gold btn-lg" style="flex:1" type="submit" id="hf-save">Хадгалах</button>${isNew ? '' : '<button class="btn btn-danger" type="button" id="hf-del">Устгах</button>'}</div></form>`, true);
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-accent btn-lg" style="flex:1" type="submit" id="hf-save">Хадгалах</button>${isNew ? '' : '<button class="btn btn-danger" type="button" id="hf-del">Устгах</button>'}</div></form>`, true);
 
   const f = $('hf');
   const paintPhotos = () => {
@@ -319,7 +319,7 @@ function paintStud() {
   $('view').innerHTML = `<div class="capgrid">${sH.map(h => `<div class="cap${bookingHorse === h.id ? ' sel' : ''}" data-h="${h.id}"><b>${esc(h.name)}</b><small>${h.confirmed_mares}/${h.stud_capacity} суудал · ${h.pending_mares} хүлээгдэж буй</small></div>`).join('')}</div>
     <div class="filters"><select class="input" id="fs"><option value="">Бүх төлөв</option>${Object.entries(SM).map(([k, l]) => `<option value="${k}"${bookingStatus === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
       <input class="input grow" id="ft" placeholder="Код, нэр, утас хайх" value="${esc(bookingText)}">
-      <button class="btn btn-gold" id="add-b">+ Захиалга нэмэх</button><button class="btn btn-light" id="csv-b">CSV татах</button><button class="btn btn-ghost" id="imp-b">Хуучин систем импорт</button></div>
+      <button class="btn btn-accent" id="add-b">+ Захиалга нэмэх</button><button class="btn btn-light" id="csv-b">CSV татах</button><button class="btn btn-ghost" id="imp-b">Хуучин систем импорт</button></div>
     <div class="table-wrap"><table class="tbl"><tr><th>Код</th><th>Азарга</th><th>Захиалагч</th><th>Гүү</th><th>Төлөв</th><th>Дүн</th><th></th></tr>${rows || '<tr><td colspan="7" class="muted">Захиалга алга</td></tr>'}</table></div>
     <p class="small muted">Нийт ${list.length} захиалга. «Баталгаажуулах» дарахад азарганы суудал хасагдаж, дараалал (баталгаажсан цагаар) автоматаар тооцогдоно.</p>`;
   $('view').querySelectorAll('[data-h]').forEach(c => c.onclick = () => { bookingHorse = bookingHorse === c.dataset.h ? '' : c.dataset.h; paintStud(); });
@@ -344,7 +344,7 @@ function editBooking(b) {
     <div class="grid2"><div><label>Аймаг, сум</label><input class="input" name="location" value="${esc(b.location || '')}"></div><div><label>Нэг гүүний үнэ (₮, хоосон = тохиролцоно)</label><input class="input" name="unit_price" type="number" value="${b.unit_price ?? ''}"></div></div>
     <div><label>Гүүний мэдээлэл</label><textarea class="input" name="mare_info" rows="2">${esc(b.mare_info || '')}</textarea></div>
     <div><label>Админы тэмдэглэл (нийтэд харагдахгүй)</label><textarea class="input" name="admin_note" rows="2">${esc(b.admin_note || '')}</textarea></div>
-    <div id="ef-err"></div><button class="btn btn-gold btn-block" type="submit">Хадгалах</button></form>`);
+    <div id="ef-err"></div><button class="btn btn-accent btn-block" type="submit">Хадгалах</button></form>`);
   $('ef').onsubmit = async e => {
     e.preventDefault(); const f = e.target;
     try { await api('admin_stud_update', { code: b.code, owner_name: f.owner_name.value, phone: f.phone.value, location: f.location.value, unit_price: f.unit_price.value, mare_info: f.mare_info.value, admin_note: f.admin_note.value }); closeModal(); toast('Хадгалагдлаа'); vStud(); }
@@ -358,7 +358,7 @@ function addBooking() {
     <div class="grid2"><div><label>Гүүний тоо</label><input class="input" name="mares" type="number" min="1" max="${site?.max_mares || 5}" value="1"></div><div><label>Аймаг, сум</label><input class="input" name="location"></div></div>
     <div><label>Гүүний мэдээлэл</label><textarea class="input" name="mare_info" rows="2"></textarea></div>
     <label class="chk"><input type="checkbox" name="confirm" checked> Шууд баталгаажуулах</label>
-    <div id="af-err"></div><button class="btn btn-gold btn-block" type="submit">Нэмэх</button></form>`);
+    <div id="af-err"></div><button class="btn btn-accent btn-block" type="submit">Нэмэх</button></form>`);
   $('af').onsubmit = async e => {
     e.preventDefault(); const f = e.target;
     try { const r = await api('admin_stud_add', { horse_id: f.horse_id.value, name: f.name.value, phone: f.phone.value, mares: Number(f.mares.value), location: f.location.value, mare_info: f.mare_info.value, confirm: f.confirm.checked }); closeModal(); toast('Нэмэгдлээ: ' + r.code); vStud(); }
@@ -402,7 +402,7 @@ async function vSale() {
       <td><span class="tag ${h.sale_status === 'available' ? 'new' : 'confirmed'}">${SL[h.sale_status]}</span>${h.sold_to_name ? `<small>${esc(h.sold_to_name)} · ${esc(h.sold_to_phone || '')}</small>` : ''}${h.sold_price ? `<small>${money(h.sold_price)}</small>` : ''}</td>
       <td><div class="acts">${h.sale_mode === 'auction' ? `<button class="btn btn-light btn-sm" data-bids="${h.id}">Бооцоонууд</button>` : ''}
         ${h.sale_mode === 'auction' && !h.auction_closed ? `<button class="btn btn-ok btn-sm" data-close="${h.id}">Дуудлага хаах</button>` : ''}
-        ${h.sale_status !== 'sold' ? `<button class="btn btn-gold btn-sm" data-sold="${h.id}">Зарагдсан</button>` : `<button class="btn btn-ghost btn-sm" data-reopen="${h.id}">Буцаах</button>`}</div></td></tr>`;
+        ${h.sale_status !== 'sold' ? `<button class="btn btn-accent btn-sm" data-sold="${h.id}">Зарагдсан</button>` : `<button class="btn btn-ghost btn-sm" data-reopen="${h.id}">Буцаах</button>`}</div></td></tr>`;
   }).join('');
   const irows = inq.inquiries.map(i => `<tr><td>${esc(fmtDT(i.created_at))}</td><td><b>${esc(i.horses?.name || '')}</b></td>
     <td><b>${esc(i.name)}</b><small>${esc(i.phone)}</small></td><td>${i.kind === 'reserve' ? 'Авах хүсэлт' : 'Санал'}${i.offer ? `<small>${money(i.offer)}</small>` : ''}${i.message ? `<small>${esc(i.message)}</small>` : ''}</td>
@@ -433,7 +433,7 @@ async function showBids(h) {
 function markSold(h) {
   modal(`${h.name} — зарагдсан`, `<form class="form" id="sf"><div class="grid2"><div><label>Худалдан авагч</label><input class="input" name="n" value="${esc(h.sold_to_name || '')}"></div><div><label>Утас</label><input class="input" name="p" value="${esc(h.sold_to_phone || '')}"></div></div>
     <div><label>Зарсан үнэ (₮)</label><input class="input" name="price" type="number" value="${h.sold_price ?? h.top_bid ?? h.sale_price ?? ''}"></div>
-    <div id="sf-err"></div><button class="btn btn-gold btn-block" type="submit">Зарагдсан гэж тэмдэглэх</button></form>`);
+    <div id="sf-err"></div><button class="btn btn-accent btn-block" type="submit">Зарагдсан гэж тэмдэглэх</button></form>`);
   $('sf').onsubmit = async e => {
     e.preventDefault(); const f = e.target;
     try { await api('admin_horse_save', { horse: { id: h.id, sale_status: 'sold', sold_to_name: f.n.value, sold_to_phone: f.p.value, sold_price: f.price.value === '' ? null : Number(f.price.value), sold_at: new Date().toISOString(), auction_closed: h.sale_mode === 'auction' ? true : h.auction_closed } }); closeModal(); vSale(); }
@@ -453,7 +453,7 @@ async function vSettings() {
     <div><label>Төлбөр төлөх данс (захиалгын хуудсанд гарна)</label><textarea class="input" name="bank_info" rows="3" placeholder="Банк, дансны дугаар, хүлээн авагч">${esc(s.bank_info)}</textarea></div>
     <div><label>Нөхцөл (мөр бүр нэг заалт)</label><textarea class="input" name="stud_terms" rows="6">${esc((s.stud_terms || []).join('\n'))}</textarea></div>
     <div><label>Худалдааны тайлбар</label><textarea class="input" name="sale_note" rows="2">${esc(s.sale_note)}</textarea></div>
-    <div id="ps-err"></div><button class="btn btn-gold" type="submit" style="align-self:start">Хадгалах</button></form>
+    <div id="ps-err"></div><button class="btn btn-accent" type="submit" style="align-self:start">Хадгалах</button></form>
     <div class="panel2"><h3>Парад, тасалбар</h3><p class="small muted" style="margin:0 0 10px">Парадын огноо, байршил, тасалбарын үнэ, QPay, ажилтны эрхийг «Тасалбар · Сугалаа» админ хуудасны <b>Тохиргоо</b> таб дээр засна. Огноог оруулаад «парад зарлагдсан» болгох хүртэл нүүр хуудсанд «удахгүй» гэж харагдана.</p><a class="btn btn-light" href="admin.html">Тасалбарын админ →</a></div>`;
   $('pf2').onsubmit = async e => {
     e.preventDefault(); const f = e.target;

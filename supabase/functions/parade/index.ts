@@ -251,7 +251,7 @@ async function sendMailRaw(m: { to: string[]; subject: string; html: string; tex
   throw new Error('Имэйл тохиргоо хийгдээгүй (SMTP_USER/SMTP_PASS эсвэл RESEND_API_KEY)');
 }
 
-const NAVY = '#0b3a48', NAVY_D = '#072a35', GOLD = '#c9a24a', CREAM = '#f4f2ec';
+const NAVY = '#0c2179', NAVY_D = '#081a5c', GOLD = '#ff6f5e', ACCENT = '#9e231b', CREAM = '#f3f5fb';
 
 function ticketEmail(o: any, tickets: any[], s: any) {
   const base = siteBase(s);
@@ -266,7 +266,7 @@ function ticketEmail(o: any, tickets: any[], s: any) {
             <div style="font-size:30px;font-weight:bold;color:${GOLD};letter-spacing:2px;margin:4px 0">№${t.number}</div>
             <div style="font-size:13px;opacity:.9">${esc(o.name)}</div>
             <div style="font-size:12px;opacity:.75;margin-top:8px">Сугалаа · Хоол · Ус, ундаа</div>
-            ${base ? `<a href="${ticketUrl(base, t.token)}" style="display:inline-block;margin-top:12px;background:${GOLD};color:${NAVY_D};text-decoration:none;font-weight:bold;font-size:13px;padding:8px 14px;border-radius:8px">Тасалбар нээх →</a>` : ''}
+            ${base ? `<a href="${ticketUrl(base, t.token)}" style="display:inline-block;margin-top:12px;background:${ACCENT};color:#fff;text-decoration:none;font-weight:bold;font-size:13px;padding:8px 14px;border-radius:8px">Тасалбар нээх →</a>` : ''}
           </td>
           <td width="170" style="padding:14px;background:#fff;text-align:center;vertical-align:middle">
             <img src="cid:qr${t.number}@parade" width="150" height="150" alt="QR ${t.number}" style="display:block;margin:0 auto">
@@ -278,7 +278,7 @@ function ticketEmail(o: any, tickets: any[], s: any) {
   const html = `<!doctype html><html><body style="margin:0;background:${CREAM};padding:20px 0">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0"><tr><td align="center">
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;font-family:Arial,sans-serif;color:#1b211f">
-    <tr><td style="background:${NAVY_D};padding:22px 24px;border-bottom:3px solid ${GOLD}">
+    <tr><td style="background:${NAVY_D};padding:22px 24px;border-bottom:3px solid ${ACCENT}">
       <div style="color:${GOLD};font-size:20px;font-weight:bold;letter-spacing:1px">PARAD.MN</div>
       <div style="color:#e9e4d4;font-size:12px">Үе дамжсан шилмэл удам</div>
     </td></tr>
@@ -297,7 +297,7 @@ function ticketEmail(o: any, tickets: any[], s: any) {
       <p style="font-size:13px;color:#555;margin:6px 0 0"><b>Тасалбарт багтсан:</b> сугалаа (25% эр сарваа, TRM брэнд 10 бүтээгдэхүүн, Адууны эмнэлгээр үйлчлүүлэх 10 эрх), хоол, ус ундаа. Тасалбарын дугаар нь сугалааны дугаар болно.</p>
       <p style="font-size:13px;color:#555">Асуух зүйл байвал: <b>${esc(s.phone)}</b></p>
     </td></tr>
-    <tr><td style="background:${NAVY_D};color:#cfd8d6;font-size:12px;padding:14px 24px">Parad.mn · ${esc(s.location)} · ${esc(s.phone)}</td></tr>
+    <tr><td style="background:${NAVY_D};color:#cfd6ee;font-size:12px;padding:14px 24px">Parad.mn · ${esc(s.location)} · ${esc(s.phone)}</td></tr>
   </table></td></tr></table></body></html>`;
   const text = `${s.event_name} — таны тасалбар\n\n${o.name}, төлбөр баталгаажлаа.\nОгноо: ${fmtEvent(s.event_at)}\nБайршил: ${s.location}\nЗахиалга: ${o.code}\nТасалбар: ${nums}\n\n` +
     tickets.map(t => `№${t.number}: ${ticketUrl(base, t.token)}`).join('\n') + `\n\nУтас: ${s.phone}`;
