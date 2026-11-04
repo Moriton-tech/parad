@@ -90,7 +90,7 @@
   <div class="modal-body" id="m-body"></div></div></div>
 
 <script type="module">
-import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured } from './js/app.js';
+import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct } from './js/app.js';
 const $ = id => document.getElementById(id);
 let me = null, H = [], site = null, tab = 'dash';
 let B = [], Q = [], stats = null, bookingHorse = '', bookingStatus = '', bookingText = '';
@@ -158,7 +158,7 @@ async function vDash() {
     <div class="panel2"><h3>Азарга бүрийн суудал</h3>${capTable()}</div>`;
 }
 function capTable() {
-  const rows = H.filter(h => h.stud_enabled).map(h => `<tr><td><b>${esc(h.name)}</b></td><td>${h.stud_active ? '' : '<span class="tag closed">Хаалттай</span>'}</td><td>${h.confirmed_mares}/${h.stud_capacity}</td><td>${h.pending_mares}</td><td>${h.stud_fee == null ? 'Private' : money(h.stud_price)}</td></tr>`).join('');
+  const rows = H.filter(h => h.stud_enabled).map(h => `<tr><td><b>${esc(h.name)}</b></td><td>${h.stud_active ? '' : '<span class="tag closed">Хаалттай</span>'}</td><td>${h.confirmed_mares}/${h.stud_capacity}</td><td>${h.pending_mares}</td><td>${h.stud_fee == null ? 'Private' : money(h.stud_price)}${h.stud_price < h.stud_fee ? ` <span class="disc-tag">-${discPct(h.stud_fee, h.stud_price)}%</span>` : ''}</td></tr>`).join('');
   return `<div class="table-wrap" style="box-shadow:none;margin:0"><table class="tbl" style="min-width:520px"><tr><th>Азарга</th><th></th><th>Баталгаажсан / суудал</th><th>Хүлээгдэж буй</th><th>Үнэ</th></tr>${rows || '<tr><td colspan="5" class="muted">Гүү тавих азарга алга</td></tr>'}</table></div>`;
 }
 
@@ -167,7 +167,7 @@ async function vHorses() {
   await loadHorses();
   const rows = H.map(h => `<tr data-id="${h.id}"><td style="width:64px">${photoOf(h, 0, true) ? `<img src="${esc(photoOf(h, 0, true))}" style="width:54px;height:54px;object-fit:cover;border-radius:8px" alt="">` : ''}</td>
     <td><b>${esc(h.name)}</b><small>${esc(KIND[h.kind])}${h.foaled ? ' · ' + h.foaled : ''}${h.breed ? ' · ' + esc(h.breed) : ''}</small></td>
-    <td>${h.stud_enabled ? `Гүү тавина · ${h.stud_fee == null ? 'Private' : money(h.stud_price)}<small>${h.confirmed_mares}/${h.stud_capacity}${h.stud_active ? '' : ' · хаалттай'}</small>` : '<span class="muted">—</span>'}</td>
+    <td>${h.stud_enabled ? `Гүү тавина · ${h.stud_fee == null ? 'Private' : money(h.stud_price) + (h.stud_price < h.stud_fee ? ` <span class="disc-tag">-${discPct(h.stud_fee, h.stud_price)}%</span>` : '')}<small>${h.confirmed_mares}/${h.stud_capacity}${h.stud_active ? '' : ' · хаалттай'}</small>` : '<span class="muted">—</span>'}</td>
     <td>${{ none: '<span class="muted">—</span>', fixed: `Тогтмол · ${mnt(h.sale_price)}`, auction: `Дуудлага · ${h.top_bid ? money(h.top_bid) : 'бооцоо алга'}` }[h.sale_mode]}${h.sale_mode !== 'none' ? `<small>${{ available: 'Худалдаанд', reserved: 'Захиалагдсан', sold: 'Зарагдсан' }[h.sale_status]}</small>` : ''}</td>
     <td>${h.published ? '<span class="tag confirmed">Сайтад</span>' : '<span class="tag closed">Нууц</span>'}</td>
     <td><button class="btn btn-light btn-sm" data-edit="${h.id}">Засах</button> <a class="btn btn-ghost btn-sm" href="horse.html?s=${encodeURIComponent(h.slug)}" target="_blank" rel="noopener">Харах</a></td></tr>`).join('');
@@ -195,7 +195,7 @@ function resizeImage(file, max = 1600) {
 const toB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
 
 function editHorse(h) {
-  const isNew = !h; h = h || { kind: 'stallion', published: true, stud_capacity: site?.max_mares ? 10 : 10, stud_active: true, stud_discount: 0, sale_mode: 'none', sale_status: 'available', auction_step: 500000, photos: [], sort: 100 };
+  const isNew = !h; h = h || { kind: 'stallion', published: true, stud_capacity: site?.max_mares ? 10 : 10, stud_active: true, sale_mode: 'none', sale_status: 'available', auction_step: 500000, photos: [], sort: 100 };
   let photos = JSON.parse(JSON.stringify(h.photos || [])), pedigree = h.pedigree_img || '';
   const v = x => esc(x == null ? '' : x);
   const sel = (k, list) => list.map(([a, l]) => `<option value="${a}"${h[k] === a ? ' selected' : ''}>${l}</option>`).join('');
@@ -220,7 +220,7 @@ function editHorse(h) {
     <div class="sect"><h4>Азарганд гүү тавих</h4>
       <label class="chk"><input type="checkbox" name="stud_enabled"${h.stud_enabled ? ' checked' : ''}> Гүү тавих захиалга авна</label>
       <div class="grid3" style="margin-top:8px"><div><label>Нэг гүүний үнэ (₮)</label><input class="input" name="stud_fee" type="number" min="0" step="100000" value="${v(h.stud_fee)}" placeholder="Хоосон = Private"></div>
-        <div><label>Хямдрал (%)</label><input class="input" name="stud_discount" type="number" min="0" max="90" value="${v(h.stud_discount)}"></div>
+        <div><label>Хямдарсан үнэ (₮)</label><input class="input" name="stud_price_new" type="number" min="0" step="100000" value="${h.stud_fee != null && h.stud_price != null && h.stud_price < h.stud_fee ? h.stud_price : ''}" placeholder="Хоосон = хямдралгүй"><small class="muted" id="disc-hint"></small></div>
         <div><label>Суудлын тоо</label><input class="input" name="stud_capacity" type="number" min="1" max="200" value="${v(h.stud_capacity)}"></div></div>
       <label class="chk" style="margin-top:8px"><input type="checkbox" name="stud_active"${h.stud_active ? ' checked' : ''}> Захиалга нээлттэй</label></div>
     <div class="sect"><h4>Зарах</h4>
@@ -237,6 +237,9 @@ function editHorse(h) {
     <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn btn-accent btn-lg" style="flex:1" type="submit" id="hf-save">Хадгалах</button>${isNew ? '' : '<button class="btn btn-danger" type="button" id="hf-del">Устгах</button>'}</div></form>`, true);
 
   const f = $('hf');
+  const discHint = () => { const fee = Number(f.elements.stud_fee.value), np = f.elements.stud_price_new.value === '' ? null : Number(f.elements.stud_price_new.value), el = $('disc-hint');
+    el.textContent = !fee || np == null ? '' : np >= fee ? 'Үндсэн үнээс бага байх ёстой' : `= ${discPct(fee, np)}% хямдрал`; };
+  f.elements.stud_fee.addEventListener('input', discHint); f.elements.stud_price_new.addEventListener('input', discHint); discHint();
   const paintPhotos = () => {
     $('pe').innerHTML = photos.map((p, i) => `<div class="pe"><img src="${esc(p.t || p.u)}" alt="">${i === 0 ? '<span class="first">Үндсэн</span>' : `<span class="first" data-first="${i}" style="cursor:pointer;background:#fff">↑</span>`}<button type="button" data-rm="${i}" title="Устгах">×</button></div>`).join('') || '<span class="muted small">Зураг алга</span>';
     $('pe').querySelectorAll('[data-rm]').forEach(b => b.onclick = () => { photos.splice(Number(b.dataset.rm), 1); paintPhotos(); });
@@ -272,7 +275,7 @@ function editHorse(h) {
       name: g('name').value, name_en: g('name_en').value, kind: g('kind').value, foaled: num('foaled'), sort: num('sort') ?? 100,
       breed: g('breed').value, color: g('color').value, tamga: g('tamga').value, sire: g('sire').value, dam: g('dam').value, microchip: g('microchip').value,
       description: g('description').value, notes: g('notes').value, photos, pedigree_img: pedigree || null,
-      stud_enabled: g('stud_enabled').checked, stud_active: g('stud_active').checked, stud_fee: num('stud_fee'), stud_discount: num('stud_discount') ?? 0, stud_capacity: num('stud_capacity') ?? 10,
+      stud_enabled: g('stud_enabled').checked, stud_active: g('stud_active').checked, stud_fee: num('stud_fee'), stud_price_new: num('stud_price_new'), stud_discount: 0, stud_capacity: num('stud_capacity') ?? 10,
       sale_mode: g('sale_mode').value, sale_status: g('sale_status').value, sale_price: num('sale_price'),
       auction_start_price: num('auction_start_price'), auction_step: num('auction_step') ?? 500000, auction_closed: g('auction_closed').checked,
       auction_starts_at: fromLocalInput(g('auction_starts_at').value), auction_ends_at: fromLocalInput(g('auction_ends_at').value),
