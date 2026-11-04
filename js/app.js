@@ -166,6 +166,12 @@ export const ICONS = {
 // ---- адуу, гүү тавих, зарах: нийтлэг туслахууд
 export const mnt = n => (n == null || n === '' ? 'Тохиролцоно' : money(n));
 export const million = n => { const v = Number(n) / 1e6; return (Number.isInteger(v) ? v : v.toFixed(2).replace(/\.?0+$/, '')) + ' сая ₮'; };
+// Үүлдрийн ангилал: Монгол адуу / гадаад үүлдэр (админд санал болгох жагсаалт)
+export const BREEDS = {
+  'Монгол адуу': ['Монгол цэвэр', 'Монгол эрлийз', 'Монгол – Галшар', 'Монгол – Дархад', 'Монгол – Тэс'],
+  'Гадаад үүлдэр': ['Цэвэр Англи', 'Цэвэр Араб', 'Англи-Араб', 'Ахалтеке', 'Эрлийз'],
+};
+export const breedGroup = b => (!b ? '' : /монгол/i.test(b) ? 'Монгол адуу' : 'Гадаад үүлдэр');
 export const KIND = { stallion: 'Азарга', mare: 'Гүү', colt: 'Эр унага', filly: 'Эм унага', gelding: 'Морь' };
 export const photoOf = (h, i = 0, thumb = false) => { const p = (h.photos || [])[i]; return p ? (thumb ? p.t || p.u : p.u) : null; };
 // Үржүүлгийн үнэ (хямдралтай бол хуучин үнийг зураастай)

@@ -90,7 +90,7 @@
   <div class="modal-body" id="m-body"></div></div></div>
 
 <script type="module">
-import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct } from './js/app.js';
+import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS } from './js/app.js';
 const $ = id => document.getElementById(id);
 let me = null, H = [], site = null, tab = 'dash';
 let B = [], Q = [], stats = null, bookingHorse = '', bookingStatus = '', bookingText = '';
@@ -205,7 +205,7 @@ function editHorse(h) {
     <div class="grid3"><div><label>Төрөл</label><select class="input" name="kind">${sel('kind', Object.entries(KIND))}</select></div>
       <div><label>Төрсөн он</label><input class="input" name="foaled" type="number" min="1950" max="2100" value="${v(h.foaled)}"></div>
       <div><label>Каталогийн дугаар / эрэмбэ</label><input class="input" name="sort" type="number" value="${v(h.sort)}"></div></div>
-    <div class="grid3"><div><label>Үүлдэр</label><input class="input" name="breed" value="${v(h.breed)}" placeholder="Цэвэр англи"></div>
+    <div class="grid3"><div><label>Үүлдэр</label><input class="input" name="breed" list="breed-list" value="${v(h.breed)}" placeholder="Сонгох эсвэл бичих"><datalist id="breed-list">${Object.entries(BREEDS).map(([g, l]) => l.map(x => `<option value="${x}">${g}</option>`).join('')).join('')}</datalist></div>
       <div><label>Зүс</label><input class="input" name="color" value="${v(h.color)}"></div>
       <div><label>Тамга</label><input class="input" name="tamga" value="${v(h.tamga)}"></div></div>
     <div class="grid3"><div><label>Эцэг</label><input class="input" name="sire" value="${v(h.sire)}"></div>
