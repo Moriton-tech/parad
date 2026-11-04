@@ -7,7 +7,7 @@
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
 <link rel="stylesheet" href="css/style.css">
 <link rel="stylesheet" href="css/pm.css">
 <link rel="modulepreload" href="js/app.js">
@@ -241,8 +241,10 @@ function openInquiry(kind) {
 async function refresh(soft) {
   try {
     const typing = document.activeElement && /INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName) && $('modal').classList.contains('open');
-    D = await api('horse', { slug });
-    offset = new Date(D.now).getTime() - Date.now();
+    const n = await api('horse', { slug });
+    const same = D && JSON.stringify({ h: n.horse, q: n.queue, b: n.bids }) === JSON.stringify({ h: D.horse, q: D.queue, b: D.bids });
+    D = n; offset = new Date(D.now).getTime() - Date.now();
+    if (same) { if (D.horse && $('timer')) tickTimer(); return; }              // өөрчлөлтгүй бол дахин зурахгүй (үсрэх, гацахаас сэргийлнэ)
     if (!typing && !(soft && $('bid-form') && document.activeElement && $('bid-form').contains(document.activeElement))) render();
     else if (D.horse && $('timer')) tickTimer();
   } catch (e) { if (!D) $('root').innerHTML = `<div class="empty-box">${esc(e.message)}</div>`; }
@@ -257,7 +259,13 @@ try {
 } catch (e) { if (!D) $('root').innerHTML = `<div class="empty-box">${esc(e.message)}</div>`; }
 if (D) {
   renderChrome({ contact_phone: D.site.phone }, 'horses');
-  poll = setInterval(() => { if (!document.hidden && !$('modal').classList.contains('open')) { const a = auctionState(D.horse, Date.now() + offset); if (a === 'open' || a === 'scheduled' || D.horse.stud_enabled) refreshKeepForm(); } }, 8000);
+  let lastPoll = Date.now();
+  poll = setInterval(() => {
+    if (document.hidden || $('modal').classList.contains('open')) return;
+    const a = auctionState(D.horse, Date.now() + offset);
+    const every = a === 'open' || a === 'scheduled' ? 8000 : D.horse.stud_enabled ? 60000 : 0;   // дуудлага явагдаж байвал 8 сек, бусад үед 1 мин
+    if (every && Date.now() - lastPoll >= every) { lastPoll = Date.now(); refreshKeepForm(); }
+  }, 4000);
 } else renderChrome({});
 // Бооцооны маягт дээр бичиж байгаа бол дахин зурахгүй, зөвхөн жагсаалт/үнийг шинэчилнэ
 async function refreshKeepForm() {

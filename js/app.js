@@ -6,21 +6,28 @@ export const configured = !/YOUR-PROJECT|YOUR-PUBLISHABLE/.test(CONFIG.SUPABASE_
 const BASE = String(CONFIG.SUPABASE_URL || '').replace(/\/+$/, '');
 export const FN_URL = CONFIG.FUNCTION_URL || BASE + '/functions/v1/parade';
 
+const READ_ONLY = new Set(['info', 'horses', 'horse', 'ticket', 'deposit_status', 'stud_status', 'status']);
 export async function api(action, body = {}, token) {
   if (!configured) throw new Error('Сайтын тохиргоо (js/config.js) хийгдээгүй байна.');
-  let r;
-  try {
-    r = await fetch(FN_URL, {
-      method: 'POST',
+  const send = () => {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), 20_000);                 // гацахаас сэргийлж 20 сек хүлээгээд таслана
+    return fetch(FN_URL, {
+      method: 'POST', signal: ctl.signal,
       headers: {
         'Content-Type': 'application/json', apikey: CONFIG.SUPABASE_KEY,
         // админ бол хэрэглэгчийн токен; эс бөгөөс хуучин anon (JWT) түлхүүр байвал түүнийг дамжуулна
         ...(token ? { Authorization: 'Bearer ' + token } : String(CONFIG.SUPABASE_KEY).split('.').length === 3 ? { Authorization: 'Bearer ' + CONFIG.SUPABASE_KEY } : {}),
       },
       body: JSON.stringify({ action, ...body }),
-    });
+    }).finally(() => clearTimeout(timer));
+  };
+  let r;
+  try {
+    try { r = await send(); }
+    catch (e) { if (!READ_ONLY.has(action)) throw e; await new Promise(ok => setTimeout(ok, 800)); r = await send(); }   // уншдаг хүсэлтийг нэг удаа дахин оролдоно
   } catch (e) {
-    throw new Error('Сервертэй холбогдож чадсангүй. Интернэтээ шалгаад дахин оролдоно уу.');
+    throw new Error(e && e.name === 'AbortError' ? 'Сервер удаан хариу өгөөгүй. Дахин оролдоно уу.' : 'Сервертэй холбогдож чадсангүй. Интернэтээ шалгаад дахин оролдоно уу.');
   }
   let j = {};
   try { j = await r.json(); } catch { /* хоосон */ }
