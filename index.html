@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Parad.mn — Үе дамжсан шилмэл удам · Азарганд гүү тавих · Зарах азарганууд</title>
+<title>Parad.mn — Үе дамжсан шилмэл удам · Азарганд гүү тавих · Худалдах адуунууд</title>
 <meta name="description" content="Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл: үржүүлгийн парад (үнэгүй бүртгэл), азарганд гүү тавих онлайн захиалга, азарга зарах, дуудлага худалдаа.">
 <meta property="og:title" content="Parad.mn — Үе дамжсан шилмэл удам">
 <meta property="og:description" content="Парад, азарганд гүү тавих, азарга зарах — нэг дор.">
@@ -105,7 +105,7 @@ function show({ horses, site, event }, stale) {
   $('tiles').innerHTML = `
     <a class="tile" href="register.html"><div class="tt">${esc(parade.t)}</div><div class="tp">${esc(parade.p)}</div><div class="go">${parade.g}</div></a>
     <a class="tile" href="stallions.html?f=stud"><div class="tt">Азарганд гүү тавих</div><div class="tp">${esc(site.season)} · ${studH.length} азарга · ${seats} суудал үлдсэн</div><div class="go">Азарга сонгох →</div></a>
-    <a class="tile" href="stallions.html?f=sale"><div class="tt">Зарах азарганууд</div><div class="tp">${saleH.length} адуу худалдаанд${live ? ` · <b style="color:var(--red)">${live} дуудлага явагдаж байна</b>` : ''}</div><div class="go">Үзэх →</div></a>`;
+    <a class="tile" href="stallions.html?f=sale"><div class="tt">Худалдах адуунууд</div><div class="tp">${saleH.length} адуу худалдаанд${live ? ` · <b style="color:var(--red)">${live} дуудлага явагдаж байна</b>` : ''}</div><div class="go">Үзэх →</div></a>`;
   if (ev) {
     $('hero-parade').textContent = event.sales_open ? 'Парадад бүртгүүлэх' : 'Парадын мэдээлэл';
     if (!stale && !cdStarted && new Date(event.event_at) > new Date()) { cdStarted = true; startCountdown($('countdown'), event.event_at, event.now); }
