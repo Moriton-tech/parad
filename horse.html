@@ -87,7 +87,8 @@ function saleCard(h, site) {
     if (st === 'scheduled') head = `<div class="alert info">Дуудлага ${esc(fmtDT(h.auction_starts_at))}-д эхэлнэ.</div>`;
     else if (st === 'open') {
       head = `<div class="small muted">Дуудлага дуустал</div><div class="timer-big" id="timer">—</div>`;
-      form = `<form class="form" id="bid-form" novalidate style="margin-top:14px">
+      form = `<div class="alert info" style="margin-top:14px;font-size:13px">Дуудлагад зөвхөн <b>парадад бүртгүүлсэн, оролцооны хураамж төлсөн</b> оролцогч бооцоо тавина. Төлөөгүй бол <a href="${store.get('pass') ? 'ticket.html?t=' + encodeURIComponent(store.get('pass')) : 'register.html'}">бүртгэлийн пассаа нээж</a> төлнө үү.</div>
+      <form class="form" id="bid-form" novalidate style="margin-top:10px">
         <div style="display:none"><input name="website" tabindex="-1" autocomplete="off"></div>
         <div><label>Нэр <span class="req">*</span></label><input class="input" name="name" maxlength="80" autocomplete="name" required></div>
         <div><label>Утас <span class="req">*</span></label><input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" required></div>

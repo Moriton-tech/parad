@@ -201,15 +201,15 @@ export function renderChrome(info, active = '') {
   if (h) h.innerHTML = `<div class="container">
     <a class="brand" href="index.html"><img src="img/parad-wordmark.png" alt="Parad.mn"></a>
     <nav class="nav">
-      <a href="tickets.html"${active === 'parade' ? ' class="on"' : ''}>Парад</a>
+      <a href="register.html"${active === 'parade' ? ' class="on"' : ''}>Парад</a>
       <a href="stallions.html"${active === 'horses' ? ' class="on"' : ''}>Азарга</a>
       <a href="booking.html" class="hide-sm${active === 'booking' ? ' on' : ''}">Миний захиалга</a>
-      ${ev && info.sales_open ? '<a href="tickets.html#buy" class="cta">Тасалбар авах</a>' : '<a href="stallions.html" class="cta">Азарга үзэх</a>'}
+      ${ev && info.sales_open ? '<a href="register.html#register" class="cta">Бүртгүүлэх</a>' : '<a href="stallions.html" class="cta">Азарга үзэх</a>'}
     </nav></div>`;
   const f = document.getElementById('site-footer');
   const phone = (info && (info.phone || info.contact_phone)) || '';
   if (f) f.innerHTML = `<div class="container">
     <div><img class="foot-logo" src="img/parad-logo-onnavy.png" alt="Parad.mn — Үе дамжсан шилмэл удам"><br>Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл<br>${phone ? `Утас: <a href="tel:${esc(String(phone).replace(/\D/g, ''))}">${esc(phone)}</a>` : ''}</div>
-    <div><a href="tickets.html">Парад · Тасалбар</a> · <a href="stallions.html">Азарга</a> · <a href="booking.html">Миний захиалга</a></div></div>`;
+    <div><a href="register.html">Парад · Бүртгэл</a> · <a href="stallions.html">Азарга</a> · <a href="booking.html">Миний захиалга</a></div></div>`;
   if (!configured && !document.querySelector('.cfg-warn')) document.body.insertAdjacentHTML('afterbegin', '<div class="cfg-warn"><b>Тохиргоо дутуу:</b> js/config.js файлд Supabase-ийн URL, түлхүүрийг оруулна уу (README-г үзнэ үү).</div>');
 }
