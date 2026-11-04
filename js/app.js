@@ -199,7 +199,7 @@ export function renderChrome(info, active = '') {
   const h = document.getElementById('site-header');
   const ev = info && info.event_public;
   if (h) h.innerHTML = `<div class="container">
-    <a class="brand" href="index.html"><img src="img/parad-wordmark-light.png" alt="Parad.mn"></a>
+    <a class="brand" href="index.html"><img src="img/parad-wordmark-onnavy.png" alt="Parad.mn"></a>
     <nav class="nav">
       <a href="tickets.html"${active === 'parade' ? ' class="on"' : ''}>Парад</a>
       <a href="stallions.html"${active === 'horses' ? ' class="on"' : ''}>Азарга</a>
@@ -209,7 +209,7 @@ export function renderChrome(info, active = '') {
   const f = document.getElementById('site-footer');
   const phone = (info && (info.phone || info.contact_phone)) || '';
   if (f) f.innerHTML = `<div class="container">
-    <div><b>Parad.mn</b> · Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл<br>${phone ? `Утас: <a href="tel:${esc(String(phone).replace(/\D/g, ''))}">${esc(phone)}</a>` : ''}</div>
+    <div><img class="foot-logo" src="img/parad-logo-onnavy.png" alt="Parad.mn — Үе дамжсан шилмэл удам"><br>Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл<br>${phone ? `Утас: <a href="tel:${esc(String(phone).replace(/\D/g, ''))}">${esc(phone)}</a>` : ''}</div>
     <div><a href="tickets.html">Парад · Тасалбар</a> · <a href="stallions.html">Азарга</a> · <a href="booking.html">Миний захиалга</a></div></div>`;
   if (!configured && !document.querySelector('.cfg-warn')) document.body.insertAdjacentHTML('afterbegin', '<div class="cfg-warn"><b>Тохиргоо дутуу:</b> js/config.js файлд Supabase-ийн URL, түлхүүрийг оруулна уу (README-г үзнэ үү).</div>');
 }

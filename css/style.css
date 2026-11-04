@@ -44,7 +44,7 @@ h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 .5em; }
 .site-header { background: var(--navy-d); border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 50; }
 .site-header .container { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
 .brand { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; min-width: 0; }
-.brand img { height: 34px; width: auto; flex: none; }
+.brand img { height: 30px; width: auto; flex: none; }
 .brand b { display: block; color: var(--gold-l); font-weight: 800; font-size: 18px; letter-spacing: 1.5px; line-height: 1.1; }
 .brand small { display: block; color: #e9e4d4; font-size: 11px; opacity: .9; white-space: nowrap; }
 .nav { display: flex; gap: 6px; align-items: center; }
@@ -55,7 +55,7 @@ h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 .5em; }
 @media (max-width: 560px) {
   .brand small { font-size: 10px; }
   .brand b { font-size: 16px; letter-spacing: 1px; }
-  .brand img { height: 28px; }
+  .brand img { height: 24px; }
   .nav a { padding: 8px 9px; font-size: 13px; }
   .nav a.hide-sm { display: none; }
 }
@@ -63,7 +63,7 @@ h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 .5em; }
 @media (max-width: 440px) {
   .site-header .container { gap: 6px; }
   .brand small { display: none; }
-  .brand img { height: 24px; }
+  .brand img { height: 21px; }
   .nav { gap: 2px; }
   .nav a { padding: 8px 8px; }
 }
@@ -300,7 +300,7 @@ body.ticket-page { background: radial-gradient(circle at 50% 0%, #0f4a5b 0%, var
 .et-top { background: linear-gradient(160deg, #0f4a5b, var(--navy-d) 70%); color: #fff; border-radius: 22px 22px 0 0; padding: 22px 22px 18px; position: relative; overflow: hidden; }
 .et-top::after { content: ""; position: absolute; right: -40px; top: -40px; width: 180px; height: 180px; background: var(--logo) center / contain no-repeat; opacity: .08; }
 .et-brand { display: flex; align-items: center; gap: 10px; }
-.et-brand img { height: 28px; width: auto; }
+.et-brand img { height: 26px; width: auto; }
 .et-brand b { color: var(--gold-l); letter-spacing: 1.5px; font-size: 15px; }
 .et-brand small { display: block; font-size: 10.5px; color: #d9d4c4; }
 .et-title { font-family: var(--display); text-transform: uppercase; margin: 16px 0 4px; line-height: .95; }
@@ -343,6 +343,7 @@ body.ticket-page { background: radial-gradient(circle at 50% 0%, #0f4a5b 0%, var
 .site-footer { background: var(--navy-dd); color: #c9d6d6; padding: 26px 0; font-size: 13px; border-top: 2px solid var(--gold); }
 .site-footer .container { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .site-footer b { color: var(--gold-l); }
+.site-footer .foot-logo { height: 46px; width: auto; margin-bottom: 8px; }
 .site-footer a { color: #fff; }
 body.ticket-page .site-footer { background: transparent; border-top-color: rgba(201,162,74,.4); }
 

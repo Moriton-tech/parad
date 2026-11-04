@@ -280,7 +280,7 @@ function ticketEmail(o: any, tickets: any[], s: any) {
   <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#fff;border-radius:16px;overflow:hidden;font-family:Arial,sans-serif;color:#1b211f">
     <tr><td style="background:${NAVY_D};padding:22px 24px;border-bottom:3px solid ${GOLD}">
       <div style="color:${GOLD};font-size:20px;font-weight:bold;letter-spacing:1px">PARAD.MN</div>
-      <div style="color:#e9e4d4;font-size:12px">Үе дамжсан домогт угшил</div>
+      <div style="color:#e9e4d4;font-size:12px">Үе дамжсан шилмэл удам</div>
     </td></tr>
     <tr><td style="padding:24px">
       <h1 style="margin:0 0 6px;font-size:22px;color:${NAVY}">${esc(s.event_name)} — таны тасалбар</h1>
