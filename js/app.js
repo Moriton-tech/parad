@@ -169,9 +169,10 @@ export const million = n => { const v = Number(n) / 1e6; return (Number.isIntege
 export const KIND = { stallion: 'Азарга', mare: 'Гүү', colt: 'Эр унага', filly: 'Эм унага', gelding: 'Морь' };
 export const photoOf = (h, i = 0, thumb = false) => { const p = (h.photos || [])[i]; return p ? (thumb ? p.t || p.u : p.u) : null; };
 // Үржүүлгийн үнэ (хямдралтай бол хуучин үнийг зураастай)
+export const discPct = (fee, price) => Math.round((1 - Number(price) / Number(fee)) * 100);
 export function studPriceHtml(h) {
   if (h.stud_fee == null) return 'Private';
-  if (h.stud_discount > 0) return `<s class="old-price">${million(h.stud_fee)}</s> <span class="new-price">${million(h.stud_price)}</span>`;
+  if (h.stud_price != null && h.stud_price < h.stud_fee) return `<s class="old-price">${million(h.stud_fee)}</s> <span class="new-price">${million(h.stud_price)}</span> <span class="disc-tag">-${discPct(h.stud_fee, h.stud_price)}%</span>`;
   return million(h.stud_fee);
 }
 export const studState = h => {

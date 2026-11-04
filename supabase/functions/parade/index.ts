@@ -716,7 +716,7 @@ async function actBid(b: any, req: Request) {
 // ---------------------------------------------------------------- админ (адуу, гүү тавих, зарах)
 const HORSE_TEXT = ['name', 'name_en', 'color', 'breed', 'tamga', 'microchip', 'sire', 'dam', 'description', 'notes', 'pedigree_img', 'sold_to_name', 'sold_to_phone'];
 const HORSE_INT = ['foaled', 'sort', 'stud_discount', 'stud_capacity'];
-const HORSE_BIG = ['stud_fee', 'sale_price', 'auction_start_price', 'auction_step', 'sold_price'];
+const HORSE_BIG = ['stud_fee', 'stud_price_new', 'sale_price', 'auction_start_price', 'auction_step', 'sold_price'];
 const HORSE_BOOL = ['published', 'stud_enabled', 'stud_active', 'auction_closed'];
 const HORSE_TS = ['auction_starts_at', 'auction_ends_at', 'sold_at'];
 
