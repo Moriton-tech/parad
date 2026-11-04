@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Азарга, адуу | parad.mn</title>
+<title>Азарга | parad.mn</title>
 <meta name="description" content="Үржүүлгийн азарга, адууны каталог: азарганд гүү тавих, худалдаа, дуудлага.">
 <meta name="theme-color" content="#ffffff">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611041743">
-<link rel="stylesheet" href="css/pm.css?v=2611041743">
-<link rel="modulepreload" href="js/app.js?v=2611041743">
-<link rel="modulepreload" href="js/config.js?v=2611041743">
-<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611041743">
-<link rel="modulepreload" href="js/pm-ui.js?v=2611041743">
+<link rel="stylesheet" href="css/style.css?v=2611041748">
+<link rel="stylesheet" href="css/pm.css?v=2611041748">
+<link rel="modulepreload" href="js/app.js?v=2611041748">
+<link rel="modulepreload" href="js/config.js?v=2611041748">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611041748">
+<link rel="modulepreload" href="js/pm-ui.js?v=2611041748">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -24,7 +24,7 @@
 <main>
   <section class="section" style="padding-bottom:10px">
     <div class="container">
-      <div class="sec-head"><div><h1 style="font-family:var(--display);font-size:clamp(34px,5vw,52px);text-transform:uppercase;color:var(--navy);margin:0">Азарга, адуу</h1>
+      <div class="sec-head"><div><h1 style="font-family:var(--display);font-size:clamp(34px,5vw,52px);text-transform:uppercase;color:var(--navy);margin:0" id="ttl">Азарга</h1>
         <p class="sub" id="sub">Ачаалж байна…</p></div></div>
       <div class="filters-bar" id="filters"></div>
       <div class="hgrid" id="grid"></div>
@@ -33,29 +33,30 @@
 </main>
 <footer class="site-footer" id="site-footer"></footer>
 <script type="module">
-import { api, apiCached, esc, renderChrome, param, auctionState, KIND, breedGroup } from './js/app.js?v=2611041743';
-import { hcard } from './js/pm-ui.js?v=2611041743';
+import { api, apiCached, esc, renderChrome, param, auctionState, KIND, breedGroup } from './js/app.js?v=2611041748';
+import { hcard } from './js/pm-ui.js?v=2611041748';
 const $ = id => document.getElementById(id);
-let all = [], filter = ['stud', 'sale', 'auction', 'all'].includes(param('f')) ? param('f') : 'all', kind = 'all', grp = 'all', text = '';
+// Цэснээс: «Азарга» → зөвхөн азаргууд, «Худалдах адуу» (?f=sale) → зөвхөн худалдаанд байгаа адуу (тогтмол үнэ + дуудлага)
+const mode = ['sale', 'auction'].includes(param('f')) ? 'sale' : 'stud';
+let all = [], kind = 'all', grp = 'all', text = '';
+if (mode === 'sale') { $('ttl').textContent = 'Худалдах адуу'; document.title = "Худалдах адуу | parad.mn"; }
 
 const match = h => {
-  if (filter === 'stud' && !h.stud_enabled) return false;
-  if (filter === 'sale' && h.sale_mode === 'none') return false;
-  if (filter === 'auction' && h.sale_mode !== 'auction') return false;
+  if (mode === 'stud' && !(h.kind === 'stallion' && (h.stud_enabled || h.sale_mode === 'none'))) return false;
+  if (mode === 'sale' && h.sale_mode === 'none') return false;
   if (kind !== 'all' && h.kind !== kind) return false;
   if (grp !== 'all' && breedGroup(h.breed) !== grp) return false;
   if (text) { const t = text.toLowerCase(); if (!`${h.name} ${h.name_en || ''} ${h.sire || ''} ${h.dam || ''} ${h.tamga || ''}`.toLowerCase().includes(t)) return false; }
   return true;
 };
 function paint() {
-  const kinds = [...new Set(all.map(h => h.kind))];
-  const grps = [...new Set(all.map(h => breedGroup(h.breed)).filter(Boolean))];
-  const chip = (k, label) => `<button class="chip${filter === k ? ' active' : ''}" data-f="${k}">${label}</button>`;
-  $('filters').innerHTML = chip('all', 'Бүгд') + chip('stud', 'Гүү тавина') + chip('sale', 'Зарна') + chip('auction', 'Дуудлага') +
-    (kinds.length > 1 ? `<select class="input" id="kind" style="min-width:140px;margin-left:8px"><option value="all">Бүх төрөл</option>${kinds.map(k => `<option value="${k}"${kind === k ? ' selected' : ''}>${KIND[k] || k}</option>`).join('')}</select>` : '') +
-    (grps.length > 1 ? `<select class="input" id="grp" style="min-width:150px;margin-left:8px"><option value="all">Бүх ангилал</option>${grps.map(g => `<option${grp === g ? ' selected' : ''}>${g}</option>`).join('')}</select>` : '') +
+  const base = all.filter(h => mode === 'sale' ? h.sale_mode !== 'none' : h.kind === 'stallion');
+  const kinds = mode === 'sale' ? [...new Set(base.map(h => h.kind))] : [];
+  const grps = [...new Set(base.map(h => breedGroup(h.breed)).filter(Boolean))];
+  $('filters').innerHTML =
+    (kinds.length > 1 ? `<select class="input" id="kind" style="min-width:140px"><option value="all">Бүх төрөл</option>${kinds.map(k => `<option value="${k}"${kind === k ? ' selected' : ''}>${KIND[k] || k}</option>`).join('')}</select>` : '') +
+    (grps.length > 1 ? `<select class="input" id="grp" style="min-width:150px"><option value="all">Бүх ангилал</option>${grps.map(g => `<option${grp === g ? ' selected' : ''}>${g}</option>`).join('')}</select>` : '') +
     `<input class="input" id="q" placeholder="Нэр, удам, тамга хайх" value="${esc(text)}">`;
-  $('filters').querySelectorAll('[data-f]').forEach(b => b.onclick = () => { filter = b.dataset.f; paint(); });
   if ($('kind')) $('kind').onchange = e => { kind = e.target.value; render(); };
   if ($('grp')) $('grp').onchange = e => { grp = e.target.value; render(); };
   $('q').oninput = e => { text = e.target.value; render(); };
@@ -63,8 +64,9 @@ function paint() {
 }
 function render() {
   const list = all.filter(match);
-  $('grid').innerHTML = list.length ? list.map(hcard).join('') : '<div class="empty-box" style="grid-column:1/-1">Тохирох адуу олдсонгүй.</div>';
-  $('sub').textContent = `${list.length} адуу${filter !== 'all' || kind !== 'all' || grp !== 'all' || text ? ` (нийт ${all.length}-аас)` : ''}`;
+  const empty = mode === 'sale' && !text && kind === 'all' && grp === 'all' ? 'Одоогоор худалдаанд адуу алга.' : 'Тохирох адуу олдсонгүй.';
+  $('grid').innerHTML = list.length ? list.map(hcard).join('') : `<div class="empty-box" style="grid-column:1/-1">${empty}</div>`;
+  $('sub').textContent = `${list.length} ${mode === 'sale' ? 'адуу худалдаанд' : 'азарга'}`;
 }
 try {
   let painted = false;
