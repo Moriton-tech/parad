@@ -65,6 +65,8 @@ const DB_ERRORS: Record<string, string> = {
   BAD_QTY: 'Тасалбарын тоо буруу байна.',
   BAD_INPUT: 'Нэр, утасны дугаараа бөглөнө үү.',
   TOO_MANY: 'Танд төлөгдөөгүй захиалга байна. Түүнийгээ төлөх эсвэл 20 минут хүлээгээд дахин оролдоно уу.',
+  NO_CONSENT: 'Мэдээлэл цуглуулах зөвшөөрлийг заавал сонгоно уу.',
+  DEPOSIT_REQUIRED: 'Дуудлагад оролцохын тулд парад дээр бүртгүүлсэн байх бөгөөд оролцооны хураамжаа төлсөн байх ёстой. Бүртгэлийн пасс хуудсаараа төлнө үү.',
   NOT_FOUND: 'Захиалга олдсонгүй.',
   NO_NUMBERS: 'Тасалбарын дугаар хүрэлцэхгүй байна.',
   NO_CANDIDATES: 'Сугалаанд оролцох тасалбар алга (өмнө нь бүгд хожсон эсвэл хэн ч ирээгүй).',
@@ -262,11 +264,11 @@ function ticketEmail(o: any, tickets: any[], s: any) {
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${NAVY};border-radius:14px;overflow:hidden">
         <tr>
           <td style="padding:18px 20px;color:#fff;font-family:Arial,sans-serif;vertical-align:middle">
-            <div style="font-size:11px;letter-spacing:2px;color:${GOLD};font-weight:bold">ТАСАЛБАР</div>
+            <div style="font-size:11px;letter-spacing:2px;color:${GOLD};font-weight:bold">ПАРАДЫН ПАСС</div>
             <div style="font-size:30px;font-weight:bold;color:${GOLD};letter-spacing:2px;margin:4px 0">№${t.number}</div>
             <div style="font-size:13px;opacity:.9">${esc(o.name)}</div>
-            <div style="font-size:12px;opacity:.75;margin-top:8px">Сугалаа · Хоол · Ус, ундаа</div>
-            ${base ? `<a href="${ticketUrl(base, t.token)}" style="display:inline-block;margin-top:12px;background:${ACCENT};color:#fff;text-decoration:none;font-weight:bold;font-size:13px;padding:8px 14px;border-radius:8px">Тасалбар нээх →</a>` : ''}
+            <div style="font-size:12px;opacity:.75;margin-top:8px">Сугалаа · Дуудлага худалдаа</div>
+            ${base ? `<a href="${ticketUrl(base, t.token)}" style="display:inline-block;margin-top:12px;background:${ACCENT};color:#fff;text-decoration:none;font-weight:bold;font-size:13px;padding:8px 14px;border-radius:8px">Пасс нээх →</a>` : ''}
           </td>
           <td width="170" style="padding:14px;background:#fff;text-align:center;vertical-align:middle">
             <img src="cid:qr${t.number}@parade" width="150" height="150" alt="QR ${t.number}" style="display:block;margin:0 auto">
@@ -283,25 +285,25 @@ function ticketEmail(o: any, tickets: any[], s: any) {
       <div style="color:#e9e4d4;font-size:12px">Үе дамжсан шилмэл удам</div>
     </td></tr>
     <tr><td style="padding:24px">
-      <h1 style="margin:0 0 6px;font-size:22px;color:${NAVY}">${esc(s.event_name)} — таны тасалбар</h1>
-      <p style="margin:0 0 16px;font-size:14px;color:#555">Сайн байна уу, ${esc(o.name)}! Төлбөр амжилттай баталгаажлаа. Үүдэн дээр доорх QR кодыг уншуулж орно. Тасалбар бүр нэг хүнд.</p>
+      <h1 style="margin:0 0 6px;font-size:22px;color:${NAVY}">${esc(s.event_name)} — таны бүртгэлийн пасс</h1>
+      <p style="margin:0 0 16px;font-size:14px;color:#555">Сайн байна уу, ${esc(o.name)}! Таны бүртгэл амжилттай боллоо. Үүдэн дээр доорх QR кодыг уншуулж орно. Пасс бүр нэг хүнд.</p>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${CREAM};border-radius:10px;margin-bottom:18px;font-size:14px">
         <tr><td style="padding:12px 14px">
           <b>Огноо:</b> ${esc(fmtEvent(s.event_at))}<br>
           <b>Байршил:</b> ${esc(s.location)}<br>
-          <b>Захиалга:</b> ${esc(o.code)} · ${o.qty} ширхэг · ${money(o.paid_amount ?? o.amount)}<br>
-          <b>Тасалбарын дугаар:</b> ${nums}
+          <b>Бүртгэл:</b> ${esc(o.code)}<br>
+          <b>Сугалааны дугаар:</b> ${nums}
         </td></tr>
       </table>
       <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${cards}</table>
-      <p style="font-size:13px;color:#555;margin:6px 0 0"><b>Тасалбарт багтсан:</b> сугалаа (25% эр сарваа, TRM брэнд 10 бүтээгдэхүүн, Адууны эмнэлгээр үйлчлүүлэх 10 эрх), хоол, ус ундаа. Тасалбарын дугаар нь сугалааны дугаар болно.</p>
+      <p style="font-size:13px;color:#555;margin:6px 0 0"><b>Сугалаа:</b> парадад ирсэн бүртгэлтэй оролцогчдын дунд эрхийн бичгийн сугалаа явуулна. Пасс дээрх дугаар нь таны сугалааны дугаар. <b>Дуудлага худалдаа:</b> оролцохын тулд оролцооны хураамж төлсөн байх ёстой — пасс хуудсаар төлнө.</p>
       <p style="font-size:13px;color:#555">Асуух зүйл байвал: <b>${esc(s.phone)}</b></p>
     </td></tr>
     <tr><td style="background:${NAVY_D};color:#cfd6ee;font-size:12px;padding:14px 24px">Parad.mn · ${esc(s.location)} · ${esc(s.phone)}</td></tr>
   </table></td></tr></table></body></html>`;
-  const text = `${s.event_name} — таны тасалбар\n\n${o.name}, төлбөр баталгаажлаа.\nОгноо: ${fmtEvent(s.event_at)}\nБайршил: ${s.location}\nЗахиалга: ${o.code}\nТасалбар: ${nums}\n\n` +
+  const text = `${s.event_name} — таны бүртгэлийн пасс\n\n${o.name}, бүртгэл баталгаажлаа.\nОгноо: ${fmtEvent(s.event_at)}\nБайршил: ${s.location}\nЗахиалга: ${o.code}\nТасалбар: ${nums}\n\n` +
     tickets.map(t => `№${t.number}: ${ticketUrl(base, t.token)}`).join('\n') + `\n\nУтас: ${s.phone}`;
-  return { subject: `${s.event_name} — таны тасалбар ${nums}`, html, text, attachments: att };
+  return { subject: `${s.event_name} — таны бүртгэлийн пасс ${nums}`, html, text, attachments: att };
 }
 
 function adminEmail(o: any, tickets: any[], s: any, title?: string) {
@@ -314,11 +316,11 @@ function adminEmail(o: any, tickets: any[], s: any, title?: string) {
     ['Төлөв', o.status], ['Дугаар', nums || '—'], ['Эх сурвалж', o.source === 'manual' ? `Гараар (${o.created_by || ''})` : 'Онлайн'],
   ];
   const html = `<div style="font-family:Arial,sans-serif;font-size:14px;color:#1b211f">
-    <h2 style="color:${NAVY};margin:0 0 10px">${esc(title || `Шинэ тасалбар: ${o.name} — ${o.qty} ш`)}</h2>
+    <h2 style="color:${NAVY};margin:0 0 10px">${esc(title || `Шинэ бүртгэл: ${o.name}`)}</h2>
     <table cellpadding="6" style="border-collapse:collapse">${rows.map(([k, v]) => `<tr><td style="color:#777">${k}</td><td><b>${esc(v)}</b></td></tr>`).join('')}</table>
     ${base ? `<p><a href="${base}admin.html">Админ хэсэг нээх →</a></p>` : ''}</div>`;
   const text = rows.map(([k, v]) => `${k}: ${v}`).join('\n');
-  return { subject: title || `🎟 Шинэ тасалбар: ${o.name} — ${o.qty} ш (${money(o.paid_amount ?? o.amount)})`, html, text };
+  return { subject: title || `Шинэ бүртгэл: ${o.name}`, html, text };
 }
 
 const notifyList = (s: any) => String(s.notify_email || '').split(/[,;\s]+/).filter(x => x.includes('@'));
@@ -389,53 +391,106 @@ async function actInfo() {
   return { ...info, pay_mode: QPAY_ON ? 'qpay' : (info.bank_info ? 'transfer' : 'none'), qpay_sandbox: QPAY_ON && SANDBOX };
 }
 
-async function actCreate(b: any, req: Request) {
-  if (b.website) throw new HttpError(400, 'Алдаа');                                      // honeypot
+async function actCreate(_b: any, _req: Request) {
+  throw new HttpError(410, 'Энэ удаагийн парадад тасалбар зарахгүй. Үнэгүй бүртгэлд бүртгүүлнэ үү.');
+}
+
+function cleanReg(b: any) {
   const name = String(b.name || '').trim().replace(/\s+/g, ' ');
   const phone = String(b.phone || '').replace(/[^\d+]/g, '');
-  const email = String(b.email || '').trim().toLowerCase();
   const phone2 = String(b.phone2 || '').replace(/[^\d+]/g, '');
+  const email = String(b.email || '').trim().toLowerCase();
   const aimag = String(b.aimag || '').trim();
   const sum = String(b.sum || '').trim().replace(/\s+/g, ' ').slice(0, 60);
   const title = String(b.title || '').trim();
-  const qty = Math.floor(Number(b.qty));
   if (name.length < 2 || name.length > 80) throw new HttpError(400, 'Нэрээ зөв оруулна уу.');
   if (!/^\+?\d{8,15}$/.test(phone)) throw new HttpError(400, 'Утасны дугаараа зөв оруулна уу (8 оронтой).');
   if (phone2 && !/^\+?\d{8,15}$/.test(phone2)) throw new HttpError(400, 'Нэмэлт утасны дугаараа зөв оруулна уу.');
   if (email && (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || email.length > 120)) throw new HttpError(400, 'Имэйл хаягаа зөв оруулна уу.');
   if (!AIMAGS.includes(aimag)) throw new HttpError(400, 'Аймгаа сонгоно уу.');
   if (sum.length < 2) throw new HttpError(400, 'Сум / дүүргээ бичнэ үү.');
-  if (!TITLES.includes(title)) throw new HttpError(400, 'Цолоо сонгоно уу.');
-  if (!Number.isFinite(qty) || qty < 1) throw new HttpError(400, 'Тасалбарын тоог сонгоно уу.');
+  if (title && !TITLES.includes(title)) throw new HttpError(400, 'Цолоо зөв сонгоно уу.');
+  return { name, phone, phone2, email, aimag, sum, title, consent_data: b.consent_data === true, consent_mkt: b.consent_marketing === true };
+}
 
+// Үнэгүй бүртгэл (онлайн) — QR пасс олгоно. Нэг утас = нэг бүртгэл.
+async function actRegister(b: any, req: Request) {
+  if (b.website) throw new HttpError(400, 'Алдаа');
+  const c = cleanReg(b);
+  if (!c.consent_data) throw new HttpError(400, 'Мэдээлэл цуглуулах зөвшөөрлийг заавал сонгоно уу.');
   const s = await getSettings();
-  const method = QPAY_ON ? 'qpay' : (s.bank_info ? 'transfer' : '');
-  if (!method) throw new HttpError(503, 'Төлбөрийн систем тохируулагдаагүй байна. Түр хүлээнэ үү.');
-
-  // Сайтын хаяг тохируулагдаагүй бол (имэйл дэх холбоосонд) хөтчийн хаягийг ашиглана
   if (!s.site_url && typeof b.site === 'string' && /^https:\/\/[^/]+\//.test(b.site)) {
     const origin = req.headers.get('origin') || '';
     if (origin && b.site.startsWith(origin + '/')) await db.from('parade_settings').update({ site_url: b.site }).eq('id', 1);
   }
+  const r = await rpc('parade_register', {
+    p_name: c.name, p_phone: c.phone, p_phone2: c.phone2, p_email: c.email, p_aimag: c.aimag, p_sum: c.sum, p_title: c.title,
+    p_consent_data: c.consent_data, p_consent_mkt: c.consent_mkt, p_source: 'online', p_actor: null, p_ip: clientIp(req), p_note: null,
+  });
+  if (!r.existing && c.email) background(sendOrderEmails(r.order.id, { notify: false }));
+  const t = (r.tickets || [])[0];
+  return { token: t?.token, number: t?.number, existing: !!r.existing, name: r.order.name };
+}
 
-  let o = await rpc('parade_create_order', { p_name: name, p_phone: phone, p_email: email, p_qty: qty, p_method: method, p_ip: clientIp(req) });
+// ---------- Дуудлагын оролцооны хураамж (QPay)
+async function orderByToken(tok: unknown) {
+  const t = String(tok || '').trim().toLowerCase();
+  if (!/^[a-f0-9]{16,40}$/.test(t)) throw new HttpError(404, 'Пасс олдсонгүй.');
+  const tk = await q(db.from('parade_tickets').select('order_id,status').eq('token', t).maybeSingle());
+  if (!tk || tk.status !== 'valid') throw new HttpError(404, 'Пасс олдсонгүй.');
+  return await q(db.from('parade_orders').select('*').eq('id', tk.order_id).single());
+}
+function depView(o: any, s: any) {
+  return {
+    status: o.dep_status, amount: o.dep_amount || s.deposit_amount, open: !!s.deposit_open, paid_at: o.dep_paid_at,
+    qpay: o.dep_status === 'pending' ? { qr_image: o.dep_qr_image, qr_text: o.dep_qr_text, short_url: o.dep_short_url, urls: o.dep_urls || [] } : null,
+    bank_info: s.bank_info || '',
+  };
+}
+async function depSync(o: any): Promise<any> {
+  if (o.dep_status !== 'pending' || !QPAY_ON || !o.dep_invoice_id) return o;
+  let chk;
+  try { chk = await qpayCheck(o.dep_invoice_id); } catch (e) { console.error('QPay dep check', o.code, e); return o; }
+  if (!chk.paid || chk.amount < (o.dep_amount || 0)) return o;
+  return await q(db.from('parade_orders').update({
+    dep_status: 'paid', dep_paid_at: new Date().toISOString(), dep_payment_id: chk.paymentId, dep_method: 'qpay', updated_at: new Date().toISOString(),
+  }).eq('id', o.id).neq('dep_status', 'paid').select('*').maybeSingle()) || o;
+}
+async function actDepositStart(b: any) {
+  let o = await orderByToken(b.t);
+  const s = await getSettings();
+  if (o.status !== 'paid') throw new HttpError(409, 'Бүртгэл идэвхгүй байна.');
+  if (o.dep_status === 'paid') return { deposit: depView(o, s) };
+  if (!s.deposit_open) throw new HttpError(409, 'Оролцооны хураамж төлөх хугацаа хараахан нээгдээгүй байна. Парадын дараа нээгдэнэ.');
+  if (!QPAY_ON) return { deposit: depView({ ...o, dep_status: 'none' }, s) };       // QPay байхгүй: данс/бэлнээр төлж ажилтан баталгаажуулна
+  o = await depSync(o);
+  if (o.dep_status === 'pending' && o.dep_qr_text) return { deposit: depView(o, s) };
+  const amount = s.deposit_amount;
+  const j = await qpay('/invoice', 'POST', {
+    invoice_code: QPAY_INVOICE_CODE, sender_invoice_no: o.code + '-D', invoice_receiver_code: o.phone || 'terminal',
+    invoice_description: `${s.event_name} дуудлага худалдааны оролцооны хураамж (${o.code})`, amount,
+    callback_url: `${FUNC_URL}?action=deposit_callback&code=${encodeURIComponent(o.code)}`,
+  });
+  if (!j.invoice_id) throw new HttpError(502, 'QPay нэхэмжлэх үүсгэж чадсангүй.');
+  o = await q(db.from('parade_orders').update({
+    dep_status: 'pending', dep_amount: amount, dep_invoice_id: String(j.invoice_id), dep_qr_text: j.qr_text || null, dep_qr_image: j.qr_image || null,
+    dep_short_url: j.qPay_shortUrl || j.qpay_short_url || null,
+    dep_urls: Array.isArray(j.urls) ? j.urls.map((u: any) => ({ name: u.name, description: u.description, logo: u.logo, link: u.link })) : [],
+  }).eq('id', o.id).select('*').single());
+  return { deposit: depView(o, s) };
+}
+async function actDepositStatus(b: any) {
+  let o = await orderByToken(b.t);
+  o = await depSync(o);
+  return { deposit: depView(o, await getSettings()) };
+}
+async function actDepositCallback(url: URL) {
   try {
-    o = await q(db.from('parade_orders').update({ phone2: phone2 || null, aimag, sum, title }).eq('id', o.id).select('*').single());
-  } catch (e) {
-    await db.from('parade_orders').update({ status: 'cancelled', note: 'Бүртгэл хадгалагдсангүй' }).eq('id', o.id);
-    throw e;
-  }
-  if (method === 'qpay') {
-    try {
-      const inv = await qpayCreateInvoice(o, s);
-      o = await q(db.from('parade_orders').update({ ...inv, updated_at: new Date().toISOString() }).eq('id', o.id).select('*').single());
-    } catch (e) {
-      console.error('QPay invoice', o.code, e);
-      await db.from('parade_orders').update({ status: 'cancelled', note: 'QPay алдаа: ' + (e as Error).message }).eq('id', o.id);
-      throw new HttpError(502, 'QPay нэхэмжлэх үүсгэж чадсангүй. Түр хүлээгээд дахин оролдоно уу.');
-    }
-  }
-  return { code: o.code, key: o.access_key };
+    const c = String(url.searchParams.get('code') || '').trim().toUpperCase();
+    const o = await q(db.from('parade_orders').select('*').eq('code', c).maybeSingle());
+    if (o) await depSync(o);
+  } catch (e) { console.error('dep callback', e); }
+  return new Response('SUCCESS', { status: 200, headers: CORS });
 }
 
 async function orderByCode(code: string) {
@@ -465,10 +520,11 @@ async function actTicket(b: any) {
   if (!/^[a-f0-9]{16,40}$/.test(t)) throw new HttpError(404, 'Тасалбар олдсонгүй.');
   const tk = await q(db.from('parade_tickets').select('number,token,status,holder_name,entry_at,food_at,drink_at,order_id').eq('token', t).maybeSingle());
   if (!tk) throw new HttpError(404, 'Тасалбар олдсонгүй.');
-  const o = await q(db.from('parade_orders').select('code,name,status').eq('id', tk.order_id).single());
+  let o = await q(db.from('parade_orders').select('*').eq('id', tk.order_id).single());
+  o = await depSync(o);
   const info = await rpc('parade_public_info');
   const { order_id: _x, ...ticket } = tk;
-  return { ticket: { ...ticket, holder_name: tk.holder_name || o.name, order_code: o.code }, event: info };
+  return { ticket: { ...ticket, holder_name: tk.holder_name || o.name, order_code: o.code }, event: info, deposit: depView(o, await getSettings()) };
 }
 
 async function actCallback(url: URL) {
@@ -898,13 +954,13 @@ async function staffFrom(req: Request, need: 'admin' | 'staff') {
 const log = (actor: string, action: string, detail: unknown) =>
   db.from('parade_log').insert({ actor, action, detail }).then(() => {}, () => {});
 
-const ORDER_COLS = 'id,code,name,phone,phone2,aimag,sum,title,email,qty,unit_price,amount,status,source,pay_method,invoice_id,payment_id,paid_amount,paid_at,expires_at,email_sent_at,email_error,note,created_by,created_at,updated_at';
+const ORDER_COLS = 'id,code,name,phone,phone2,aimag,sum,title,email,qty,unit_price,amount,status,source,pay_method,invoice_id,payment_id,paid_amount,paid_at,expires_at,email_sent_at,email_error,note,created_by,created_at,updated_at,consent_data,consent_marketing,dep_status,dep_amount,dep_method,dep_paid_at,dep_by';
 
 const SETTING_KEYS = ['event_name', 'event_at', 'sales_until', 'location', 'phone', 'price', 'start_no', 'total', 'max_per_order',
-  'hold_minutes', 'transfer_hold_hours', 'sales_open', 'event_public', 'bank_info', 'notify_email', 'site_url'];
+  'hold_minutes', 'transfer_hold_hours', 'sales_open', 'event_public', 'bank_info', 'notify_email', 'site_url', 'deposit_amount', 'deposit_open'];
 
 async function admin(action: string, b: any, req: Request) {
-  const staffOnly = ['admin_me', 'admin_stats', 'admin_scan', 'admin_find'];
+  const staffOnly = ['admin_me', 'admin_stats', 'admin_scan', 'admin_find', 'admin_register'];
   const me = await staffFrom(req, staffOnly.includes(action) ? 'staff' : 'admin');
 
   switch (action) {
@@ -1042,6 +1098,32 @@ async function admin(action: string, b: any, req: Request) {
       return await rpc('parade_scan', { p_code: String(b.code || ''), p_mode: mode, p_actor: me.email });
     }
 
+    case 'admin_register': {                         // танхимд ажилтан гараар бүртгэх
+      const c = cleanReg(b);
+      const r = await rpc('parade_register', {
+        p_name: c.name, p_phone: c.phone, p_phone2: c.phone2, p_email: c.email, p_aimag: c.aimag, p_sum: c.sum, p_title: c.title,
+        p_consent_data: b.consent_data === true, p_consent_mkt: b.consent_marketing === true, p_source: 'manual', p_actor: me.email, p_ip: null,
+        p_note: b.note ? String(b.note).slice(0, 300) : null,
+      });
+      if (!r.existing && c.email) background(sendOrderEmails(r.order.id, { notify: false }));
+      log(me.email, 'register', { code: r.order?.code, existing: r.existing });
+      return r;
+    }
+
+    case 'admin_deposit_mark': {                     // оролцооны хураамж төлсөн (бэлэн/данс) эсвэл буцаах
+      const s = await getSettings();
+      if (b.paid === false) {
+        await q(db.from('parade_orders').update({ dep_status: 'none', dep_paid_at: null, dep_method: null, dep_by: me.email, updated_at: new Date().toISOString() }).eq('id', b.id));
+      } else {
+        const method = ['cash', 'transfer', 'card', 'qpay'].includes(b.method) ? b.method : 'cash';
+        await q(db.from('parade_orders').update({
+          dep_status: 'paid', dep_amount: s.deposit_amount, dep_method: method, dep_paid_at: new Date().toISOString(), dep_by: me.email, updated_at: new Date().toISOString(),
+        }).eq('id', b.id).eq('status', 'paid'));
+      }
+      log(me.email, 'deposit_mark', { id: b.id, paid: b.paid !== false, method: b.method });
+      return { ok: true };
+    }
+
     case 'admin_issue': {
       const method = ['cash', 'transfer', 'card', 'qpay', 'free'].includes(b.method) ? b.method : 'cash';
       const qty = Math.floor(Number(b.qty));
@@ -1080,9 +1162,10 @@ async function admin(action: string, b: any, req: Request) {
     case 'admin_settings_save': {
       const patch: any = { updated_at: new Date().toISOString() };
       for (const k of SETTING_KEYS) if (b.settings && k in b.settings) patch[k] = b.settings[k] === '' && ['sales_until'].includes(k) ? null : b.settings[k];
-      for (const k of ['price', 'start_no', 'total', 'max_per_order', 'hold_minutes', 'transfer_hold_hours']) if (k in patch) patch[k] = Math.round(Number(patch[k]));
+      for (const k of ['price', 'start_no', 'total', 'max_per_order', 'hold_minutes', 'transfer_hold_hours', 'deposit_amount']) if (k in patch) patch[k] = Math.round(Number(patch[k]));
       if ('sales_open' in patch) patch.sales_open = !!patch.sales_open;
       if ('event_public' in patch) patch.event_public = !!patch.event_public;
+      if ('deposit_open' in patch) patch.deposit_open = !!patch.deposit_open;
       if ('total' in patch) {
         const sold = (await rpc('parade_stats')).sold;
         if (patch.total < sold) throw new HttpError(400, `Нийт тоо борлогдсон (${sold})-оос бага байж болохгүй.`);
@@ -1156,6 +1239,10 @@ Deno.serve(async (req) => {
     switch (action) {
       case 'info': return json(await actInfo());
       case 'create': return json(await actCreate(body, req));
+      case 'register': return json(await actRegister(body, req));
+      case 'deposit_start': return json(await actDepositStart(body));
+      case 'deposit_status': return json(await actDepositStatus(body));
+      case 'deposit_callback': return await actDepositCallback(url);
       case 'status': return json(await actStatus(body));
       case 'ticket': return json(await actTicket(body.t ? body : { t: url.searchParams.get('t') }));
       case 'lookup': return json(await actLookup(body));

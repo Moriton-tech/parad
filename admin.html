@@ -134,7 +134,7 @@
     <div class="tab" data-tab="dash">
       <div class="chips-row" id="sys"></div>
       <div class="kpis" id="kpis"></div>
-      <div class="panel"><h3 class="h">Өдрөөр борлуулалт (ширхэг)</h3><div class="days" id="days"></div></div>
+      <div class="panel"><h3 class="h">Өдрөөр бүртгэл</h3><div class="days" id="days"></div></div>
     </div>
 
     <!-- ЗАХИАЛГА -->
@@ -150,7 +150,7 @@
         <button class="btn btn-light btn-sm" id="o-csv">⬇ Excel (CSV)</button>
       </div>
       <div class="count-line" id="o-count"></div>
-      <div class="table-wrap"><table class="tbl"><thead><tr><th>Огноо</th><th>Код</th><th>Худалдан авагч</th><th>Тоо</th><th>Дүн</th><th>Төлбөр</th><th>Төлөв</th><th>Тасалбар</th><th>Үйлдэл</th></tr></thead><tbody id="o-body"></tbody></table></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Огноо</th><th>Код</th><th>Худалдан авагч</th><th>Тоо</th><th>Дүн</th><th>Дуудлагын хураамж</th><th>Төлөв</th><th>Тасалбар</th><th>Үйлдэл</th></tr></thead><tbody id="o-body"></tbody></table></div>
     </div>
 
     <!-- ТАСАЛБАР -->
@@ -189,33 +189,27 @@
     <div class="tab" data-tab="issue">
       <div class="grid2">
         <div class="panel">
-          <h3 class="h">Тасалбар гараар олгох</h3>
-          <p class="small muted" style="margin-top:-6px">Бэлнээр, дансаар, QPay терминалаар төлсөн эсвэл урилгаар үнэгүй олгох. Имэйл бичвэл тасалбар имэйлээр очно.</p>
+          <h3 class="h">Гараар бүртгэх</h3>
+          <p class="small muted" style="margin-top:-6px">Утасгүй эсвэл бүртгүүлж чадаагүй хүнийг энд бүртгэнэ. Нэг утас = нэг бүртгэл (давхар бүртгэвэл өмнөх пасс гарна). Хүнээс зөвшөөрлийг нь асууж тэмдэглэнэ.</p>
           <form class="form" id="issue-form">
             <div><label>Овог нэр <span class="req">*</span></label><input class="input" name="name" required maxlength="80"></div>
             <div class="row">
-              <div><label>Утас</label><input class="input" name="phone" type="tel" inputmode="tel"></div>
-              <div><label>Нэмэлт утас</label><input class="input" name="phone2" type="tel" inputmode="tel"></div>
-            </div>
-            <div class="row">
-              <div><label>Аймаг / хот</label><select class="input" name="aimag" id="i-aimag"></select></div>
-              <div><label>Сум / дүүрэг</label><input class="input" name="sum" maxlength="60"></div>
-            </div>
-            <div class="row">
-              <div><label>Цол</label><select class="input" name="title" id="i-title"></select></div>
+              <div><label>Утас <span class="req">*</span></label><input class="input" name="phone" type="tel" inputmode="tel" required></div>
               <div><label>Имэйл</label><input class="input" name="email" type="email"></div>
             </div>
             <div class="row">
-              <div><label>Тоо ширхэг <span class="req">*</span></label><input class="input" name="qty" type="number" min="1" max="100" value="1" required></div>
-              <div><label>Төлбөрийн хэлбэр</label><select class="input" name="method"><option value="cash">Бэлэн</option><option value="transfer">Дансаар</option><option value="card">Карт</option><option value="qpay">QPay (терминал)</option><option value="free">Үнэгүй / урилга</option></select></div>
+              <div><label>Аймаг / хот <span class="req">*</span></label><select class="input" name="aimag" id="i-aimag" required></select></div>
+              <div><label>Сум / дүүрэг <span class="req">*</span></label><input class="input" name="sum" maxlength="60" required></div>
             </div>
-            <div><label>Дүн (₮)</label><input class="input" name="amount" type="number" min="0" step="1000"><div class="hint" id="i-hint"></div></div>
+            <div><label>Цол</label><select class="input" name="title" id="i-title"></select></div>
+            <label class="check"><input type="checkbox" name="consent_data"> <span>Мэдээлэл цуглуулж, ашиглахыг зөвшөөрсөн <span class="req">*</span></span></label>
+            <label class="check"><input type="checkbox" name="consent_marketing"> <span>Мэдээ, санал мэдээлэл хүлээн авахыг зөвшөөрсөн</span></label>
             <div><label>Тэмдэглэл</label><input class="input" name="note" maxlength="200"></div>
             <div id="i-err"></div>
-            <button class="btn btn-accent btn-block" type="submit">Тасалбар олгох</button>
+            <button class="btn btn-accent btn-block" type="submit">Бүртгэж пасс олгох</button>
           </form>
         </div>
-        <div class="panel"><h3 class="h">Олгосон тасалбар</h3><div class="issued" id="issued"><p class="muted small">Энд QR тасалбар гарна — худалдан авагч утсаараа уншуулж эсвэл холбоосыг нь авч болно.</p></div></div>
+        <div class="panel"><h3 class="h">Бүртгэсэн пасс</h3><div class="issued" id="issued"><p class="muted small">Энд QR пасс гарна — оролцогч утсаараа уншуулж эсвэл холбоосыг нь авч болно.</p></div></div>
       </div>
     </div>
 
@@ -225,9 +219,9 @@
         <div class="panel">
           <h3 class="h">Сугалаа татах</h3>
           <form class="form" id="draw-form">
-            <div><label>Шагнал <span class="req">*</span></label><input class="input" id="d-prize" required maxlength="120" placeholder="Жишээ: 25% эр сарваа">
+            <div><label>Шагнал <span class="req">*</span></label><input class="input" id="d-prize" required maxlength="120" placeholder="Шагналаа сонгох эсвэл бичих">
               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="presets"></div></div>
-            <div><label>Хэнээс сугалах</label><select class="input" id="d-pool"><option value="entered">Зөвхөн ирсэн (орохдоо уншуулсан) тасалбар</option><option value="all">Бүх хүчинтэй тасалбар</option></select></div>
+            <div><label>Хэнээс сугалах</label><select class="input" id="d-pool"><option value="entered">Зөвхөн ирсэн (орохдоо QR уншуулсан) бүртгэл</option><option value="all">Бүх бүртгэл</option></select></div>
             <div id="d-err"></div>
             <button class="btn btn-accent btn-lg btn-block" type="submit" id="d-btn">🎲 Сугалах</button>
             <p class="small muted" style="margin:0">Нэг тасалбар хоёр удаа хожихгүй. Хожигчийг «Хүчингүй» болговол дахин оролцоно.</p>
@@ -248,21 +242,22 @@
     <div class="tab" data-tab="settings">
       <div class="grid2">
         <div class="panel">
-          <h3 class="h">Арга хэмжээ, борлуулалт</h3>
+          <h3 class="h">Арга хэмжээ, бүртгэл</h3>
           <form class="form" id="set-form">
             <label class="switch"><input type="checkbox" name="event_public"> Парадын огноо, мэдээллийг сайтад зарлах</label>
-            <label class="switch"><input type="checkbox" name="sales_open"> Онлайн борлуулалт нээлттэй</label>
+            <label class="switch"><input type="checkbox" name="sales_open"> Онлайн бүртгэл нээлттэй</label>
+            <label class="switch"><input type="checkbox" name="deposit_open"> Дуудлагын оролцооны хураамж төлөх хэсгийг нээх (парад дууссаны дараа)</label>
             <div><label>Арга хэмжээний нэр</label><input class="input" name="event_name"></div>
             <div class="row">
               <div><label>Парад эхлэх цаг (тоолуур)</label><input class="input" name="event_at" type="datetime-local"></div>
-              <div><label>Онлайн борлуулалт хаагдах</label><input class="input" name="sales_until" type="datetime-local"><div class="hint">Хоосон бол парадын өдөр 18:00</div></div>
+              <div><label>Онлайн бүртгэл хаагдах</label><input class="input" name="sales_until" type="datetime-local"><div class="hint">Хоосон бол парадын өдөр 18:00</div></div>
             </div>
             <div class="row">
               <div><label>Байршил</label><input class="input" name="location"></div>
               <div><label>Утас</label><input class="input" name="phone"></div>
             </div>
             <div class="row">
-              <div><label>Тасалбарын үнэ (₮)</label><input class="input" name="price" type="number" min="0" step="1000"></div>
+              <div><label>Дуудлагын оролцооны хураамж (₮)</label><input class="input" name="deposit_amount" type="number" min="0" step="1000"></div>
               <div><label>Нэг захиалгад дээд тоо</label><input class="input" name="max_per_order" type="number" min="1" max="100"></div>
             </div>
             <div class="row">
@@ -317,7 +312,7 @@ const opts = (list, sel) => '<option value="">—</option>' + list.map(a => `<op
 const $ = id => document.getElementById(id);
 let me = null, stats = null, orders = [], tickets = [], settings = null, mode = 'entry';
 const METHOD = { qpay: 'QPay', transfer: 'Данс', cash: 'Бэлэн', card: 'Карт', free: 'Үнэгүй' };
-const STATUS = { paid: 'Төлөгдсөн', pending: 'Хүлээгдэж буй', expired: 'Хугацаа дууссан', cancelled: 'Цуцалсан', refund: 'Буцаалт хэрэгтэй' };
+const STATUS = { paid: 'Бүртгэгдсэн', pending: 'Хүлээгдэж буй', expired: 'Хугацаа дууссан', cancelled: 'Цуцалсан', refund: 'Буцаалт хэрэгтэй' };
 
 async function api(action, body = {}) {
   const tok = await auth.token();
@@ -340,8 +335,8 @@ $('login-form').onsubmit = async e => {
 $('logout').onclick = () => { auth.logout(); stopCam(); location.reload(); };
 
 // ---------------- табууд
-const TABS = [['dash', 'Самбар', 'staff'], ['orders', 'Захиалга', 'admin'], ['tickets', 'Тасалбар', 'admin'], ['scan', 'Уншуулах', 'staff'],
-  ['issue', 'Гараар олгох', 'admin'], ['draw', 'Сугалаа', 'admin'], ['settings', 'Тохиргоо', 'admin']];
+const TABS = [['dash', 'Самбар', 'staff'], ['orders', 'Бүртгэл', 'admin'], ['tickets', 'Пасс', 'admin'], ['scan', 'Уншуулах', 'staff'],
+  ['issue', 'Гараар бүртгэх', 'staff'], ['draw', 'Сугалаа', 'admin'], ['settings', 'Тохиргоо', 'admin']];
 function buildTabs() {
   const allowed = TABS.filter(t => me.role === 'admin' || t[2] === 'staff');
   $('tabs').innerHTML = allowed.map(t => `<button data-t="${t[0]}">${t[1]}<span class="dot hidden" id="dot-${t[0]}"></span></button>`).join('');
@@ -386,11 +381,11 @@ async function loadStats() {
     <span class="pill mid">Шинэчилсэн ${fmtTime(s.now)}</span>`;
   const k = (label, val, sub, cls = '', bar) => `<div class="kpi ${cls}"><span>${label}</span><b>${val}</b>${sub ? `<small>${sub}</small>` : ''}${bar != null ? `<div class="bar"><i style="width:${bar}%"></i></div>` : ''}</div>`;
   $('kpis').innerHTML =
-    k('Борлогдсон', `${s.sold} / ${s.total}`, `Онлайн ${s.sold_online} · Гараар ${s.sold_manual}`, '', pct.toFixed(1)) +
-    k('Орлого', money(s.revenue), `QPay ${money(s.revenue_qpay)}`) +
-    k('Үлдсэн', s.available, s.pending_qty ? `${s.pending_qty} нь төлбөр хүлээж буй` : 'тасалбар') +
+    k('Бүртгэл', s.sold, `Онлайн ${s.sold_online} · Гараар ${s.sold_manual}`) +
     k('Үүдээр орсон', s.entered, s.sold ? `${(s.entered / s.sold * 100).toFixed(0)}% нь ирсэн` : '', '', s.sold ? (s.entered / s.sold * 100).toFixed(1) : 0) +
-    k('Хоол авсан', s.food, '') + k('Ундаа авсан', s.drink, '') +
+    k('Маркетингийн зөвшөөрөл', s.consent_mkt, s.sold ? `${(s.consent_mkt / s.sold * 100).toFixed(0)}% зөвшөөрсөн` : '') +
+    k('Дуудлагын хураамж', `${s.dep_paid} хүн`, money(s.dep_amount)) +
+    k('Аймгаар', (s.by_aimag || []).length, (s.by_aimag || []).slice(0, 4).map(x => `${esc(x.aimag)} ${x.qty}`).join(' · ')) +
     (s.refund_orders ? k('Буцаалт хэрэгтэй', s.refund_orders, 'Захиалга таб → «Буцаалт» шүүлтүүр', 'warn') : '') +
     (s.email_errors ? k('Имэйл очоогүй', s.email_errors, '<button class="btn btn-danger btn-sm" id="resend-failed" style="margin-top:6px">Бүгдэд дахин илгээх</button>', 'warn') : '');
   const rf = $('resend-failed');
@@ -421,7 +416,7 @@ function filteredOrders() {
 function renderOrders() {
   const list = filteredOrders();
   const paid = list.filter(o => o.status === 'paid');
-  $('o-count').textContent = `${list.length} захиалга · төлөгдсөн ${paid.length} · ${paid.reduce((a, o) => a + o.qty, 0)} тасалбар · ${money(paid.reduce((a, o) => a + (o.paid_amount || 0), 0))}`;
+  $('o-count').textContent = `${list.length} бүртгэл · хураамж төлсөн ${paid.filter(o => o.dep_status === 'paid').length} · мэдээ авах зөвшөөрөлтэй ${paid.filter(o => o.consent_marketing).length}`;
   $('o-body').innerHTML = list.slice(0, 600).map(o => {
     const tk = (o.parade_tickets || []).filter(t => t.status === 'valid').map(t => t.number).sort((a, b) => a - b);
     const acts = [];
@@ -430,6 +425,10 @@ function renderOrders() {
     if (o.status === 'paid') acts.push(`<button class="btn btn-light btn-sm" data-a="resend" data-id="${o.id}">Имэйл дахин</button>`);
     if (o.status === 'refund') acts.push(`<button class="btn btn-light btn-sm" data-a="refunded" data-id="${o.id}">Буцаасан ✓</button>`);
     if (o.status === 'cancelled' && o.paid_at) acts.push(`<button class="btn btn-ok btn-sm" data-a="restore" data-id="${o.id}">↩ Сэргээх</button>`);
+    if (o.status === 'paid') {
+      if (o.dep_status === 'paid') acts.push(`<button class="btn btn-light btn-sm" data-a="dep-undo" data-id="${o.id}">Хураамж ✓ (буцаах)</button>`);
+      else { acts.push(`<button class="btn btn-ok btn-sm" data-a="dep-cash" data-id="${o.id}">Хураамж: бэлэн</button>`); acts.push(`<button class="btn btn-ok btn-sm" data-a="dep-transfer" data-id="${o.id}">Хураамж: данс</button>`); }
+    }
     acts.push(`<button class="btn btn-light btn-sm" data-a="edit" data-id="${o.id}">Засах</button>`);
     if (['pending', 'paid'].includes(o.status)) acts.push(`<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="cancel" data-id="${o.id}">Цуцлах</button>`);
     return `<tr>
@@ -438,7 +437,7 @@ function renderOrders() {
       <td><b>${esc(o.name)}</b>${o.title ? ` <span class="tag gray">${esc(o.title)}</span>` : ''}<small>${esc([o.phone, o.phone2].filter(Boolean).join(', '))}</small>${o.aimag ? `<small>${esc([o.aimag, o.sum].filter(Boolean).join(', '))}</small>` : ''}<small>${esc(o.email || '')}${o.email_error ? ` <span title="${esc(o.email_error)}" style="color:var(--red)">⚠ имэйл очоогүй</span>` : (o.email_sent_at && o.status === 'paid' && o.email ? ' ✓' : '')}</small>${o.note ? `<small style="color:#7a5b12">${esc(o.note)}</small>` : ''}</td>
       <td>${o.qty}</td>
       <td class="mono">${money(o.paid_amount ?? o.amount)}</td>
-      <td>${METHOD[o.pay_method] || esc(o.pay_method)}</td>
+      <td>${o.status === 'paid' ? (o.dep_status === 'paid' ? `<span class="tag paid">Хураамж ${METHOD[o.dep_method] || ''}</span>` : '<span class="tag gray">Хураамж —</span>') : (METHOD[o.pay_method] || esc(o.pay_method))}${o.consent_marketing ? '<small>Мэдээ ✓</small>' : ''}</td>
       <td><span class="tag ${o.status}">${STATUS[o.status] || o.status}</span>${o.status === 'pending' ? `<small>${fmtTime(o.expires_at)} хүртэл</small>` : ''}</td>
       <td class="nums">${tk.join(', ') || '—'}</td>
       <td><div class="acts">${acts.join('')}</div></td></tr>`;
@@ -451,6 +450,8 @@ $('o-body').onclick = async e => {
   const o = orders.find(x => x.id === b.dataset.id); const a = b.dataset.a;
   try {
     if (a === 'check') { b.disabled = true; const r = await api('admin_order_check', { id: o.id }); toast(r.after === 'paid' ? 'Төлөгдсөн байна — тасалбар олгогдлоо.' : (r.qpay?.error ? 'QPay: ' + r.qpay.error : 'Төлбөр ороогүй байна.')); }
+    else if (a === 'dep-cash' || a === 'dep-transfer') { b.disabled = true; await api('admin_deposit_mark', { id: o.id, method: a === 'dep-cash' ? 'cash' : 'transfer' }); toast('Хураамж төлсөнөөр тэмдэглэлээ'); }
+    else if (a === 'dep-undo') { b.disabled = true; await api('admin_deposit_mark', { id: o.id, paid: false }); toast('Хураамжийн тэмдэглэгээг буцаалаа'); }
     else if (a === 'confirm') return confirmModal(o);
     else if (a === 'edit') return editModal(o);
     else if (a === 'resend') { b.disabled = true; await api('admin_resend', { id: o.id }); toast('Имэйл илгээлээ: ' + o.email); }
@@ -576,9 +577,9 @@ function csv(name, rows) {
 }
 $('t-csv').onclick = () => csv('tasalbaruud.csv', [['Дугаар', 'Эзэмшигч', 'Цол', 'Аймаг', 'Сум', 'Утас', 'Нэмэлт утас', 'Имэйл', 'Захиалга', 'Төлбөр', 'Төлөв', 'Орсон', 'Хоол', 'Ундаа'],
   ...filteredTickets().map(t => { const o = t.parade_orders || {}; return [t.number, t.holder_name || o.name, o.title, o.aimag, o.sum, o.phone, o.phone2, o.email, o.code, METHOD[o.pay_method] || o.pay_method, t.status === 'valid' ? 'Хүчинтэй' : 'Цуцалсан', fmtDT(t.entry_at), fmtDT(t.food_at), fmtDT(t.drink_at)]; })]);
-$('o-csv').onclick = () => csv('zahialguud.csv', [['Огноо', 'Код', 'Нэр', 'Цол', 'Аймаг', 'Сум', 'Утас', 'Нэмэлт утас', 'Имэйл', 'Тоо', 'Дүн', 'Төлбөр', 'Төлөв', 'Тасалбарууд', 'Эх сурвалж', 'Тэмдэглэл'],
+$('o-csv').onclick = () => csv('zahialguud.csv', [['Огноо', 'Код', 'Нэр', 'Цол', 'Аймаг', 'Сум', 'Утас', 'Нэмэлт утас', 'Имэйл', 'Тоо', 'Дүн', 'Төлбөр', 'Төлөв', 'Сугалааны дугаар', 'Эх сурвалж', 'Тэмдэглэл', 'Мэдээллийн зөвшөөрөл', 'Маркетингийн зөвшөөрөл', 'Дуудлагын хураамж', 'Хураамжийн хэлбэр'],
   ...filteredOrders().map(o => [fmtDT(o.created_at), o.code, o.name, o.title, o.aimag, o.sum, o.phone, o.phone2, o.email, o.qty, o.paid_amount ?? o.amount, METHOD[o.pay_method] || o.pay_method, STATUS[o.status] || o.status,
-    (o.parade_tickets || []).filter(t => t.status === 'valid').map(t => t.number).sort().join(' '), o.source === 'manual' ? 'Гараар' : 'Онлайн', o.note])]);
+    (o.parade_tickets || []).filter(t => t.status === 'valid').map(t => t.number).sort().join(' '), o.source === 'manual' ? 'Гараар' : 'Онлайн', o.note, o.consent_data ? 'Тийм' : 'Үгүй', o.consent_marketing ? 'Тийм' : 'Үгүй', o.dep_status === 'paid' ? 'Төлсөн' : '', METHOD[o.dep_method] || ''])]);
 
 // ---------------- уншуулах
 const MODE_LBL = { entry: 'Орох', food: 'Хоол', drink: 'Ундаа' };
@@ -653,36 +654,29 @@ async function handleCode(code) {
 }
 
 // ---------------- гараар олгох
-function issueHint() {
-  const f = $('issue-form'), price = settings?.price ?? 50000;
-  const q = Math.max(1, Number(f.qty.value) || 1);
-  f.amount.placeholder = f.method.value === 'free' ? '0' : String(q * price);
-  $('i-hint').textContent = f.method.value === 'free' ? 'Үнэгүй олголт' : `Хоосон бол ${money(q * price)} (${q} × ${money(price)})`;
-  if (!settings && me?.role === 'admin') api('admin_settings_get').then(r => { settings = r.settings; issueHint(); }).catch(() => {});
-}
-$('i-aimag').innerHTML = opts(AIMAGS); $('i-title').innerHTML = opts(TITLES);
-['qty', 'method'].forEach(n => $('issue-form')[n].addEventListener('input', issueHint));
+function issueHint() {}
+$('i-aimag').innerHTML = opts(AIMAGS); $('i-title').innerHTML = '<option value="">—</option>' + opts(TITLES);
 $('issue-form').onsubmit = async e => {
   e.preventDefault(); const f = e.target, btn = f.querySelector('button[type=submit]');
   $('i-err').innerHTML = ''; btn.disabled = true;
   try {
-    const r = await api('admin_issue', { name: f.name.value, phone: f.phone.value, phone2: f.phone2.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, qty: f.qty.value, method: f.method.value, amount: f.amount.value, note: f.note.value });
-    $('issued').innerHTML = `<div class="alert ok">${esc(r.order.code)} · ${esc(r.order.name)} · ${r.tickets.length} тасалбар · ${money(r.order.paid_amount)}${r.order.email ? ' · имэйл илгээж байна' : ''}</div>
-      <div class="mini-list">${r.tickets.map(t => `<a class="mini" href="${ticketLink(t.token)}" target="_blank" rel="noopener"><div class="l"><small>ТАСАЛБАР</small><b>№${t.number}</b><span>${esc(r.order.name)} · Нээх →</span></div><div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}</div>`;
-    f.reset(); f.qty.value = 1; issueHint(); toast('Тасалбар олголоо');
+    const r = await api('admin_register', { name: f.name.value, phone: f.phone.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, note: f.note.value, consent_data: f.consent_data.checked, consent_marketing: f.consent_marketing.checked });
+    $('issued').innerHTML = `<div class="alert ${r.existing ? 'warn' : 'ok'}">${r.existing ? 'Энэ утсаар өмнө нь бүртгэгдсэн байна — өмнөх пасс: ' : 'Бүртгэгдлээ: '}${esc(r.order.code)} · ${esc(r.order.name)}${!r.existing && r.order.email ? ' · имэйл илгээж байна' : ''}</div>
+      <div class="mini-list">${(r.tickets || []).map(t => `<a class="mini" href="${ticketLink(t.token)}" target="_blank" rel="noopener"><div class="l"><small>ДУГААР</small><b>№${t.number}</b><span>${esc(r.order.name)} · Нээх →</span></div><div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}</div>`;
+    f.reset(); toast(r.existing ? 'Өмнө бүртгэгдсэн' : 'Бүртгэлээ');
   } catch (ex) { $('i-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
   btn.disabled = false;
 };
 
 // ---------------- сугалаа
-const PRESETS = ['25% эр сарваа', 'TRM брэндийн бүтээгдэхүүн', 'Адууны эмнэлгийн үйлчилгээний эрх'];
+const PRESETS = ['Бүтээгдэхүүн авах эрхийн бичиг 150,000₮', 'Сүхбаатар салбараар үйлчлүүлэх эрхийн бичиг 200,000₮'];
 $('presets').innerHTML = PRESETS.map(p => `<button type="button" class="preset">${p}</button>`).join('');
 $('presets').onclick = e => { const b = e.target.closest('.preset'); if (b) { $('d-prize').value = b.textContent; $('s-prize').textContent = b.textContent; } };
 $('d-prize').oninput = e => { $('s-prize').textContent = e.target.value || 'Сугалаа'; };
 $('fs').onclick = () => { const s = $('stage'); document.fullscreenElement ? document.exitFullscreen() : s.requestFullscreen?.(); };
 $('draw-form').onsubmit = async e => {
   e.preventDefault(); $('d-err').innerHTML = ''; const btn = $('d-btn'); btn.disabled = true;
-  const start = settings?.start_no || 11111, total = settings?.total || 600;
+  const start = settings?.start_no || 1, total = Math.max(30, (stats?.sold) || 100);
   const num = $('s-num'), who = $('s-who');
   who.textContent = ''; $('s-prize').textContent = $('d-prize').value;
   let spinning = true;

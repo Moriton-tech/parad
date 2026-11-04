@@ -360,3 +360,7 @@ body.ticket-page .site-footer { background: transparent; border-top-color: rgba(
   .et-mid::before, .et-mid::after { background: #fff; }
   * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 }
+
+/* Зөвшөөрлийн checkbox (бүртгэл) */
+label.check { display: flex; gap: 10px; align-items: flex-start; font-weight: 500; font-size: 13px; line-height: 1.45; color: var(--ink); cursor: pointer; margin: 0; }
+label.check input { width: 20px; height: 20px; flex: none; margin-top: 1px; accent-color: var(--accent); }

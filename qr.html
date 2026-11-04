@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бүртгэлийн QR — Парад | parad.mn</title>
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="icon" href="favicon.png" type="image/png">
+<style>
+  :root { --navy:#0c2179; --navy-dd:#050f3d; --accent:#9e231b; --cream:#f3f5fb; --ink:#141a33; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #dfe3f1; font-family: Montserrat, system-ui, sans-serif; color: var(--ink); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .bar { padding: 12px 16px; display: flex; gap: 10px; align-items: center; justify-content: center; flex-wrap: wrap; font-size: 14px; }
+  .bar button { background: var(--accent); color: #fff; border: 0; border-radius: 10px; padding: 10px 18px; font: 700 14px Montserrat, sans-serif; cursor: pointer; }
+  .poster { width: 210mm; height: 297mm; margin: 0 auto 24px; background: #fff; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center; padding: 14mm 14mm 10mm; box-shadow: 0 6px 30px rgba(5,15,61,.25); }
+  .poster::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 9mm; background: var(--navy); }
+  .poster::after { content: ""; position: absolute; left: 0; right: 0; top: 9mm; height: 2mm; background: var(--accent); }
+  .logo { margin-top: 10mm; width: 72mm; }
+  h1 { font-family: Oswald, sans-serif; font-weight: 700; font-size: 17mm; line-height: 1; margin: 7mm 0 3mm; white-space: nowrap; color: var(--navy); text-transform: uppercase; letter-spacing: .5mm; }
+  .free { display: inline-block; background: var(--accent); color: #fff; font-weight: 800; font-size: 8mm; padding: 2mm 9mm; border-radius: 99px; letter-spacing: .4mm; }
+  .qrbox { margin: 7mm 0 4mm; padding: 5mm; border: 1.6mm solid var(--navy); border-radius: 8mm; background: #fff; }
+  .qrbox svg { display: block; width: 92mm; height: 92mm; }
+  .how { font-weight: 700; font-size: 6.4mm; color: var(--navy); margin: 0 0 3mm; }
+  .url { font-family: Oswald, sans-serif; font-size: 10mm; font-weight: 600; color: var(--accent); letter-spacing: .4mm; margin: 0 0 5mm; }
+  .perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; width: 100%; margin-top: auto; }
+  .perk { background: var(--cream); border-radius: 4mm; padding: 4mm 3mm; font-size: 3.6mm; line-height: 1.35; }
+  .perk b { display: block; color: var(--navy); font-size: 4.2mm; margin-bottom: 1mm; }
+  .foot { margin-top: 6mm; font-size: 3.6mm; color: #5f6785; }
+  @page { size: A4; margin: 0; }
+  @media print { body { background: #fff; } .bar { display: none; } .poster { margin: 0; box-shadow: none; } }
+  @media (max-width: 800px) { .poster { transform-origin: top left; transform: scale(calc(100vw / 794)); margin: 0; } }
+</style>
+</head>
+<body>
+<div class="bar"><span>Хэвлэхдээ «Background graphics»-ийг идэвхжүүлнэ үү.</span><button onclick="print()">Хэвлэх / PDF</button></div>
+<section class="poster">
+  <img class="logo" src="img/parad-logo.png" alt="Parad.mn">
+  <h1>Бүртгүүлээрэй</h1>
+  <div class="free">ҮНЭГҮЙ · QR УНШУУЛНА</div>
+  <div class="qrbox" id="qr"></div>
+  <p class="how">Утасныхаа камераар QR кодыг уншуулж, нэр утсаа бөглөөд QR пассаа аваарай</p>
+  <p class="url">parad.mn/register.html</p>
+  <div class="perks">
+    <div class="perk"><b>QR пасс</b>Үүдэнд уншуулж орно. Утасгүй бол ажилтан гараар бүртгэнэ.</div>
+    <div class="perk"><b>Эрхийн бичгийн сугалаа</b>Ирсэн бүртгэлтэй оролцогчдын дунд нийт 5 сугалаа.</div>
+    <div class="perk"><b>Дуудлага худалдаа</b>Парадын дараа бүртгэлтэй, хураамж төлсөн оролцогчид оролцоно.</div>
+  </div>
+  <div class="foot">Үе дамжсан шилмэл удам · Сүхбаатар Парад 2026</div>
+</section>
+<script type="module">
+import { qrSvg } from './js/app.js';
+document.getElementById('qr').innerHTML = qrSvg('https://parad.mn/register.html', { margin: 0, ecl: 'Q' });
+</script>
+</body>
+</html>

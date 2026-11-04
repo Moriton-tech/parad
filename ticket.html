@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Тасалбар — Парад | parad.mn</title>
+<title>Бүртгэлийн пасс — Парад | parad.mn</title>
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#050f3d">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,7 +18,7 @@
 <footer class="site-footer" id="site-footer"></footer>
 
 <script type="module">
-import { api, esc, fmtDay, fmtTime, fmtWeekday, qrSvg, ticketLink, param, startCountdown, renderChrome } from './js/app.js';
+import { api, esc, money, fmtDay, fmtTime, fmtWeekday, qrSvg, ticketLink, param, startCountdown, renderChrome, toast } from './js/app.js';
 
 const root = document.getElementById('root');
 const token = (param('t') || '').toLowerCase();
@@ -27,48 +27,83 @@ function stub(label, at) {
   return `<div class="et-stub ${at ? 'used' : ''}"><b>${label}</b><small>${at ? '✓ ' + fmtTime(at) : 'Хүчинтэй'}</small></div>`;
 }
 
+let depTimer;
+function renderDeposit(dep, ev) {
+  clearTimeout(depTimer);
+  const box = document.getElementById('dep-box');
+  const amt = money(dep.amount);
+  if (dep.status === 'paid') {
+    box.innerHTML = `<div class="alert ok" style="text-align:left"><b>Дуудлага худалдаанд оролцох эрх идэвхтэй.</b><br>Оролцооны хураамж (${amt}) төлөгдсөн. Дуудлагын хуудсанд энэ утсаараа бооцоо тавина.</div><a class="btn btn-accent" href="stallions.html">Дуудлагын азарганууд →</a>`;
+    return;
+  }
+  if (!dep.open) {
+    box.innerHTML = `<div class="alert info" style="text-align:left"><b>Дуудлага худалдаа</b><br>Азаргын парад дууссаны дараа дуудлага худалдаа эхэлнэ. Оролцохын тулд ${amt} оролцооны хураамж төлсөн байх ёстой — төлбөр энэ хуудсанд нээгдэнэ.</div>`;
+    return;
+  }
+  if (dep.status === 'pending' && dep.qpay && (dep.qpay.qr_text || dep.qpay.qr_image)) {
+    const q = dep.qpay, banks = (q.urls || []).filter(u => u.link);
+    const qr = q.qr_image ? `<img src="data:image/png;base64,${q.qr_image}" alt="QPay QR" style="width:220px;background:#fff;padding:8px;border-radius:12px">` : `<div style="width:220px;margin:0 auto;background:#fff;padding:8px;border-radius:12px">${qrSvg(q.qr_text, { margin: 1 })}</div>`;
+    box.innerHTML = `<div class="alert info" style="text-align:left"><b>Оролцооны хураамж ${amt}</b> — банкны аппаараа QR уншуулж төлнө үү. Төлөгдмөгц энэ хуудас шинэчлэгдэнэ.</div>
+      <div style="display:flex;justify-content:center">${qr}</div>
+      ${banks.length ? `<div class="banks" style="margin-top:10px">${banks.slice(0, 8).map(b => `<a href="${esc(b.link)}" rel="noopener"><span>${esc(b.description || b.name)}</span></a>`).join('')}</div>` : ''}
+      <button class="btn btn-ghost" id="dep-check" type="button">Төлбөр шалгах</button>`;
+    document.getElementById('dep-check').onclick = async () => { const r = await api('deposit_status', { t: token }); if (r.deposit.status === 'paid') load(); else toast('Төлбөр хараахан орж ирээгүй байна.'); };
+    depTimer = setTimeout(async () => { try { const r = await api('deposit_status', { t: token }); if (r.deposit.status === 'paid') load(); else renderDeposit(r.deposit, ev); } catch { renderDeposit(dep, ev); } }, 5000);
+    return;
+  }
+  box.innerHTML = `<div class="alert info" style="text-align:left"><b>Дуудлага худалдаа нээгдлээ.</b> Оролцохын тулд ${amt} оролцооны хураамж төлнө.</div>
+    <button class="btn btn-accent btn-lg" id="dep-pay" type="button">${amt} төлөх (QPay)</button>
+    <div class="tip">QPay ажиллахгүй бол ажилтанд бэлнээр/данс руу төлөөд баталгаажуулна: ${esc(ev.phone)}${dep.bank_info ? `<br>${esc(dep.bank_info)}` : ''}</div>`;
+  document.getElementById('dep-pay').onclick = async e => {
+    e.target.disabled = true;
+    try { const r = await api('deposit_start', { t: token }); renderDeposit(r.deposit, ev); if (!r.deposit.qpay && r.deposit.status !== 'paid') toast('QPay түр ажиллахгүй байна. Ажилтанд төлж баталгаажуулна уу.'); }
+    catch (ex) { toast(ex.message); e.target.disabled = false; }
+  };
+}
+
 async function load() {
   try {
-    const { ticket: t, event: ev } = await api('ticket', { t: token });
+    const { ticket: t, event: ev, deposit: dep } = await api('ticket', { t: token });
     renderChrome(ev);
     document.title = `№${t.number} — ${ev.event_name}`;
     const valid = t.status === 'valid';
-    const state = !valid ? '<span class="et-state void">Хүчингүй тасалбар</span>'
+    const state = !valid ? '<span class="et-state void">Хүчингүй пасс</span>'
       : t.entry_at ? `<span class="et-state used">Орсон · ${fmtTime(t.entry_at)}</span>`
       : '<span class="et-state valid">Хүчинтэй · Үүдэнд уншуулна</span>';
     root.innerHTML = `
       <article class="eticket">
         <div class="et-top">
           <div class="et-brand"><img src="img/parad-wordmark-onnavy.png" alt="Parad.mn"></div>
-          <div class="et-title"><span>Тасалбар</span><b>Парад</b></div>
+          <div class="et-title"><span>Бүртгэлийн пасс</span><b>Парад</b></div>
           <div class="et-row">
-            <div class="et-no"><small>ДУГААР</small><b>№${t.number}</b></div>
+            <div class="et-no"><small>СУГАЛААНЫ ДУГААР</small><b>№${t.number}</b></div>
             <div class="et-date">${fmtDay(ev.event_at)} · ${fmtTime(ev.event_at)}<small>${fmtWeekday(ev.event_at)} · ${esc(ev.location)}</small></div>
           </div>
         </div>
         <div class="et-mid"><div class="et-perf"></div>
           <div class="et-qr">${qrSvg(ticketLink(t.token), { margin: 1 })}${valid ? '' : '<div class="et-void"><span>ХҮЧИНГҮЙ</span></div>'}</div>
           <div class="et-holder">${esc(t.holder_name)}</div>
-          <div class="et-code">Захиалга ${esc(t.order_code)}</div>
+          <div class="et-code">Бүртгэл ${esc(t.order_code)}</div>
           ${state}
         </div>
         <div class="et-stubs">
           <div class="et-stub"><b>Сугалаа</b><small>№${t.number}</small></div>
-          ${stub('Хоол', t.food_at)}
-          ${stub('Ус, ундаа', t.drink_at)}
+          <div class="et-stub ${dep.status === 'paid' ? 'used' : ''}"><b>Дуудлага</b><small>${dep.status === 'paid' ? '✓ Төлсөн' : 'Хураамж төлөөгүй'}</small></div>
         </div>
       </article>
+      <div class="et-actions" id="dep-box" style="margin-top:14px"></div>
       <div class="et-actions">
         <div class="et-cd countdown" id="cd"></div>
-        <div class="tip">Дэлгэцийн гэрэлтүүлгээ нэмж, QR кодыг үүдэнд уншуулна уу. Энэ хуудсыг хадгалах эсвэл скриншот авч болно.</div>
+        <div class="tip">${new URLSearchParams(location.search).get('new') ? '<b>Бүртгэл амжилттай!</b> ' : ''}Дэлгэцийн гэрэлтүүлгээ нэмж, QR кодыг үүдэнд уншуулна уу. Энэ хуудсыг хадгалах эсвэл скриншот авч болно.</div>
         <button class="btn btn-accent" id="print">Хэвлэх / PDF</button>
-        <a class="btn btn-ghost" href="tickets.html">Парад нүүр</a>
+        <a class="btn btn-ghost" href="register.html">Парад нүүр</a>
       </div>`;
     document.getElementById('print').onclick = () => print();
+    if (valid) renderDeposit(dep, ev);
     startCountdown(document.getElementById('cd'), ev.event_at, ev.now, { compact: true });
   } catch (e) {
     renderChrome();
-    root.innerHTML = `<div class="et-actions" style="margin-top:40px"><div class="alert error">${esc(e.message)}</div><a class="btn btn-accent" href="tickets.html">Нүүр хуудас</a></div>`;
+    root.innerHTML = `<div class="et-actions" style="margin-top:40px"><div class="alert error">${esc(e.message)}</div><a class="btn btn-accent" href="register.html">Нүүр хуудас</a></div>`;
   }
 }
 load();

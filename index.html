@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Parad.mn — Үе дамжсан шилмэл удам · Азарганд гүү тавих · Зарах азарганууд</title>
-<meta name="description" content="Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл: үржүүлгийн парад, тасалбар, азарганд гүү тавих онлайн захиалга, азарга зарах, дуудлага худалдаа.">
+<meta name="description" content="Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл: үржүүлгийн парад (үнэгүй бүртгэл), азарганд гүү тавих онлайн захиалга, азарга зарах, дуудлага худалдаа.">
 <meta property="og:title" content="Parad.mn — Үе дамжсан шилмэл удам">
 <meta property="og:description" content="Парад, азарганд гүү тавих, азарга зарах — нэг дор.">
 <meta property="og:image" content="img/hero.jpg">
@@ -29,10 +29,10 @@
     <div class="container">
       <div class="eyebrow">Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл</div>
       <h1>Парад<br><span>Азарга · Үржүүлэг</span></h1>
-      <p class="lead">Үржүүлгийн парад, тасалбар, азарганд гүү тавих онлайн захиалга, азарга худалдаа — бүгд нэг дор.</p>
+      <p class="lead">Үржүүлгийн парад (үнэгүй бүртгэл), азарганд гүү тавих онлайн захиалга, азарга худалдаа — бүгд нэг дор.</p>
       <div class="actions">
         <a class="btn btn-accent btn-lg" href="stallions.html">Азарга үзэх</a>
-        <a class="btn btn-ghost btn-lg" href="tickets.html" id="hero-parade" style="color:#fff;border-color:rgba(255,255,255,.5)">Парадын мэдээлэл</a>
+        <a class="btn btn-ghost btn-lg" href="register.html" id="hero-parade" style="color:#fff;border-color:rgba(255,255,255,.5)">Парадын мэдээлэл</a>
       </div>
       <div class="countdown" id="countdown"></div>
     </div>
@@ -96,18 +96,18 @@ function show({ horses, site, event }, stale) {
   renderChrome({ ...event, contact_phone: site.phone });
   const ev = event.event_public;
   const parade = ev
-    ? { t: event.event_name, p: `${fmtDay(event.event_at)} · ${fmtWeekday(event.event_at)} · ${fmtTime(event.event_at)} · ${event.location}`, g: event.sales_open && event.available > 0 ? 'Тасалбар авах →' : 'Дэлгэрэнгүй →' }
+    ? { t: event.event_name, p: `${fmtDay(event.event_at)} · ${fmtWeekday(event.event_at)} · ${fmtTime(event.event_at)} · ${event.location}`, g: event.sales_open ? 'Бүртгүүлэх →' : 'Дэлгэрэнгүй →' }
     : { t: 'Парад', p: 'Дараагийн парадын огноо, байршил удахгүй зарлагдана.', g: 'Мэдээлэл →' };
   const studH = horses.filter(h => h.stud_enabled && h.stud_active);
   const seats = studH.reduce((a, h) => a + studState(h).left, 0);
   const saleH = horses.filter(h => h.sale_mode !== 'none' && h.sale_status !== 'sold');
   const live = horses.filter(h => auctionState(h) === 'open').length;
   $('tiles').innerHTML = `
-    <a class="tile" href="tickets.html"><div class="tt">${esc(parade.t)}</div><div class="tp">${esc(parade.p)}</div><div class="go">${parade.g}</div></a>
+    <a class="tile" href="register.html"><div class="tt">${esc(parade.t)}</div><div class="tp">${esc(parade.p)}</div><div class="go">${parade.g}</div></a>
     <a class="tile" href="stallions.html?f=stud"><div class="tt">Азарганд гүү тавих</div><div class="tp">${esc(site.season)} · ${studH.length} азарга · ${seats} суудал үлдсэн</div><div class="go">Азарга сонгох →</div></a>
     <a class="tile" href="stallions.html?f=sale"><div class="tt">Зарах азарганууд</div><div class="tp">${saleH.length} адуу худалдаанд${live ? ` · <b style="color:var(--red)">${live} дуудлага явагдаж байна</b>` : ''}</div><div class="go">Үзэх →</div></a>`;
   if (ev) {
-    $('hero-parade').textContent = event.sales_open ? 'Тасалбар авах' : 'Парадын мэдээлэл';
+    $('hero-parade').textContent = event.sales_open ? 'Парадад бүртгүүлэх' : 'Парадын мэдээлэл';
     if (!stale && !cdStarted && new Date(event.event_at) > new Date()) { cdStarted = true; startCountdown($('countdown'), event.event_at, event.now); }
   }
   const feat = [...horses].sort((a, b) => (auctionState(b) === 'open') - (auctionState(a) === 'open') || a.sort - b.sort).slice(0, 6);

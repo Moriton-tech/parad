@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Парад — Бүртгэл | parad.mn</title>
+<meta name="description" content="Үржүүлгийн парад — үнэгүй бүртгэл. Бүртгүүлж QR пассаа аваад үүдэнд уншуулж орно. Ирсэн оролцогчдын дунд эрхийн бичгийн сугалаа.">
+<meta property="og:title" content="Парад — Бүртгэл | Parad.mn">
+<meta property="og:description" content="Үржүүлгийн парад — үнэгүй бүртгэл, сугалаа.">
+<meta property="og:image" content="img/hero.jpg">
+<meta name="theme-color" content="#ffffff">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/pm.css">
+<link rel="modulepreload" href="js/app.js">
+<link rel="modulepreload" href="js/config.js">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs">
+<link rel="modulepreload" href="js/pm-ui.js">
+<link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
+<link rel="icon" href="favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+</head>
+<body>
+<header class="site-header" id="site-header"></header>
+<main>
+  <section class="hero" id="top">
+    <div class="container">
+      <div>
+        <div class="eyebrow" id="eyebrow">Parad.mn</div>
+        <h1><span>Үржүүлгийн</span>Парад</h1>
+        <p class="lead">Парадад оролцоход <b>үнэгүй</b>. Урьдчилан бүртгүүлж QR пассаа аваад үүдэнд уншуулж орно. Ирсэн бүртгэлтэй оролцогчдын дунд эрхийн бичгийн сугалаа явуулна.</p>
+        <div class="facts" id="facts"></div>
+        <div class="countdown" id="countdown"></div>
+      </div>
+
+      <aside class="buy-card" id="register">
+        <div class="top"><b>Үнэгүй бүртгэл</b><span>Нэг хүнд</span></div>
+        <div class="body">
+          <div id="reg-form-wrap">
+            <form class="form" id="reg-form" novalidate>
+              <div><label for="f-name">Овог нэр <span class="req">*</span></label><input class="input" id="f-name" name="name" autocomplete="name" maxlength="80" required></div>
+              <div><label for="f-phone">Утасны дугаар <span class="req">*</span></label><input class="input" id="f-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="99112233" maxlength="16" required></div>
+              <div class="row2">
+                <div><label for="f-aimag">Аймаг / хот <span class="req">*</span></label><select class="input" id="f-aimag" name="aimag" required><option value="">Сонгох…</option></select></div>
+                <div><label for="f-sum">Сум / дүүрэг <span class="req">*</span></label><input class="input" id="f-sum" name="sum" maxlength="60" placeholder="Сумын нэр" required></div>
+              </div>
+              <div class="row2">
+                <div><label for="f-title">Цол <span class="muted" style="font-weight:500">(заавал биш)</span></label><select class="input" id="f-title" name="title"><option value="">Сонгох…</option></select></div>
+                <div><label for="f-email">Имэйл <span class="muted" style="font-weight:500">(заавал биш)</span></label><input class="input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ner@gmail.com" maxlength="120"></div>
+              </div>
+              <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
+              <label class="check"><input type="checkbox" name="consent_data" id="c-data"> <span>Парадын бүртгэл, ирцийн тооцоо, сугалаа, холбоо барих зорилгоор миний нэр, утас, аймаг сумын мэдээллийг цуглуулж, ашиглахыг зөвшөөрч байна. <span class="req">*</span></span></label>
+              <label class="check"><input type="checkbox" name="consent_marketing" id="c-mkt"> <span>Parad.mn-ээс азарга, дуудлага худалдаа, дараагийн парадын талаарх мэдээ, санал мэдээлэл хүлээн авахыг зөвшөөрч байна. <span class="muted">(заавал биш)</span></span></label>
+              <div id="f-err"></div>
+              <button class="btn btn-accent btn-lg btn-block" type="submit" id="f-submit">Бүртгүүлэх</button>
+              <p class="small muted" style="margin:0;text-align:center">Бүртгүүлсний дараа QR пасс дэлгэц дээр гарна.</p>
+            </form>
+          </div>
+          <div id="reg-msg" hidden></div>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section" id="included">
+    <div class="container">
+      <h2>Бүртгүүлсэнд юу байгаа вэ</h2>
+      <p class="sub">Нэг бүртгэл — нэг хүн. Пасс дээрх дугаар тань сугалааны дугаар болно.</p>
+      <div class="stubs">
+        <div class="stub">
+          <div class="ic" data-ic="ticket"></div>
+          <h3>QR пасс</h3>
+          <p>Утсандаа хадгалаад үүдэнд уншуулж орно. Утасгүй бол хаалган дээрх ажилтан таныг гараар бүртгэнэ.</p>
+        </div>
+        <div class="stub">
+          <div class="ic" data-ic="gift"></div>
+          <h3>Эрхийн бичгийн сугалаа</h3>
+          <p>Парадад ирсэн бүртгэлтэй оролцогчдын дунд нийт 5 сугалаа:</p>
+          <ul>
+            <li>Бүтээгдэхүүн авах эрхийн бичиг — 2 ш (150,000₮)</li>
+            <li>Сүхбаатар салбараар үйлчлүүлэх эрхийн бичиг — 3 ш (200,000₮)</li>
+          </ul>
+        </div>
+        <div class="stub">
+          <div class="ic" data-ic="food"></div>
+          <h3>Дуудлага худалдаа</h3>
+          <p>Азаргын парад дууссаны дараа дуудлага худалдаа болно. Оролцохын тулд оролцооны хураамж (<b data-dep>200,000₮</b>) төлсөн байх ёстой.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark">
+    <div class="container">
+      <h2>Хэрхэн бүртгүүлэх вэ</h2>
+      <p class="sub">Хэдхэн секундын ажил.</p>
+      <div class="steps">
+        <div class="step"><b>Мэдээллээ бөглөнө</b><span>Нэр, утас, аймаг, сум.</span></div>
+        <div class="step"><b>Зөвшөөрлөө өгнө</b><span>Мэдээлэл ашиглах зөвшөөрлийг заавал сонгоно.</span></div>
+        <div class="step"><b>QR пасс гарна</b><span>Дэлгэцийг хадгалах эсвэл скриншот авна.</span></div>
+        <div class="step"><b>Үүдэнд уншуулна</b><span>Ирцээ бүртгүүлээд сугалаанд оролцоно.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container">
+      <div class="sec-head"><div><h2>Парадад оролцох азарганууд</h2><p class="sub">Азарганд гүү тавих, азарга худалдаж авах боломжтой — дэлгэрэнгүйг азарга бүрийн хуудаснаас үзнэ үү.</p></div><a class="btn btn-navy" href="stallions.html">Бүгдийг үзэх</a></div>
+      <div class="hgrid" id="parade-horses"></div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0">
+    <div class="container info-grid">
+      <div class="panel">
+        <h3 style="color:var(--navy);margin-bottom:16px">Арга хэмжээний мэдээлэл</h3>
+        <div class="kv" id="info-kv"></div>
+      </div>
+      <div class="panel">
+        <h3 style="color:var(--navy);margin-bottom:6px">Түгээмэл асуулт</h3>
+        <details class="faq"><summary>Тасалбар авах шаардлагатай юу?</summary><p>Үгүй. Энэ удаагийн парадад орох тасалбар зарахгүй. Харин урьдчилан бүртгүүлж QR пасс авна.</p></details>
+        <details class="faq"><summary>Утасгүй, бүртгүүлж чадахгүй бол?</summary><p>Хаалган дээрх ажилтан таныг гараар бүртгэнэ. Нэр, утас, аймаг сумаа хэлнэ үү.</p></details>
+        <details class="faq"><summary>Сугалаанд хэрхэн орох вэ?</summary><p>Бүртгүүлж, парадад ирж үүдэнд QR-аа уншуулсан бол сугалаанд оролцоно. Нийт 5 эрхийн бичиг тархана.</p></details>
+        <details class="faq"><summary>Дуудлага худалдаанд оролцохын тулд юу хийх вэ?</summary><p>Бүртгүүлсэн байх бөгөөд парад дууссаны дараа пассаа нээгээд оролцооны хураамжаа (<b data-dep>200,000₮</b>) төлнө. Төлсөн оролцогчид л бооцоо тавина.</p></details>
+        <details class="faq"><summary>Пассаа алдвал?</summary><p>Ижил утсаараа дахин бүртгүүлбэл өмнөх пасс тань дахин гарна.</p></details>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer" id="site-footer"></footer>
+
+<script type="module">
+import { api, apiCached, esc, money, fmtDay, fmtWeekday, fmtTime, startCountdown, renderChrome, ICONS, toast, store, siteBase, configured, ticketLink } from './js/app.js';
+import { hcard } from './js/pm-ui.js';
+
+const $ = id => document.getElementById(id);
+let info = { event_at: '2027-10-10T02:00:00Z', event_public: false, location: '', phone: '7732-0404', sales_open: true, deposit_amount: 200000 };
+
+const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
+const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
+$('f-aimag').insertAdjacentHTML('beforeend', AIMAGS.map(a => `<option>${a}</option>`).join(''));
+$('f-title').insertAdjacentHTML('beforeend', TITLES.map(a => `<option>${a}</option>`).join(''));
+$('f-aimag').onchange = e => { $('f-sum').placeholder = e.target.value === 'Улаанбаатар' ? 'Жишээ: Сонгинохайрхан' : 'Сумын нэр'; };
+document.querySelectorAll('[data-ic]').forEach(e => e.innerHTML = ICONS[e.dataset.ic] || '');
+
+const last = store.get('buyer');
+if (last) for (const k of ['name', 'phone', 'email', 'aimag', 'sum', 'title']) { const el = $('f-' + k); if (el && last[k]) el.value = last[k]; }
+
+function regState() {
+  if (!info.sales_open) return 'closed';
+  if (info.sales_close && new Date(info.sales_close) < new Date()) return 'ended';
+  return 'open';
+}
+
+function render() {
+  renderChrome(info, 'parade');
+  document.querySelectorAll('[data-dep]').forEach(e => e.textContent = money(info.deposit_amount || 200000));
+  if (!info.event_public) {
+    $('eyebrow').textContent = 'Удахгүй';
+    $('facts').innerHTML = `<span>${ICONS.phone}<a href="tel:${esc(String(info.phone).replace(/\D/g, ''))}">${esc(info.phone)}</a></span>`;
+    $('countdown').innerHTML = '';
+    $('info-kv').innerHTML = `<div class="ic">${ICONS.pin}</div><div><small>Мэдээлэл</small><b>Огноо, байршлыг удахгүй зарлана</b></div>`;
+  } else {
+    $('eyebrow').textContent = `${fmtDay(info.event_at)} · ${fmtWeekday(info.event_at)}`;
+    const mapUrl = 'https://www.google.com/maps/search/' + encodeURIComponent(info.location + ' Mongolia');
+    $('facts').innerHTML = `<span>${ICONS.cal}${fmtDay(info.event_at)} · ${fmtTime(info.event_at)}</span>
+      <span>${ICONS.pin}<a href="${mapUrl}" target="_blank" rel="noopener">${esc(info.location)}</a></span>
+      <span>${ICONS.phone}<a href="tel:${esc(String(info.phone).replace(/\D/g, ''))}">${esc(info.phone)}</a></span>`;
+    $('info-kv').innerHTML = `
+      <div class="ic">${ICONS.cal}</div><div><small>Огноо, цаг</small><b>${fmtDay(info.event_at)}, ${fmtWeekday(info.event_at)} · ${fmtTime(info.event_at)}</b></div>
+      <div class="ic">${ICONS.pin}</div><div><small>Байршил</small><b><a href="${mapUrl}" target="_blank" rel="noopener">${esc(info.location)}</a></b></div>
+      <div class="ic">${ICONS.phone}</div><div><small>Лавлах утас</small><b><a href="tel:${esc(String(info.phone).replace(/\D/g, ''))}">${esc(info.phone)}</a></b></div>
+      <div class="ic">${ICONS.ticket.replace('<svg', '<svg class="ico"')}</div><div><small>Орох нөхцөл</small><b>Үнэгүй · урьдчилан бүртгүүлнэ</b></div>`;
+  }
+  const st = regState();
+  $('reg-form-wrap').hidden = st !== 'open';
+  $('reg-msg').hidden = st === 'open';
+  $('reg-msg').innerHTML = st === 'open' ? '' : `<div class="soldout">${st === 'ended' ? 'Онлайн бүртгэл дууссан' : 'Онлайн бүртгэл түр хаагдсан'}</div><p class="small muted" style="margin:10px 0 0;text-align:center">Хаалган дээр ажилтан бүртгэнэ · ${esc(info.phone)}</p>`;
+}
+
+$('reg-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const f = e.target, err = $('f-err'), btn = $('f-submit');
+  err.innerHTML = '';
+  const name = f.name.value.trim(), phone = f.phone.value.trim(), email = f.email.value.trim();
+  const aimag = f.aimag.value, sum = f.sum.value.trim(), title = f.title.value;
+  const okPhone = v => /^\+?\d{8,15}$/.test(v.replace(/[\s-]/g, ''));
+  const bad = name.length < 2 ? 'Овог нэрээ оруулна уу.'
+    : !okPhone(phone) ? 'Утасны дугаараа зөв оруулна уу (8 оронтой).'
+    : !aimag ? 'Аймаг / хотоо сонгоно уу.'
+    : sum.length < 2 ? 'Сум / дүүргээ бичнэ үү.'
+    : email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Имэйл хаягаа зөв оруулна уу.'
+    : !f.consent_data.checked ? 'Мэдээлэл цуглуулах зөвшөөрлийг сонгоно уу.' : '';
+  if (bad) { err.innerHTML = `<div class="alert error">${bad}</div>`; return; }
+  const label = btn.textContent;
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
+  try {
+    const r = await api('register', { name, phone, email, aimag, sum, title, consent_data: true, consent_marketing: f.consent_marketing.checked, website: f.website.value, site: siteBase() });
+    store.set('buyer', { name, phone, email, aimag, sum, title });
+    store.set('pass', r.token);
+    location.href = ticketLink(r.token) + (r.existing ? '&existing=1' : '&new=1');
+  } catch (ex) {
+    err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`;
+    btn.disabled = false; btn.textContent = label;
+    loadInfo();
+  }
+});
+
+let stopCd;
+async function loadInfo() {
+  try {
+    const i = await api('info');
+    const changed = !stopCd || i.event_at !== info.event_at;
+    info = { ...info, ...i };
+    try { localStorage.setItem('parad_info', JSON.stringify(i)); } catch { /* хувийн цонх */ }
+    render();
+    if (changed && info.event_public) { stopCd && stopCd(); stopCd = startCountdown($('countdown'), info.event_at, info.now); }
+  } catch (ex) {
+    if (!stopCd) render();
+    if (configured) toast(ex.message);
+  }
+}
+try { const c = JSON.parse(localStorage.getItem('parad_info') || 'null'); if (c) info = { ...info, ...c }; } catch { /* хоосон */ }
+render();
+loadInfo();
+apiCached('horses', {}, r => {
+  const list = r.horses.filter(h => h.stud_enabled || h.sale_mode !== 'none').slice(0, 6);
+  $('parade-horses').innerHTML = list.length ? list.map(hcard).join('') : '<div class="empty-box" style="grid-column:1/-1">Азарганы мэдээлэл удахгүй нэмэгдэнэ.</div>';
+}).catch(() => {});
+setInterval(loadInfo, 60_000);
+</script>
+</body>
+</html>
