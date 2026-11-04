@@ -1,5 +1,5 @@
 // parad.mn — нийтлэг туслах функцууд
-import { CONFIG } from './config.js?v=2611041727';
+import { CONFIG } from './config.js?v=2611041743';
 import qrcode from './vendor/qrcode.mjs';
 
 export const configured = !/YOUR-PROJECT|YOUR-PUBLISHABLE/.test(CONFIG.SUPABASE_URL + CONFIG.SUPABASE_KEY);
@@ -216,7 +216,8 @@ export function renderChrome(info, active = '') {
   if (h) h.innerHTML = `<div class="container">
     <a class="brand" href="index.html"><img src="img/parad-wordmark.png" alt="Parad.mn"></a>
     <nav class="nav">
-      <a href="stallions.html"${active === 'horses' ? ' class="on"' : ''}>Азарга</a>
+      <a href="stallions.html"${active === 'horses' && !/[?&]f=sale/.test(location.search) ? ' class="on"' : ''}>Азарга</a>
+      <a href="stallions.html?f=sale"${active === 'horses' && /[?&]f=sale/.test(location.search) ? ' class="on"' : ''}>Худалдах адуу</a>
       <a href="booking.html" class="hide-sm${active === 'booking' ? ' on' : ''}">Захиалга шалгах</a>
       ${store.get('pass') ? `<a href="ticket.html?t=${encodeURIComponent(store.get('pass'))}" class="cta">Миний пасс</a>` : ev && info.sales_open ? '<a href="register.html#register" class="cta">Бүртгүүлэх</a>' : '<a href="register.html" class="cta">Парад</a>'}
     </nav></div>`;

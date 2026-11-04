@@ -44,7 +44,7 @@ h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 .5em; }
 .site-header { background: #fff; border-bottom: 3px solid var(--accent); box-shadow: 0 2px 14px rgba(12,33,121,.08); position: sticky; top: 0; z-index: 50; }
 .site-header .container { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 12px; }
 .brand { display: flex; align-items: center; gap: 10px; color: var(--navy); text-decoration: none; min-width: 0; }
-.brand img { height: 30px; width: auto; flex: none; }
+.brand img { height: 30px; width: auto; max-width: none; flex: none; }
 .brand b { display: block; color: var(--accent-hi); font-weight: 800; font-size: 18px; letter-spacing: 1.5px; line-height: 1.1; }
 .brand small { display: block; color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap; }
 .nav { display: flex; gap: 6px; align-items: center; }
@@ -63,11 +63,21 @@ h1, h2, h3, h4 { line-height: 1.15; margin: 0 0 .5em; }
 }
 /* Утасны нарийн дэлгэц: лого + цэс давхцахгүй — брэндийн бичгийг нууж, зөвхөн тэмдэг үлдээнэ */
 @media (max-width: 440px) {
-  .site-header .container { gap: 6px; }
+  .site-header .container { gap: 10px; }
   .brand small { display: none; }
   .brand img { height: 21px; }
   .nav { gap: 2px; }
   .nav a { padding: 8px 8px; }
+}
+@media (max-width: 440px) {
+  .brand { flex: 0 1 112px; min-width: 72px; }
+  .brand img { width: 100%; height: auto; }
+  .nav { gap: 0; flex: none; }
+  .nav a { padding: 7px 6px; font-size: 12px; }
+}
+@media (max-width: 340px) {
+  .brand { flex-basis: 92px; min-width: 60px; }
+  .nav a { padding: 6px 4px; font-size: 11px; }
 }
 
 /* ---------- товч ---------- */
