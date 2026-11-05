@@ -9,12 +9,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611041748">
-<link rel="stylesheet" href="css/pm.css?v=2611041748">
-<link rel="modulepreload" href="js/app.js?v=2611041748">
-<link rel="modulepreload" href="js/config.js?v=2611041748">
-<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611041748">
-<link rel="modulepreload" href="js/pm-ui.js?v=2611041748">
+<link rel="stylesheet" href="css/style.css?v=2611050927">
+<link rel="stylesheet" href="css/pm.css?v=2611050927">
+<link rel="modulepreload" href="js/app.js?v=2611050927">
+<link rel="modulepreload" href="js/config.js?v=2611050927">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611050927">
+<link rel="modulepreload" href="js/pm-ui.js?v=2611050927">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -33,19 +33,19 @@
 </main>
 <footer class="site-footer" id="site-footer"></footer>
 <script type="module">
-import { api, apiCached, esc, renderChrome, param, auctionState, KIND, breedGroup } from './js/app.js?v=2611041748';
-import { hcard } from './js/pm-ui.js?v=2611041748';
+import { api, apiCached, esc, renderChrome, param, auctionState, KIND, breedGroup } from './js/app.js?v=2611050927';
+import { hcard } from './js/pm-ui.js?v=2611050927';
 const $ = id => document.getElementById(id);
 // Цэснээс: «Азарга» → зөвхөн азаргууд, «Худалдах адуу» (?f=sale) → зөвхөн худалдаанд байгаа адуу (тогтмол үнэ + дуудлага)
 const mode = ['sale', 'auction'].includes(param('f')) ? 'sale' : 'stud';
-let all = [], kind = 'all', grp = 'all', text = '';
+let all = [], kind = 'all', grp = mode === 'stud' ? (param('g') === 'mn' ? 'Монгол азарга' : 'Цэвэр азарга') : 'all', text = '';
 if (mode === 'sale') { $('ttl').textContent = 'Худалдах адуу'; document.title = "Худалдах адуу | parad.mn"; }
 
 const match = h => {
   if (mode === 'stud' && !(h.kind === 'stallion' && (h.stud_enabled || h.sale_mode === 'none'))) return false;
   if (mode === 'sale' && h.sale_mode === 'none') return false;
   if (kind !== 'all' && h.kind !== kind) return false;
-  if (grp !== 'all' && breedGroup(h.breed) !== grp) return false;
+  if (grp !== 'all' && (breedGroup(h.breed) || 'Цэвэр азарга') !== grp) return false;
   if (text) { const t = text.toLowerCase(); if (!`${h.name} ${h.name_en || ''} ${h.sire || ''} ${h.dam || ''} ${h.tamga || ''}`.toLowerCase().includes(t)) return false; }
   return true;
 };
@@ -55,10 +55,15 @@ function paint() {
   const grps = [...new Set(base.map(h => breedGroup(h.breed)).filter(Boolean))];
   $('filters').innerHTML =
     (kinds.length > 1 ? `<select class="input" id="kind" style="min-width:140px"><option value="all">Бүх төрөл</option>${kinds.map(k => `<option value="${k}"${kind === k ? ' selected' : ''}>${KIND[k] || k}</option>`).join('')}</select>` : '') +
-    (grps.length > 1 ? `<select class="input" id="grp" style="min-width:150px"><option value="all">Бүх ангилал</option>${grps.map(g => `<option${grp === g ? ' selected' : ''}>${g}</option>`).join('')}</select>` : '') +
+    (mode === 'stud'
+      ? `<div class="tabs2">${['Цэвэр азарга', 'Монгол азарга'].map(g => `<button class="chip${grp === g ? ' active' : ''}" data-g="${g}">${g}<small>${base.filter(h => (breedGroup(h.breed) || 'Цэвэр азарга') === g && (h.stud_enabled || h.sale_mode === 'none')).length}</small></button>`).join('')}</div>`
+      : grps.length > 1 ? `<select class="input" id="grp" style="min-width:150px"><option value="all">Бүх ангилал</option>${grps.map(g => `<option${grp === g ? ' selected' : ''}>${g}</option>`).join('')}</select>` : '') +
     `<input class="input" id="q" placeholder="Нэр, удам, тамга хайх" value="${esc(text)}">`;
   if ($('kind')) $('kind').onchange = e => { kind = e.target.value; render(); };
   if ($('grp')) $('grp').onchange = e => { grp = e.target.value; render(); };
+  $('filters').querySelectorAll('[data-g]').forEach(b => b.onclick = () => {
+    grp = b.dataset.g; history.replaceState(null, '', grp === 'Монгол азарга' ? '?g=mn' : location.pathname); paint();
+  });
   $('q').oninput = e => { text = e.target.value; render(); };
   render();
 }
@@ -66,7 +71,7 @@ function render() {
   const list = all.filter(match);
   const empty = mode === 'sale' && !text && kind === 'all' && grp === 'all' ? 'Одоогоор худалдаанд адуу алга.' : 'Тохирох адуу олдсонгүй.';
   $('grid').innerHTML = list.length ? list.map(hcard).join('') : `<div class="empty-box" style="grid-column:1/-1">${empty}</div>`;
-  $('sub').textContent = `${list.length} ${mode === 'sale' ? 'адуу худалдаанд' : 'азарга'}`;
+  $('sub').textContent = `${list.length} ${mode === 'sale' ? 'адуу худалдаанд' : grp === 'Монгол азарга' ? 'монгол азарга' : 'цэвэр азарга'}`;
 }
 try {
   let painted = false;
