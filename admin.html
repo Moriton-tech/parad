@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061818">
+<link rel="stylesheet" href="css/style.css?v=2611061845">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -237,6 +237,24 @@
       </div>
       <h3 class="h" style="margin-top:22px">Хожигчид</h3>
       <div class="table-wrap"><table class="tbl" style="min-width:640px"><thead><tr><th>Цаг</th><th>Шагнал</th><th>№</th><th>Хожигч</th><th>Утас</th><th></th></tr></thead><tbody id="w-body"></tbody></table></div>
+
+      <div class="panel" style="margin-top:26px">
+        <h3 class="h">🎟 Цаасан тасалбарын сугалаа</h3>
+        <p class="small muted" style="margin-top:-4px">Гараар тараасан дугаартай тасалбаруудаас (1–200) сугална. Дээрх дэлгэц дээр гарна.</p>
+        <form class="form" id="p-form">
+          <div><label>Хонжвор <span class="req">*</span></label><input class="input" id="p-prize" required maxlength="120" placeholder="Хонжвороо бичнэ үү"></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <div><label>Эхний дугаар</label><input class="input" id="p-from" type="number" min="0" value="1"></div>
+            <div><label>Сүүлийн дугаар</label><input class="input" id="p-to" type="number" min="1" value="200"></div>
+          </div>
+          <div><label>Оролцохгүй дугаар (заавал биш)</label><input class="input" id="p-ex" placeholder="ж: 12, 47, 90-95"></div>
+          <div id="p-err"></div>
+          <button class="btn btn-accent btn-lg btn-block" type="submit" id="p-btn">🎲 Тасалбараас сугалах</button>
+          <p class="small muted" style="margin:0">Хожсон дугаар дахин гарахгүй. Хожигч ирээгүй бол «Хүчингүй» дарвал тэр дугаар буцаж орно. Түүх энэ төхөөрөмж дээр хадгалагдана.</p>
+        </form>
+        <div class="table-wrap" style="margin-top:14px"><table class="tbl" style="min-width:520px"><thead><tr><th>Цаг</th><th>Хонжвор</th><th>Тасалбар №</th><th></th></tr></thead><tbody id="p-body"></tbody></table></div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn btn-light btn-sm" type="button" id="p-csv">CSV татах</button><button class="btn btn-light btn-sm" type="button" id="p-clear">Түүх цэвэрлэх</button></div>
+      </div>
     </div>
 
     <!-- ТОХИРГОО -->
@@ -303,9 +321,9 @@
 
 <div class="modal-bg" id="modal"><div class="modal"><div class="modal-head"><b id="mh">…</b><button type="button" id="mx">×</button></div><div class="modal-body" id="mb"></div></div></div>
 
-<script src="js/vendor/jsQR.js?v=2611061818"></script>
+<script src="js/vendor/jsQR.js?v=2611061845"></script>
 <script type="module">
-import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061818';
+import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061845';
 const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
 const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
 const opts = (list, sel) => '<option value="">—</option>' + list.map(a => `<option${a === sel ? ' selected' : ''}>${a}</option>`).join('');
@@ -355,7 +373,7 @@ function show(t) {
 }
 
 async function boot() {
-  if (!configured) { showLogin('js/config.js?v=2611061818 тохиргоо хийгдээгүй байна.'); return; }
+  if (!configured) { showLogin('js/config.js?v=2611061845 тохиргоо хийгдээгүй байна.'); return; }
   if (!auth.get()) { showLogin(); return; }
   try { me = await api('admin_me'); }
   catch (e) { auth.logout(); showLogin(e.message); return; }
@@ -704,6 +722,58 @@ $('w-body').onclick = async e => {
   if (!confirm('Энэ хожлыг хүчингүй болгох уу? (Жишээ нь хожигч ирээгүй бол.) Тэр тасалбар дахин сугалаанд орно.')) return;
   try { await api('admin_draw_void', { id: Number(b.dataset.void) }); loadDraws(); } catch (ex) { toast(ex.message); }
 };
+
+// ---------------- цаасан тасалбарын сугалаа (дугаарын хүрээнээс, түүх localStorage-д)
+const PKEY = 'parade_paper_draws';
+const pLoad = () => { try { return JSON.parse(localStorage.getItem(PKEY) || '[]'); } catch { return []; } };
+const pSave = a => { try { localStorage.setItem(PKEY, JSON.stringify(a)); } catch { /* хадгалж чадахгүй */ } };
+let pDraws = pLoad();
+const rnd = n => { const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] % n; };
+function pExcluded(txt) {
+  const set = new Set();
+  String(txt || '').split(/[,;\s]+/).forEach(x => {
+    const m = x.match(/^(\d+)(?:-(\d+))?$/); if (!m) return;
+    const a = +m[1], b = m[2] ? +m[2] : a;
+    for (let i = Math.min(a, b); i <= Math.max(a, b) && i - a < 10000; i++) set.add(i);
+  });
+  return set;
+}
+function pRender() {
+  $('p-body').innerHTML = pDraws.map((d, i) => `<tr style="${d.voided ? 'opacity:.45;text-decoration:line-through' : ''}"><td class="mono">${fmtTime(d.at)}</td><td>${esc(d.prize)}</td><td class="mono"><b>№${d.number}</b></td>
+    <td>${d.voided ? '<span class="tag gray">Хүчингүй</span>' : `<button class="btn btn-light btn-sm" data-pvoid="${i}">Хүчингүй болгох</button>`}</td></tr>`).join('') || '<tr><td colspan="4" class="muted">Хараахан сугалаагүй.</td></tr>';
+}
+pRender();
+$('p-prize').oninput = e => { $('s-prize').textContent = e.target.value || 'Сугалаа'; };
+$('p-form').onsubmit = async e => {
+  e.preventDefault(); $('p-err').innerHTML = '';
+  const from = Math.round(+$('p-from').value), to = Math.round(+$('p-to').value), prize = $('p-prize').value.trim();
+  const fail = m => { $('p-err').innerHTML = `<div class="alert error">${esc(m)}</div>`; };
+  if (!prize) return fail('Хонжвороо бичнэ үү.');
+  if (!Number.isFinite(from) || !Number.isFinite(to) || to < from) return fail('Дугаарын хүрээ буруу байна.');
+  if (to - from > 100000) return fail('Хүрээ хэт том байна.');
+  const ex = pExcluded($('p-ex').value), won = new Set(pDraws.filter(d => !d.voided).map(d => d.number));
+  const pool = []; for (let i = from; i <= to; i++) if (!ex.has(i) && !won.has(i)) pool.push(i);
+  if (!pool.length) return fail('Сугалах дугаар үлдсэнгүй.');
+  const btn = $('p-btn'); btn.disabled = true;
+  const num = $('s-num'), who = $('s-who');
+  $('s-prize').textContent = prize; who.textContent = '';
+  $('stage').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  let spinning = true;
+  (function spin() { if (!spinning) return; num.textContent = pool[rnd(pool.length)]; setTimeout(spin, 60); })();
+  await new Promise(r => setTimeout(r, 2600));
+  spinning = false;
+  const n = pool[rnd(pool.length)];
+  num.textContent = n; who.textContent = 'Тасалбар №' + n;
+  pDraws.unshift({ at: new Date().toISOString(), prize, number: n, range: `${from}-${to}` }); pSave(pDraws); pRender();
+  beep(true); btn.disabled = false;
+};
+$('p-body').onclick = e => {
+  const b = e.target.closest('[data-pvoid]'); if (!b) return;
+  if (!confirm('Энэ хожлыг хүчингүй болгох уу? Тэр дугаар дахин сугалаанд орно.')) return;
+  pDraws[+b.dataset.pvoid].voided = true; pSave(pDraws); pRender();
+};
+$('p-csv').onclick = () => csv('tsaasan-sugalaa.csv', [['Цаг', 'Хонжвор', 'Тасалбар №', 'Хүрээ', 'Төлөв'], ...pDraws.slice().reverse().map(d => [fmtTime(d.at), d.prize, d.number, d.range, d.voided ? 'Хүчингүй' : 'Хүчинтэй'])]);
+$('p-clear').onclick = () => { if (!pDraws.length || !confirm('Цаасан сугалааны бүх түүхийг устгах уу? Буцаах боломжгүй.')) return; pDraws = []; pSave(pDraws); pRender(); };
 
 // ---------------- тохиргоо
 const toLocal = iso => { if (!iso) return ''; const d = new Date(new Date(iso).getTime() + 8 * 3600_000); return d.toISOString().slice(0, 16); };
