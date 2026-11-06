@@ -12,12 +12,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061422">
-<link rel="stylesheet" href="css/pm.css?v=2611061422">
-<link rel="modulepreload" href="js/app.js?v=2611061422">
-<link rel="modulepreload" href="js/config.js?v=2611061422">
-<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611061422">
-<link rel="modulepreload" href="js/pm-ui.js?v=2611061422">
+<link rel="stylesheet" href="css/style.css?v=2611061528">
+<link rel="stylesheet" href="css/pm.css?v=2611061528">
+<link rel="modulepreload" href="js/app.js?v=2611061528">
+<link rel="modulepreload" href="js/config.js?v=2611061528">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611061528">
+<link rel="modulepreload" href="js/pm-ui.js?v=2611061528">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -66,8 +66,8 @@
 <footer class="site-footer" id="site-footer"></footer>
 
 <script type="module">
-import { api, apiCached, esc, money, fmtDay, fmtTime, fmtWeekday, startCountdown, renderChrome, store, auctionState, studState } from './js/app.js?v=2611061422';
-import { hcard } from './js/pm-ui.js?v=2611061422';
+import { api, apiCached, esc, money, fmtDay, fmtTime, fmtWeekday, startCountdown, renderChrome, store, auctionState, studState } from './js/app.js?v=2611061528';
+import { hcard } from './js/pm-ui.js?v=2611061528';
 const $ = id => document.getElementById(id);
 
 let cdStarted = false;
@@ -83,7 +83,7 @@ function show({ horses, site, event }, stale) {
   const live = horses.filter(h => auctionState(h) === 'open').length;
   $('tiles').innerHTML = `
     <a class="tile" href="register.html"><div class="tt">${esc(parade.t)}</div><div class="tp">${esc(parade.p)}</div><div class="go">${parade.g}</div></a>
-    <a class="tile" href="stallions.html"><div class="tt">Азарганд гүү тавих</div><div class="tp">${esc(site.season)} · ${studH.length} азарга · ${seats} суудал үлдсэн</div><div class="go">Азарга сонгох →</div></a>
+    <a class="tile" href="stallions.html"><div class="tt">Азарганд гүү тавих</div><div class="tp">${esc(site.season)} · ${studH.length} азарга · ${seats} гүү бүртгэх боломжтой</div><div class="go">Азарга сонгох →</div></a>
     <a class="tile" href="stallions.html?f=sale"><div class="tt">Худалдах адуунууд</div><div class="tp">${saleH.length} адуу худалдаанд</div><div class="go">Үзэх →</div></a>`;
   if (ev) {
     $('hero-parade').textContent = event.sales_open ? 'Парадад бүртгүүлэх' : 'Парадын мэдээлэл';

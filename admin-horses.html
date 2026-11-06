@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061422">
-<link rel="stylesheet" href="css/pm.css?v=2611061422">
+<link rel="stylesheet" href="css/style.css?v=2611061528">
+<link rel="stylesheet" href="css/pm.css?v=2611061528">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -90,7 +90,7 @@
   <div class="modal-body" id="m-body"></div></div></div>
 
 <script type="module">
-import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS, moneyVal } from './js/app.js?v=2611061422';
+import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS, moneyVal } from './js/app.js?v=2611061528';
 const $ = id => document.getElementById(id);
 let me = null, H = [], site = null, tab = 'dash';
 let B = [], Q = [], stats = null, bookingHorse = '', bookingStatus = '', bookingText = '';
@@ -192,19 +192,55 @@ async function shrinkAll() {
   await loadHorses(); vHorses();
 }
 
+// Адууны жагсаалт: каталогийн №, оруулсан дараалал, нэрээр эрэмбэлэх + хайх, шүүх (сонголт энэ хөтөч дээр хадгалагдана)
+const HV = (() => { try { return { sort: 'cat', q: '', kind: 'all', pub: 'all', ...JSON.parse(localStorage.getItem('pm_hv') || '{}') }; } catch { return { sort: 'cat', q: '', kind: 'all', pub: 'all' }; } })();
+const saveHV = () => { try { localStorage.setItem('pm_hv', JSON.stringify({ ...HV, q: '' })); } catch { /* */ } };
+const SORTS = {
+  cat: ['Каталог № (1→)', (a, b) => (a.sort ?? 1e9) - (b.sort ?? 1e9) || a.name.localeCompare(b.name)],
+  catd: ['Каталог № (→1)', (a, b) => (b.sort ?? -1) - (a.sort ?? -1) || a.name.localeCompare(b.name)],
+  added: ['Оруулсан дараалал (эхнийх нь эхэнд)', (a, b) => String(a.created_at || '').localeCompare(String(b.created_at || ''))],
+  addedd: ['Сүүлд оруулсан нь эхэнд', (a, b) => String(b.created_at || '').localeCompare(String(a.created_at || ''))],
+  edited: ['Сүүлд зассан нь эхэнд', (a, b) => String(b.updated_at || '').localeCompare(String(a.updated_at || ''))],
+  name: ['Нэрээр (А→Я)', (a, b) => a.name.localeCompare(b.name, 'mn')],
+};
 async function vHorses() {
   await loadHorses();
-  const rows = H.map(h => `<tr data-id="${h.id}"><td style="width:64px">${photoOf(h, 0, true) ? `<img src="${esc(photoOf(h, 0, true))}" style="width:54px;height:54px;object-fit:cover;border-radius:8px" alt="">` : ''}</td>
-    <td><b>${esc(h.name)}</b><small>${esc(KIND[h.kind])}${h.foaled ? ' · ' + h.foaled : ''}${h.breed ? ' · ' + esc(h.breed) : ''}</small></td>
-    <td>${h.stud_enabled ? `Гүү тавина · ${h.stud_fee == null ? 'Private' : money(h.stud_price) + (h.stud_price < h.stud_fee ? ` <span class="disc-tag">-${discPct(h.stud_fee, h.stud_price)}%</span>` : '')}<small>${h.confirmed_mares}/${h.stud_capacity}${h.stud_active ? '' : ' · хаалттай'}</small>` : '<span class="muted">—</span>'}</td>
+  const hasDates = H.some(h => h.created_at);
+  if (!hasDates && ['added', 'addedd', 'edited'].includes(HV.sort)) HV.sort = 'cat';
+  const kinds = [...new Set(H.map(h => h.kind))];
+  $('view').innerHTML = `<div class="filters"><button class="btn btn-accent" id="new-horse">+ Шинэ адуу бүртгэх</button><button class="btn btn-light" id="shrink-all" title="Хуучин том зургуудыг жижигрүүлж, картанд зориулсан жижиг хувилбар үүсгэнэ">Зургуудыг шахах</button></div>
+    <div class="filters hv-bar">
+      <input class="input" id="hv-q" type="search" placeholder="Хайх: каталог №, нэр, эцэг, эх, тамга…" value="${esc(HV.q)}" style="flex:1 1 240px">
+      <select class="input" id="hv-sort">${Object.entries(SORTS).filter(([k]) => hasDates || !['added', 'addedd', 'edited'].includes(k)).map(([k, [l]]) => `<option value="${k}"${HV.sort === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+      <select class="input" id="hv-kind"><option value="all">Бүх төрөл</option>${kinds.map(k => `<option value="${k}"${HV.kind === k ? ' selected' : ''}>${esc(KIND[k] || k)}</option>`).join('')}</select>
+      <select class="input" id="hv-pub">${[['all', 'Бүгд'], ['pub', 'Сайтад харагддаг'], ['hid', 'Нууцалсан'], ['nophoto', 'Зураггүй']].map(([k, l]) => `<option value="${k}"${HV.pub === k ? ' selected' : ''}>${l}</option>`).join('')}</select>
+      <span class="muted small" id="hv-n"></span></div>
+    <div class="table-wrap"><table class="tbl"><thead><tr><th style="width:56px">№</th><th></th><th>Адуу</th><th>Гүү тавих</th><th>Зарах</th><th>Төлөв</th><th></th></tr></thead><tbody id="hv-rows"></tbody></table></div>
+    ${hasDates ? '' : '<p class="small muted">«Оруулсан дараалал»-аар эрэмбэлэх нь серверийн шинэчлэлийн дараа нэмэгдэнэ.</p>'}`;
+  const paint = () => {
+    const t = HV.q.trim().toLowerCase();
+    const list = H.filter(h => (HV.kind === 'all' || h.kind === HV.kind)
+      && (HV.pub === 'all' || (HV.pub === 'pub' && h.published) || (HV.pub === 'hid' && !h.published) || (HV.pub === 'nophoto' && !(h.photos || []).length))
+      && (!t || String(h.sort) === t.replace(/^#/, '') || `${h.name} ${h.name_en || ''} ${h.sire || ''} ${h.dam || ''} ${h.tamga || ''} ${h.breed || ''} ${h.slug}`.toLowerCase().includes(t)))
+      .sort(SORTS[HV.sort][1]);
+    $('hv-n').textContent = list.length === H.length ? `${H.length} адуу` : `${list.length} / ${H.length} адуу`;
+    $('hv-rows').innerHTML = list.map(h => `<tr data-id="${h.id}"><td><b style="font-size:16px;color:var(--navy)">${h.sort != null && h.sort < 1000 ? h.sort : '—'}</b></td>
+    <td style="width:64px">${photoOf(h, 0, true) ? `<img src="${esc(photoOf(h, 0, true))}" style="width:54px;height:54px;object-fit:cover;border-radius:8px" alt="" loading="lazy">` : '<span class="muted small">зураггүй</span>'}</td>
+    <td><b>${esc(h.name)}</b><small>${esc(KIND[h.kind] || h.kind)}${h.foaled ? ' · ' + h.foaled : ''}${h.breed ? ' · ' + esc(h.breed) : ''}${h.created_at ? ' · оруулсан ' + esc(fmtDT(h.created_at)) : ''}</small></td>
+    <td>${h.stud_enabled ? `Гүү бүртгэнэ · ${h.stud_fee == null ? 'Private' : money(h.stud_price) + (h.stud_price < h.stud_fee ? ` <span class="disc-tag">-${discPct(h.stud_fee, h.stud_price)}%</span>` : '')}<small>${h.confirmed_mares}/${h.stud_capacity}${h.stud_active ? '' : ' · хаалттай'}</small>` : '<span class="muted">—</span>'}</td>
     <td>${{ none: '<span class="muted">—</span>', fixed: `Тогтмол · ${mnt(h.sale_price)}`, auction: `Дуудлага · ${h.top_bid ? money(h.top_bid) : 'бооцоо алга'}` }[h.sale_mode]}${h.sale_mode !== 'none' ? `<small>${{ available: 'Худалдаанд', reserved: 'Захиалагдсан', sold: 'Зарагдсан' }[h.sale_status]}</small>` : ''}</td>
     <td>${h.published ? '<span class="tag confirmed">Сайтад</span>' : '<span class="tag closed">Нууц</span>'}</td>
-    <td><button class="btn btn-light btn-sm" data-edit="${h.id}">Засах</button> <a class="btn btn-ghost btn-sm" href="horse.html?s=${encodeURIComponent(h.slug)}" target="_blank" rel="noopener">Харах</a></td></tr>`).join('');
-  $('view').innerHTML = `<div class="filters"><button class="btn btn-accent" id="new-horse">+ Шинэ адуу бүртгэх</button><button class="btn btn-light" id="shrink-all" title="Хуучин том зургуудыг жижигрүүлж, картанд зориулсан жижиг хувилбар үүсгэнэ">Зургуудыг шахах</button><span class="muted small">${H.length} адуу</span></div>
-    <div class="table-wrap"><table class="tbl"><tr><th></th><th>Адуу</th><th>Гүү тавих</th><th>Зарах</th><th>Төлөв</th><th></th></tr>${rows || '<tr><td colspan="6" class="muted">Адуу бүртгэгдээгүй байна</td></tr>'}</table></div>`;
+    <td><button class="btn btn-light btn-sm" data-edit="${h.id}">Засах</button> <a class="btn btn-ghost btn-sm" href="horse.html?s=${encodeURIComponent(h.slug)}" target="_blank" rel="noopener">Харах</a></td></tr>`).join('')
+      || `<tr><td colspan="7" class="muted">${H.length ? 'Хайлтад тохирох адуу алга' : 'Адуу бүртгэгдээгүй байна'}</td></tr>`;
+    $('hv-rows').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editHorse(H.find(h => h.id === b.dataset.edit)));
+  };
+  $('hv-q').oninput = e => { HV.q = e.target.value; paint(); };
+  $('hv-sort').onchange = e => { HV.sort = e.target.value; saveHV(); paint(); };
+  $('hv-kind').onchange = e => { HV.kind = e.target.value; saveHV(); paint(); };
+  $('hv-pub').onchange = e => { HV.pub = e.target.value; saveHV(); paint(); };
   $('new-horse').onclick = () => editHorse(null);
   $('shrink-all').onclick = shrinkAll;
-  $('view').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editHorse(H.find(h => h.id === b.dataset.edit)));
+  paint();
 }
 
 // Зургийг хөтөч дээр жижигрүүлж JPEG болгоно (сайт хурдан ачаалагдахын тулд):
@@ -412,7 +448,7 @@ function csv(list) {
 }
 function importLegacy() {
   modal('Хуучин «гүү тавих» системээс импорт', `<p class="small">Хуучин сайтын (Firebase) админ хуудсанд нэвтэрсэн хөтөчийн Console-д доорх кодыг ажиллуулбал <b>gut-bookings.json</b> татагдана. Дараа нь энд сонгоно уу. Кодууд (GT-…) хэвээр хадгалагдах тул захиалагчид хуучин холбоосоороо шалгаж чадна.</p>
-    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611061422');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
+    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611061528');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
     <div style="margin-top:12px"><input type="file" id="imp-f" accept=".json,application/json"></div><div id="imp-out" style="margin-top:10px"></div>
     <p class="small muted">Азаргын нэр (slug) нь seed.sql-ээр орсон каталогтой таарах ёстой. Давхардсан код алгасагдана.</p>`);
   $('imp-f').onchange = async e => {
