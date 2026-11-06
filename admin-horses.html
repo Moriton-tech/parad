@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611050927">
-<link rel="stylesheet" href="css/pm.css?v=2611050927">
+<link rel="stylesheet" href="css/style.css?v=2611060920">
+<link rel="stylesheet" href="css/pm.css?v=2611060920">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -90,7 +90,7 @@
   <div class="modal-body" id="m-body"></div></div></div>
 
 <script type="module">
-import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS } from './js/app.js?v=2611050927';
+import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS } from './js/app.js?v=2611060920';
 const $ = id => document.getElementById(id);
 let me = null, H = [], site = null, tab = 'dash';
 let B = [], Q = [], stats = null, bookingHorse = '', bookingStatus = '', bookingText = '';
@@ -163,6 +163,32 @@ function capTable() {
 }
 
 // ================== АДУУ ==================
+// Өмнө нь оруулсан зургуудыг шахах: жижиг (t) хувилбаргүй зураг бүрийг татаж, үндсэн + жижиг болгон дахин хадгална
+async function shrinkAll() {
+  const todo = H.filter(h => (h.photos || []).some(p => !p.t || p.t === p.u));
+  if (!todo.length) return toast('Бүх зураг аль хэдийн шахагдсан байна.');
+  if (!confirm(`${todo.length} адууны зургийг шахах уу? Хэдэн минут болж магадгүй — хуудсаа хаалгүй хүлээнэ үү.`)) return;
+  const btn = $('shrink-all'); btn.disabled = true; let done = 0, bad = 0;
+  for (const h of todo) {
+    btn.textContent = `Шахаж байна… ${done + 1}/${todo.length}`;
+    const photos = [];
+    for (const p of h.photos || []) {
+      if (p.t && p.t !== p.u) { photos.push(p); continue; }
+      try {
+        const img = await loadImg(p.u + (p.u.includes('?') ? '&' : '?') + 'x=' + Date.now());
+        const up = async preset => (await api('admin_horse_photo', { slug: h.slug, data: await toB64(await shrink(img, preset)), type: 'image/jpeg' })).url;
+        const [u, t] = await Promise.all([up(IMG.main), up(IMG.thumb)]);
+        photos.push({ u, t });
+      } catch (e) { bad++; photos.push(p); console.error(h.slug, e); }
+    }
+    try { await api('admin_horse_save', { horse: { id: h.id, photos } }); h.photos = photos; } catch (e) { bad++; console.error(e); }
+    done++;
+  }
+  btn.disabled = false; btn.textContent = 'Зургуудыг шахах';
+  toast(bad ? `${done} адуу дууслаа, ${bad} зураг алдаатай (дахин дарж оролдоно уу).` : `${done} адууны зураг шахагдлаа ✓`);
+  await loadHorses(); vHorses();
+}
+
 async function vHorses() {
   await loadHorses();
   const rows = H.map(h => `<tr data-id="${h.id}"><td style="width:64px">${photoOf(h, 0, true) ? `<img src="${esc(photoOf(h, 0, true))}" style="width:54px;height:54px;object-fit:cover;border-radius:8px" alt="">` : ''}</td>
@@ -171,26 +197,30 @@ async function vHorses() {
     <td>${{ none: '<span class="muted">—</span>', fixed: `Тогтмол · ${mnt(h.sale_price)}`, auction: `Дуудлага · ${h.top_bid ? money(h.top_bid) : 'бооцоо алга'}` }[h.sale_mode]}${h.sale_mode !== 'none' ? `<small>${{ available: 'Худалдаанд', reserved: 'Захиалагдсан', sold: 'Зарагдсан' }[h.sale_status]}</small>` : ''}</td>
     <td>${h.published ? '<span class="tag confirmed">Сайтад</span>' : '<span class="tag closed">Нууц</span>'}</td>
     <td><button class="btn btn-light btn-sm" data-edit="${h.id}">Засах</button> <a class="btn btn-ghost btn-sm" href="horse.html?s=${encodeURIComponent(h.slug)}" target="_blank" rel="noopener">Харах</a></td></tr>`).join('');
-  $('view').innerHTML = `<div class="filters"><button class="btn btn-accent" id="new-horse">+ Шинэ адуу бүртгэх</button><span class="muted small">${H.length} адуу</span></div>
+  $('view').innerHTML = `<div class="filters"><button class="btn btn-accent" id="new-horse">+ Шинэ адуу бүртгэх</button><button class="btn btn-light" id="shrink-all" title="Хуучин том зургуудыг жижигрүүлж, картанд зориулсан жижиг хувилбар үүсгэнэ">Зургуудыг шахах</button><span class="muted small">${H.length} адуу</span></div>
     <div class="table-wrap"><table class="tbl"><tr><th></th><th>Адуу</th><th>Гүү тавих</th><th>Зарах</th><th>Төлөв</th><th></th></tr>${rows || '<tr><td colspan="6" class="muted">Адуу бүртгэгдээгүй байна</td></tr>'}</table></div>`;
   $('new-horse').onclick = () => editHorse(null);
+  $('shrink-all').onclick = shrinkAll;
   $('view').querySelectorAll('[data-edit]').forEach(b => b.onclick = () => editHorse(H.find(h => h.id === b.dataset.edit)));
 }
 
-// зургийг хөтөч дээр жижгэрүүлнэ (хамгийн урт тал 1600px, JPEG 0.85)
-function resizeImage(file, max = 1600) {
-  return new Promise((res, rej) => {
-    const img = new Image(), url = URL.createObjectURL(file);
-    img.onload = () => {
-      const k = Math.min(1, max / Math.max(img.width, img.height));
-      const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
-      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
-      URL.revokeObjectURL(url);
-      c.toBlob(b => b ? res(b) : rej(new Error('Зураг боловсруулж чадсангүй')), 'image/jpeg', .85);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('Зураг уншиж чадсангүй')); };
-    img.src = url;
-  });
+// Зургийг хөтөч дээр жижигрүүлж JPEG болгоно (сайт хурдан ачаалагдахын тулд):
+//   үндсэн зураг — урт тал 1100px, чанар 0.72 (~100–150KB)
+//   жижиг (карт)  — урт тал 480px,  чанар 0.68 (~25–40KB)
+//   удмын бичиг   — урт тал 1600px, чанар 0.8 (бичиг уншигдахаар)
+const IMG = { main: [1100, .72], thumb: [480, .68], pedigree: [1600, .8] };
+function loadImg(src) {
+  return new Promise((res, rej) => { const img = new Image(); img.crossOrigin = 'anonymous'; img.onload = () => res(img); img.onerror = () => rej(new Error('Зураг уншиж чадсангүй')); img.src = src; });
+}
+function shrink(img, [max, q]) {
+  const k = Math.min(1, max / Math.max(img.naturalWidth, img.naturalHeight));
+  const c = document.createElement('canvas'); c.width = Math.round(img.naturalWidth * k); c.height = Math.round(img.naturalHeight * k);
+  const g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+  return new Promise((res, rej) => c.toBlob(b => b ? res(b) : rej(new Error('Зураг боловсруулж чадсангүй')), 'image/jpeg', q));
+}
+async function resizeImage(file, preset = IMG.main) {
+  const url = URL.createObjectURL(file);
+  try { return await shrink(await loadImg(url), preset); } finally { URL.revokeObjectURL(url); }
 }
 const toB64 = blob => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(',')[1]); r.onerror = rej; r.readAsDataURL(blob); });
 
@@ -247,19 +277,19 @@ function editHorse(h) {
     $('pd-name').textContent = pedigree ? '✓ удмын бичиг оруулсан' : '';
   };
   paintPhotos();
-  const upload = async (file, slug) => {
-    const blob = await resizeImage(file);
+  const upload = async (file, slug, preset = IMG.main) => {
+    const blob = await resizeImage(file, preset);
     const r = await api('admin_horse_photo', { slug, data: await toB64(blob), type: 'image/jpeg' });
     return r.url;
   };
   $('pf').onchange = async e => {
     if (isNew) { $('hf-err').innerHTML = '<div class="alert warn">Эхлээд адууг хадгалаад, дараа нь зураг нэмнэ үү.</div>'; return; }
-    try { for (const file of e.target.files) { toast('Зураг хуулж байна…'); const u = await upload(file, h.slug); photos.push({ u, t: u }); paintPhotos(); } } catch (ex) { fail(ex); }
+    try { for (const file of e.target.files) { toast('Зураг хуулж байна…'); const [u, t] = await Promise.all([upload(file, h.slug), upload(file, h.slug, IMG.thumb)]); photos.push({ u, t }); paintPhotos(); } } catch (ex) { fail(ex); }
     e.target.value = '';
   };
   $('pdf').onchange = async e => {
     if (isNew) { $('hf-err').innerHTML = '<div class="alert warn">Эхлээд адууг хадгална уу.</div>'; return; }
-    try { pedigree = await upload(e.target.files[0], h.slug); paintPhotos(); } catch (ex) { fail(ex); }
+    try { pedigree = await upload(e.target.files[0], h.slug, IMG.pedigree); paintPhotos(); } catch (ex) { fail(ex); }
     e.target.value = '';
   };
   if ($('hf-del')) $('hf-del').onclick = async () => {
@@ -377,7 +407,7 @@ function csv(list) {
 }
 function importLegacy() {
   modal('Хуучин «гүү тавих» системээс импорт', `<p class="small">Хуучин сайтын (Firebase) админ хуудсанд нэвтэрсэн хөтөчийн Console-д доорх кодыг ажиллуулбал <b>gut-bookings.json</b> татагдана. Дараа нь энд сонгоно уу. Кодууд (GT-…) хэвээр хадгалагдах тул захиалагчид хуучин холбоосоороо шалгаж чадна.</p>
-    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611050927');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
+    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611060920');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
     <div style="margin-top:12px"><input type="file" id="imp-f" accept=".json,application/json"></div><div id="imp-out" style="margin-top:10px"></div>
     <p class="small muted">Азаргын нэр (slug) нь seed.sql-ээр орсон каталогтой таарах ёстой. Давхардсан код алгасагдана.</p>`);
   $('imp-f').onchange = async e => {
