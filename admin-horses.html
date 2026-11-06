@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061228">
-<link rel="stylesheet" href="css/pm.css?v=2611061228">
+<link rel="stylesheet" href="css/style.css?v=2611061230">
+<link rel="stylesheet" href="css/pm.css?v=2611061230">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -90,7 +90,7 @@
   <div class="modal-body" id="m-body"></div></div></div>
 
 <script type="module">
-import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS, moneyVal } from './js/app.js?v=2611061228';
+import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS, moneyVal } from './js/app.js?v=2611061230';
 const $ = id => document.getElementById(id);
 let me = null, H = [], site = null, tab = 'dash';
 let B = [], Q = [], stats = null, bookingHorse = '', bookingStatus = '', bookingText = '';
@@ -236,7 +236,7 @@ function editHorse(h) {
     <div class="grid2"><div><label>Нэр <span class="req">*</span></label><input class="input" name="name" value="${v(h.name)}" required maxlength="80"></div>
       <div><label>Латин нэр</label><input class="input" name="name_en" value="${v(h.name_en)}" maxlength="80"></div></div>
     <div class="grid3"><div><label>Төрөл</label><select class="input" name="kind">${sel('kind', Object.entries(KIND))}</select></div>
-      <div><label>Төрсөн он</label><input class="input" name="foaled" type="number" min="1950" max="2100" value="${v(h.foaled)}"></div>
+      <div><label>Төрсөн он</label><input class="input" name="foaled" type="number" inputmode="numeric" min="1950" max="2100" placeholder="жишээ нь 2021" value="${v(h.foaled)}"></div>
       <div><label>Каталогийн дугаар / эрэмбэ</label><input class="input" name="sort" type="number" value="${v(h.sort)}"></div></div>
     <div class="grid3"><div><label>Үүлдэр</label><input class="input" name="breed" list="breed-list" value="${v(h.breed)}" placeholder="Сонгох эсвэл бичих"><datalist id="breed-list">${Object.entries(BREEDS).map(([g, l]) => l.map(x => `<option value="${x}">${g}</option>`).join('')).join('')}</datalist></div>
       <div><label>Зүс</label><input class="input" name="color" value="${v(h.color)}"></div>
@@ -314,6 +314,10 @@ function editHorse(h) {
       published: g('published').checked,
     };
     if (!horse.name.trim()) { $('hf-err').innerHTML = '<div class="alert error">Нэрийг оруулна уу.</div>'; return; }
+    if (horse.foaled != null && horse.foaled < 100) horse.foaled += 2000;                  // 21 → 2021
+    if (horse.foaled != null && (horse.foaled < 1950 || horse.foaled > new Date().getFullYear())) {
+      $('hf-err').innerHTML = '<div class="alert error">Төрсөн онг 4 оронтой жилээр бичнэ үү (жишээ нь 2021). Насыг биш, төрсөн оныг оруулна.</div>'; g('foaled').focus(); return;
+    }
     const btn = $('hf-save'); btn.disabled = true; btn.textContent = 'Хадгалж байна…';
     try {
       const r = await api('admin_horse_save', { horse });
@@ -408,7 +412,7 @@ function csv(list) {
 }
 function importLegacy() {
   modal('Хуучин «гүү тавих» системээс импорт', `<p class="small">Хуучин сайтын (Firebase) админ хуудсанд нэвтэрсэн хөтөчийн Console-д доорх кодыг ажиллуулбал <b>gut-bookings.json</b> татагдана. Дараа нь энд сонгоно уу. Кодууд (GT-…) хэвээр хадгалагдах тул захиалагчид хуучин холбоосоороо шалгаж чадна.</p>
-    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611061228');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
+    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611061230');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
     <div style="margin-top:12px"><input type="file" id="imp-f" accept=".json,application/json"></div><div id="imp-out" style="margin-top:10px"></div>
     <p class="small muted">Азаргын нэр (slug) нь seed.sql-ээр орсон каталогтой таарах ёстой. Давхардсан код алгасагдана.</p>`);
   $('imp-f').onchange = async e => {
