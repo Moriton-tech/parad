@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611060920">
+<link rel="stylesheet" href="css/style.css?v=2611061045">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -257,7 +257,7 @@
               <div><label>Утас</label><input class="input" name="phone"></div>
             </div>
             <div class="row">
-              <div><label>Дуудлагын оролцооны хураамж (₮)</label><input class="input" name="deposit_amount" type="number" min="0" step="1000"></div>
+              <div><label>Дуудлагын оролцооны хураамж (₮)</label><input class="input" name="deposit_amount" type="text" inputmode="numeric" autocomplete="off" data-money></div>
               <div><label>Нэг захиалгад дээд тоо</label><input class="input" name="max_per_order" type="number" min="1" max="100"></div>
             </div>
             <div class="row">
@@ -302,9 +302,9 @@
 
 <div class="modal-bg" id="modal"><div class="modal"><div class="modal-head"><b id="mh">…</b><button type="button" id="mx">×</button></div><div class="modal-body" id="mb"></div></div></div>
 
-<script src="js/vendor/jsQR.js?v=2611060920"></script>
+<script src="js/vendor/jsQR.js?v=2611061045"></script>
 <script type="module">
-import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured } from './js/app.js?v=2611060920';
+import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061045';
 const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
 const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
 const opts = (list, sel) => '<option value="">—</option>' + list.map(a => `<option${a === sel ? ' selected' : ''}>${a}</option>`).join('');
@@ -354,7 +354,7 @@ function show(t) {
 }
 
 async function boot() {
-  if (!configured) { showLogin('js/config.js?v=2611060920 тохиргоо хийгдээгүй байна.'); return; }
+  if (!configured) { showLogin('js/config.js?v=2611061045 тохиргоо хийгдээгүй байна.'); return; }
   if (!auth.get()) { showLogin(); return; }
   try { me = await api('admin_me'); }
   catch (e) { auth.logout(); showLogin(e.message); return; }
@@ -715,6 +715,7 @@ async function loadSettings() {
     else if (el.type === 'datetime-local') el.value = toLocal(v);
     else el.value = v ?? '';
   }
+  formatMoneyInputs(f);
   loadStaff();
 }
 $('set-form').onsubmit = async e => {

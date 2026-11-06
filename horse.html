@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611060920">
-<link rel="stylesheet" href="css/pm.css?v=2611060920">
-<link rel="modulepreload" href="js/app.js?v=2611060920">
-<link rel="modulepreload" href="js/config.js?v=2611060920">
-<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611060920">
-<link rel="modulepreload" href="js/pm-ui.js?v=2611060920">
+<link rel="stylesheet" href="css/style.css?v=2611061045">
+<link rel="stylesheet" href="css/pm.css?v=2611061045">
+<link rel="modulepreload" href="js/app.js?v=2611061045">
+<link rel="modulepreload" href="js/config.js?v=2611061045">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611061045">
+<link rel="modulepreload" href="js/pm-ui.js?v=2611061045">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -33,7 +33,7 @@
 <div class="lightbox" id="lb"><img alt=""></div>
 
 <script type="module">
-import { api, apiCached, esc, money, mnt, million, fmtDT, renderChrome, param, store, rememberStud, KIND, photoOf, studPriceHtml, studState, auctionState } from './js/app.js?v=2611060920';
+import { api, apiCached, esc, money, mnt, million, fmtDT, renderChrome, param, store, rememberStud, KIND, photoOf, studPriceHtml, studState, auctionState } from './js/app.js?v=2611061045';
 const $ = id => document.getElementById(id);
 const slug = param('s') || '';
 let D = null, offset = 0, cur = 0, poll = null, tick = null;
@@ -86,22 +86,21 @@ function saleCard(h, site) {
     let head = '', form = '';
     if (st === 'scheduled') head = `<div class="alert info">Дуудлага ${esc(fmtDT(h.auction_starts_at))}-д эхэлнэ.</div>`;
     else if (st === 'open') {
-      head = `<div class="small muted">Дуудлага дуустал</div><div class="timer-big" id="timer">—</div>`;
       form = `<div class="alert info" style="margin-top:14px;font-size:13px">Дуудлагад зөвхөн <b>парадад бүртгүүлсэн, оролцооны хураамж төлсөн</b> оролцогч бооцоо тавина. Төлөөгүй бол <a href="${store.get('pass') ? 'ticket.html?t=' + encodeURIComponent(store.get('pass')) : 'register.html'}">бүртгэлийн пассаа нээж</a> төлнө үү.</div>
       <form class="form" id="bid-form" novalidate style="margin-top:10px">
         <div style="display:none"><input name="website" tabindex="-1" autocomplete="off"></div>
         <div><label>Нэр <span class="req">*</span></label><input class="input" name="name" maxlength="80" autocomplete="name" required></div>
         <div><label>Утас <span class="req">*</span></label><input class="input" name="phone" type="tel" inputmode="tel" autocomplete="tel" required></div>
-        <div><label>Бооцоо (₮) <span class="req">*</span></label><input class="input" name="amount" type="number" inputmode="numeric" step="${h.auction_step}" min="${next}" value="${next}" required>
+        <div><label>Бооцоо (₮) <span class="req">*</span></label><input class="input" name="amount" type="text" inputmode="numeric" autocomplete="off" data-money value="${next}" required>
           <div class="hint small muted">Хамгийн багадаа <b>${money(next)}</b> · алхам ${money(h.auction_step)}</div></div>
         <div id="bid-err"></div>
         <button class="btn btn-accent btn-lg btn-block" type="submit" id="bid-btn">Бооцоо тавих</button>
-        <p class="small muted" style="margin:0;text-align:center">Сүүлийн ${site.extend_min} минутад бооцоо тавибал дуудлага ${site.extend_min} минутаар уртасна.</p></form>`;
+</form>`;
     } else {
       head = `<div class="alert ${h.sale_status === 'available' ? 'warn' : 'ok'}">${h.sale_status === 'available' ? 'Дуудлага дууслаа. Ажилтан үр дүнг шалгаж байна.' : 'Дуудлага дууссан.'}</div>`;
       if (h.sold_price) head += `<p style="margin:10px 0 0">Эцсийн үнэ: <b>${money(h.sold_price)}</b></p>`;
     }
-    return `<div class="bcard"><div class="top"><b>Дуудлага худалдаа</b><span>${st === 'open' ? 'Явагдаж байна' : st === 'scheduled' ? 'Удахгүй' : 'Дууссан'}</span></div><div class="body">
+    return `<div class="bcard"><div class="top"><b>Дуудлага худалдаа</b><span>${st === 'open' ? '' : st === 'scheduled' ? 'Удахгүй' : 'Дууссан'}</span></div><div class="body">
       <div class="big-price">${money(top || h.auction_start_price || 0)} <small>${top ? 'одоогийн бооцоо' : 'эхлэх үнэ'}</small></div>
       <div style="margin:10px 0">${head}</div>${form}
       ${(D.bids || []).length ? `<ul class="bids">${D.bids.map(b => `<li><span>${esc(b.name)} <small>${esc(fmtDT(b.at))}</small></span><b>${money(b.amount)}</b></li>`).join('')}</ul>` : '<p class="small muted">Одоогоор бооцоо алга.</p>'}

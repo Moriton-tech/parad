@@ -1,5 +1,5 @@
 // parad.mn — нийтлэг туслах функцууд
-import { CONFIG } from './config.js?v=2611060920';
+import { CONFIG } from './config.js?v=2611061045';
 import qrcode from './vendor/qrcode.mjs';
 
 export const configured = !/YOUR-PROJECT|YOUR-PUBLISHABLE/.test(CONFIG.SUPABASE_URL + CONFIG.SUPABASE_KEY);
@@ -227,4 +227,29 @@ export function renderChrome(info, active = '') {
     <div><img class="foot-logo" src="img/parad-logo-onnavy.png" alt="Parad.mn — Үе дамжсан шилмэл удам"><br>Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл<br>${phone ? `Утас: <a href="tel:${esc(String(phone).replace(/\D/g, ''))}">${esc(phone)}</a>` : ''}</div>
     <div><a href="register.html">Парад · Бүртгэл</a> · <a href="stallions.html">Азарга</a> · <a href="booking.html">Захиалга шалгах</a></div></div>`;
   if (!configured && !document.querySelector('.cfg-warn')) document.body.insertAdjacentHTML('afterbegin', '<div class="cfg-warn"><b>Тохиргоо дутуу:</b> js/config.js файлд Supabase-ийн URL, түлхүүрийг оруулна уу (README-г үзнэ үү).</div>');
+}
+
+// ---------- Мөнгөн дүнгийн талбар: бичих үед мянгатын таслал (1,000,000). <input data-money> гэж тэмдэглэнэ.
+const groupDigits = v => String(v ?? '').replace(/[^\d]/g, '').replace(/^0+(?=\d)/, '').replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+export const moneyVal = v => { const d = String(v ?? '').replace(/[^\d]/g, ''); return d === '' ? null : Number(d); };
+export function formatMoneyInputs(root = document) {
+  root.querySelectorAll?.('input[data-money]').forEach(el => { if (el !== document.activeElement) el.value = groupDigits(el.value); });
+}
+if (typeof document !== 'undefined') {
+  document.addEventListener('input', e => {
+    const el = e.target; if (!el.matches || !el.matches('input[data-money]')) return;
+    const pos = el.selectionStart ?? el.value.length, digitsBefore = el.value.slice(0, pos).replace(/[^\d]/g, '').length;
+    const out = groupDigits(el.value); el.value = out;
+    let i = 0, seen = 0; while (i < out.length && seen < digitsBefore) { if (/\d/.test(out[i])) seen++; i++; }
+    try { el.setSelectionRange(i, i); } catch { /* зарим төрөлд дэмжихгүй */ }
+  }, true);
+  // илгээхийн өмнө таслалыг арилгана — бусад код Number(value)-гаар уншдаг
+  document.addEventListener('submit', e => {
+    const f = e.target; f.querySelectorAll?.('input[data-money]').forEach(el => { el.value = el.value.replace(/[^\d]/g, ''); });
+    setTimeout(() => formatMoneyInputs(f), 0);
+  }, true);
+  document.addEventListener('focusout', e => { if (e.target.matches?.('input[data-money]')) e.target.value = groupDigits(e.target.value); }, true);
+  new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) formatMoneyInputs(n.matches?.('input[data-money]') ? n.parentNode : n); })
+    .observe(document.documentElement, { childList: true, subtree: true });
+  formatMoneyInputs();
 }
