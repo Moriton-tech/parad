@@ -134,3 +134,33 @@
 .mine-tx b { display: block; } .mine-tx small, .mine-st small { color: var(--muted, #667); font-size: 12px; }
 .mine-st { text-align: right; display: grid; gap: 4px; justify-items: end; }
 @media (max-width: 480px) { .mine-row { grid-template-columns: 48px 1fr; } .mine-st { grid-column: 2; justify-items: start; text-align: left; } .mine-sum b { font-size: 16px; } }
+
+/* ---------- «Миний захиалга» хөвөгч товч + цонх */
+.mine-fab { position: fixed; right: 18px; bottom: 18px; z-index: 900; display: flex; align-items: center; gap: 8px; height: 56px; padding: 0 20px 0 16px;
+  border: 0; border-radius: 28px; background: var(--accent); color: #fff; font: inherit; font-weight: 800; font-size: 15px; cursor: pointer;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25); transition: transform .15s; }
+.mine-fab:hover { transform: translateY(-2px); }
+.mine-fab .cnt { position: absolute; top: -4px; right: -4px; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 11px; background: var(--accent-hi, #f9cf02);
+  color: #111; font-size: 12px; line-height: 22px; text-align: center; box-shadow: 0 0 0 2px #fff; }
+.mine-dlg { position: fixed; inset: 0; z-index: 1000; }
+.mine-back { position: absolute; inset: 0; background: rgba(1, 30, 60, .35); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); opacity: 0; transition: opacity .2s; }
+.mine-panel { position: absolute; right: 18px; bottom: 86px; width: min(420px, calc(100vw - 36px)); max-height: min(640px, calc(100vh - 110px)); display: flex; flex-direction: column;
+  background: #fff; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,.3); overflow: hidden; transform: translateY(16px) scale(.98); opacity: 0; transition: transform .2s, opacity .2s; }
+.mine-dlg.open .mine-back { opacity: 1; }
+.mine-dlg.open .mine-panel { transform: none; opacity: 1; }
+.mine-hd { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; background: var(--navy); color: #fff; }
+.mine-hd small { color: var(--accent-hi, #f9cf02); font-weight: 800; letter-spacing: 1px; text-transform: uppercase; font-size: 11px; }
+.mine-hd h2 { margin: 2px 0 0; font-size: 20px; }
+.mine-x { width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.15); color: #fff; font-size: 16px; cursor: pointer; }
+.mine-bd { padding: 16px; overflow: auto; }
+.mine-find { display: grid; grid-template-columns: 1fr auto; gap: 8px; margin-top: 14px; }
+.mine-empty { text-align: center; color: var(--muted, #667); padding: 8px 0 4px; }
+.mine-empty svg { width: 40px; height: 40px; color: var(--navy); opacity: .5; }
+html.mine-lock { overflow: hidden; }
+@media (max-width: 600px) {
+  .mine-fab { right: 14px; bottom: 14px; width: 56px; padding: 0; justify-content: center; }
+  .mine-fab .lbl { display: none; }
+  .mine-panel { left: 0; right: 0; bottom: 0; width: 100%; max-height: 85vh; border-radius: 20px 20px 0 0; }
+}
+@media print { .mine-fab, .mine-dlg { display: none !important; } }
+.mine-panel .stat-pill { font-size: 12px; padding: 4px 10px; white-space: nowrap; }

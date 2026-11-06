@@ -1,5 +1,5 @@
 // parad.mn — нийтлэг туслах функцууд
-import { CONFIG } from './config.js?v=2611061403';
+import { CONFIG } from './config.js?v=2611061422';
 import qrcode from './vendor/qrcode.mjs';
 
 export const configured = !/YOUR-PROJECT|YOUR-PUBLISHABLE/.test(CONFIG.SUPABASE_URL + CONFIG.SUPABASE_KEY);
@@ -212,6 +212,7 @@ export const slugify = t => {
 export function rememberStud(code) {
   const list = store.get('stud', []).filter(c => c !== code);
   list.unshift(code); store.set('stud', list.slice(0, 15));
+  try { paintFab(); } catch { /* */ }
 }
 
 export function renderChrome(info, active = '') {
@@ -222,7 +223,6 @@ export function renderChrome(info, active = '') {
     <nav class="nav">
       <a href="stallions.html"${active === 'horses' && !/[?&]f=sale/.test(location.search) ? ' class="on"' : ''}>Азарга</a>
       <a href="stallions.html?f=sale"${active === 'horses' && /[?&]f=sale/.test(location.search) ? ' class="on"' : ''}>Худалдах адуу</a>
-      <a href="booking.html" class="hide-sm${active === 'booking' ? ' on' : ''}">Миний захиалга</a>
       ${store.get('pass') ? `<a href="ticket.html?t=${encodeURIComponent(store.get('pass'))}" class="cta">Миний пасс</a>` : ev && info.sales_open ? '<a href="register.html#register" class="cta">Бүртгүүлэх</a>' : '<a href="register.html" class="cta">Парад</a>'}
     </nav></div>`;
   const f = document.getElementById('site-footer');
@@ -230,6 +230,7 @@ export function renderChrome(info, active = '') {
   if (f) f.innerHTML = `<div class="container">
     <div><img class="foot-logo" src="img/parad-logo-onnavy.png" alt="Parad.mn — Үе дамжсан шилмэл удам"><br>Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл<br>${phone ? `Утас: <a href="tel:${esc(String(phone).replace(/\D/g, ''))}">${esc(phone)}</a>` : ''}</div>
     <div><a href="register.html">Парад · Бүртгэл</a> · <a href="stallions.html">Азарга</a> · <a href="booking.html">Миний захиалга</a></div></div>`;
+  if (active !== 'booking') mountMine();
   if (!configured && !document.querySelector('.cfg-warn')) document.body.insertAdjacentHTML('afterbegin', '<div class="cfg-warn"><b>Тохиргоо дутуу:</b> js/config.js файлд Supabase-ийн URL, түлхүүрийг оруулна уу (README-г үзнэ үү).</div>');
 }
 
@@ -256,4 +257,62 @@ if (typeof document !== 'undefined') {
   new MutationObserver(ms => { for (const m of ms) for (const n of m.addedNodes) if (n.nodeType === 1) formatMoneyInputs(n.matches?.('input[data-money]') ? n.parentNode : n); })
     .observe(document.documentElement, { childList: true, subtree: true });
   formatMoneyInputs();
+}
+
+// ---------- «Миний захиалга» — баруун доод буланд байнга харагдах товч, дарахад ар талыг бүдгэрүүлж цонх нээгдэнэ
+const STUD_ST = { pending: 'Хүлээгдэж байна', confirmed: 'Баталгаажсан', done: 'Хийгдсэн', cancelled: 'Цуцлагдсан', expired: 'Хугацаа дууссан' };
+const ICON_LIST = '<svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 3.5h6v2H9z"/><path d="M8.5 10h7M8.5 14h7M8.5 18h4"/></svg>';
+function mountMine() {
+  if (document.getElementById('mine-fab')) { paintFab(); return; }
+  document.body.insertAdjacentHTML('beforeend', `
+    <button id="mine-fab" class="mine-fab" type="button" aria-haspopup="dialog" aria-controls="mine-dlg">${ICON_LIST}<span class="lbl">Миний захиалга</span><span class="cnt" hidden></span></button>
+    <div id="mine-dlg" class="mine-dlg" role="dialog" aria-modal="true" aria-labelledby="mine-ttl" hidden>
+      <div class="mine-back" data-close></div>
+      <div class="mine-panel">
+        <div class="mine-hd"><div><small>Гүү тавих</small><h2 id="mine-ttl">Миний захиалгууд</h2></div><button class="mine-x" type="button" data-close aria-label="Хаах">✕</button></div>
+        <div class="mine-bd" id="mine-bd"></div>
+      </div>
+    </div>`);
+  document.getElementById('mine-fab').onclick = openMine;
+  document.getElementById('mine-dlg').addEventListener('click', e => { if (e.target.closest('[data-close]')) closeMine(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !document.getElementById('mine-dlg').hidden) closeMine(); });
+  paintFab();
+}
+function paintFab() {
+  const n = store.get('stud', []).length, c = document.querySelector('#mine-fab .cnt');
+  if (c) { c.hidden = !n; c.textContent = n; }
+}
+function closeMine() {
+  const d = document.getElementById('mine-dlg'); d.classList.remove('open');
+  document.documentElement.classList.remove('mine-lock');
+  setTimeout(() => { d.hidden = true; }, 200);
+  document.getElementById('mine-fab').focus();
+}
+async function openMine() {
+  const d = document.getElementById('mine-dlg'), bd = document.getElementById('mine-bd');
+  d.hidden = false; requestAnimationFrame(() => d.classList.add('open'));
+  document.documentElement.classList.add('mine-lock');
+  const codes = store.get('stud', []);
+  const form = `<form class="mine-find" id="mine-find"><input class="input" id="mine-code" placeholder="GT-XXXXXX" autocapitalize="characters" maxlength="12" aria-label="Захиалгын код"><button class="btn btn-accent" type="submit">Шалгах</button></form>
+    <p class="small muted" style="margin:6px 0 0">Өөр утаснаас өгсөн захиалгаа кодоороо шалгана.</p>`;
+  const bindForm = () => { document.getElementById('mine-find').onsubmit = e => { e.preventDefault(); const v = document.getElementById('mine-code').value.trim().toUpperCase().replace(/^GT-?/, 'GT-'); if (v.length > 3) location.href = 'booking.html?code=' + encodeURIComponent(v); }; };
+  if (!codes.length) {
+    bd.innerHTML = `<div class="mine-empty">${ICON_LIST}<p>Энэ төхөөрөмжөөс өгсөн захиалга алга.<br>Азаргын хуудаснаас «Гүү тавих захиалга» өгөхөд энд харагдана.</p><a class="btn btn-light btn-sm" href="stallions.html">Азаргууд үзэх</a></div>${form}`;
+    bindForm(); return;
+  }
+  bd.innerHTML = `<p class="muted">Ачаалж байна…</p>`;
+  const res = await Promise.allSettled(codes.map(code => api('stud_status', { code })));
+  const ok = res.filter(r => r.status === 'fulfilled').map(r => r.value);
+  if (!ok.length) { bd.innerHTML = `<div class="alert error">Захиалгын мэдээллийг ачаалж чадсангүй. Дахин оролдоно уу.</div>${form}`; bindForm(); return; }
+  const act = ok.filter(({ booking: b }) => !['cancelled', 'expired'].includes(b.status));
+  const mares = act.reduce((a, { booking: b }) => a + b.mares, 0), total = act.reduce((a, { booking: b }) => a + (b.amount || 0), 0);
+  bd.innerHTML = `<div class="mine-sum"><div><b>${act.length}</b><span>идэвхтэй захиалга</span></div><div><b>${mares}</b><span>гүү</span></div><div><b>${total ? money(total) : '—'}</b><span>нийт дүн</span></div></div>
+    <div class="mine-list">${ok.map(({ booking: b, horse: h }) => {
+      const ph = h && photoOf(h, 0, true);
+      return `<a class="mine-row" href="booking.html?code=${encodeURIComponent(b.code)}">
+        <span class="mine-ph"${ph ? ` style="background-image:url('${esc(ph)}')"` : ''}></span>
+        <span class="mine-tx"><b>${esc(h ? h.name : '—')}</b><small>${esc(b.code)} · ${b.mares} гүү${b.status === 'confirmed' && b.queue_from ? ` · ${b.queue_from}-р дараалал` : ''}</small></span>
+        <span class="mine-st"><span class="stat-pill ${b.status}">${STUD_ST[b.status] || b.status}</span>${b.amount ? `<small>${money(b.amount)}${b.paid ? ' ✓' : ''}</small>` : ''}</span></a>`;
+    }).join('')}</div>${form}`;
+  bindForm();
 }
