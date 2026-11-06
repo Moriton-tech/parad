@@ -1145,7 +1145,9 @@ async function admin(action: string, b: any, req: Request) {
     }
 
     case 'admin_draw': {
-      const r = await rpc('parade_draw', { p_prize: String(b.prize || ''), p_pool: b.pool === 'entered' ? 'entered' : 'all', p_actor: me.email });
+      const since = b.since ? new Date(b.since) : null;
+      if (since && Number.isNaN(since.getTime())) throw new HttpError(400, 'Цаг буруу байна.');
+      const r = await rpc('parade_draw', { p_prize: String(b.prize || ''), p_pool: b.pool === 'entered' ? 'entered' : 'all', p_actor: me.email, p_since: since ? since.toISOString() : null });
       log(me.email, 'draw', r);
       return r;
     }

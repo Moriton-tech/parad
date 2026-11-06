@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061528">
+<link rel="stylesheet" href="css/style.css?v=2611061800">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -222,6 +222,7 @@
             <div><label>Шагнал <span class="req">*</span></label><input class="input" id="d-prize" required maxlength="120" placeholder="Шагналаа сонгох эсвэл бичих">
               <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px" id="presets"></div></div>
             <div><label>Хэнээс сугалах</label><select class="input" id="d-pool"><option value="entered">Зөвхөн ирсэн (орохдоо QR уншуулсан) бүртгэл</option><option value="all">Бүх бүртгэл</option></select></div>
+            <div><label><input type="checkbox" id="d-since-on"> Зөвхөн энэ цагаас хойш бүртгүүлсэн</label><input class="input" id="d-since" type="datetime-local" style="margin-top:6px" disabled></div>
             <div id="d-err"></div>
             <button class="btn btn-accent btn-lg btn-block" type="submit" id="d-btn">🎲 Сугалах</button>
             <p class="small muted" style="margin:0">Нэг тасалбар хоёр удаа хожихгүй. Хожигчийг «Хүчингүй» болговол дахин оролцоно.</p>
@@ -302,9 +303,9 @@
 
 <div class="modal-bg" id="modal"><div class="modal"><div class="modal-head"><b id="mh">…</b><button type="button" id="mx">×</button></div><div class="modal-body" id="mb"></div></div></div>
 
-<script src="js/vendor/jsQR.js?v=2611061528"></script>
+<script src="js/vendor/jsQR.js?v=2611061800"></script>
 <script type="module">
-import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061528';
+import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061800';
 const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
 const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
 const opts = (list, sel) => '<option value="">—</option>' + list.map(a => `<option${a === sel ? ' selected' : ''}>${a}</option>`).join('');
@@ -354,7 +355,7 @@ function show(t) {
 }
 
 async function boot() {
-  if (!configured) { showLogin('js/config.js?v=2611061528 тохиргоо хийгдээгүй байна.'); return; }
+  if (!configured) { showLogin('js/config.js?v=2611061800 тохиргоо хийгдээгүй байна.'); return; }
   if (!auth.get()) { showLogin(); return; }
   try { me = await api('admin_me'); }
   catch (e) { auth.logout(); showLogin(e.message); return; }
@@ -673,6 +674,8 @@ const PRESETS = ['Бүтээгдэхүүн авах эрхийн бичиг 150,
 $('presets').innerHTML = PRESETS.map(p => `<button type="button" class="preset">${p}</button>`).join('');
 $('presets').onclick = e => { const b = e.target.closest('.preset'); if (b) { $('d-prize').value = b.textContent; $('s-prize').textContent = b.textContent; } };
 $('d-prize').oninput = e => { $('s-prize').textContent = e.target.value || 'Сугалаа'; };
+{ const d = new Date(Date.now() + 8 * 3600e3); $('d-since').value = d.toISOString().slice(0, 10) + 'T18:00'; }      // өнөөдөр 18:00 (УБ)
+$('d-since-on').onchange = e => { $('d-since').disabled = !e.target.checked; };
 $('fs').onclick = () => { const s = $('stage'); document.fullscreenElement ? document.exitFullscreen() : s.requestFullscreen?.(); };
 $('draw-form').onsubmit = async e => {
   e.preventDefault(); $('d-err').innerHTML = ''; const btn = $('d-btn'); btn.disabled = true;
@@ -682,7 +685,7 @@ $('draw-form').onsubmit = async e => {
   let spinning = true;
   (function spin() { if (!spinning) return; num.textContent = start + Math.floor(Math.random() * total); setTimeout(spin, 60); })();
   try {
-    const [r] = await Promise.all([api('admin_draw', { prize: $('d-prize').value, pool: $('d-pool').value }), new Promise(r => setTimeout(r, 2600))]);
+    const [r] = await Promise.all([api('admin_draw', { prize: $('d-prize').value, pool: $('d-pool').value, since: $('d-since-on').checked && $('d-since').value ? $('d-since').value + ':00+08:00' : null }), new Promise(r => setTimeout(r, 2600))]);
     spinning = false; num.textContent = r.number; who.textContent = r.holder_name || '';
     beep(true); loadDraws();
   } catch (ex) { spinning = false; num.textContent = '— — —'; $('d-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }

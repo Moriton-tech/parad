@@ -1,5 +1,5 @@
 // parad.mn — нийтлэг туслах функцууд
-import { CONFIG } from './config.js?v=2611061528';
+import { CONFIG } from './config.js?v=2611061800';
 import qrcode from './vendor/qrcode.mjs';
 
 export const configured = !/YOUR-PROJECT|YOUR-PUBLISHABLE/.test(CONFIG.SUPABASE_URL + CONFIG.SUPABASE_KEY);

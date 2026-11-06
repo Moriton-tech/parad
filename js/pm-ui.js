@@ -1,5 +1,5 @@
 // parad.mn — адууны карт, шошго (нүүр, каталогт нийтлэг)
-import { esc, money, mnt, million, KIND, photoOf, studPriceHtml, studState, auctionState, breedGroup } from './app.js?v=2611061528';
+import { esc, money, mnt, million, KIND, photoOf, studPriceHtml, studState, auctionState, breedGroup } from './app.js?v=2611061800';
 
 export function badges(h) {
   const out = [];
