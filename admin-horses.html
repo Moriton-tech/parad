@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061045">
-<link rel="stylesheet" href="css/pm.css?v=2611061045">
+<link rel="stylesheet" href="css/style.css?v=2611061156">
+<link rel="stylesheet" href="css/pm.css?v=2611061156">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -90,7 +90,7 @@
   <div class="modal-body" id="m-body"></div></div></div>
 
 <script type="module">
-import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS, moneyVal } from './js/app.js?v=2611061045';
+import { api as rawApi, auth, esc, money, mnt, fmtDT, toast, KIND, photoOf, configured, discPct, BREEDS, moneyVal } from './js/app.js?v=2611061156';
 const $ = id => document.getElementById(id);
 let me = null, H = [], site = null, tab = 'dash';
 let B = [], Q = [], stats = null, bookingHorse = '', bookingStatus = '', bookingText = '';
@@ -408,7 +408,7 @@ function csv(list) {
 }
 function importLegacy() {
   modal('Хуучин «гүү тавих» системээс импорт', `<p class="small">Хуучин сайтын (Firebase) админ хуудсанд нэвтэрсэн хөтөчийн Console-д доорх кодыг ажиллуулбал <b>gut-bookings.json</b> татагдана. Дараа нь энд сонгоно уу. Кодууд (GT-…) хэвээр хадгалагдах тул захиалагчид хуучин холбоосоороо шалгаж чадна.</p>
-    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611061045');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
+    <textarea class="input mono" rows="7" readonly onclick="this.select()" style="font-size:12px">(async()=>{const m=await import('./js/db.js?v=2611061156');const rows=await m.listBookings();const fix=v=>v&&typeof v.toDate==='function'?v.toDate().toISOString():Array.isArray(v)?v.map(fix):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,fix(x)])):v;const blob=new Blob([JSON.stringify(rows.map(fix))],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='gut-bookings.json';a.click();})()</textarea>
     <div style="margin-top:12px"><input type="file" id="imp-f" accept=".json,application/json"></div><div id="imp-out" style="margin-top:10px"></div>
     <p class="small muted">Азаргын нэр (slug) нь seed.sql-ээр орсон каталогтой таарах ёстой. Давхардсан код алгасагдана.</p>`);
   $('imp-f').onchange = async e => {
