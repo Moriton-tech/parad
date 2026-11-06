@@ -1,5 +1,5 @@
 // parad.mn — нийтлэг туслах функцууд
-import { CONFIG } from './config.js?v=2611061156';
+import { CONFIG } from './config.js?v=2611061214';
 import qrcode from './vendor/qrcode.mjs';
 
 export const configured = !/YOUR-PROJECT|YOUR-PUBLISHABLE/.test(CONFIG.SUPABASE_URL + CONFIG.SUPABASE_KEY);
@@ -179,7 +179,11 @@ export const BREEDS = {
   'Монгол азарга': ['Монгол цэвэр', 'Монгол эрлийз', 'Монгол – Галшар', 'Монгол – Дархад', 'Монгол – Тэс'],
 };
 export const breedGroup = b => (!b ? '' : /монгол/i.test(b) ? 'Монгол азарга' : 'Цэвэр азарга');
-export const KIND = { stallion: 'Азарга', mare: 'Гүү', colt: 'Үрээ', filly: 'Эм унага', gelding: 'Морь' };
+// Төрөл — насаар нь (жагсаалтын дараалал админд ингэж харагдана)
+export const KIND = {
+  foal: 'Унага', yearling: 'Даага', shudlen: 'Шүдлэн', hyazaalan: 'Хязаалан', soyolon: 'Соёолон',
+  colt: 'Үрээ', stallion: 'Азарга', gelding: 'Морь', filly: 'Байдас', mare: 'Гүү',
+};
 export const photoOf = (h, i = 0, thumb = false) => { const p = (h.photos || [])[i]; return p ? (thumb ? p.t || p.u : p.u) : null; };
 // Үржүүлгийн үнэ (хямдралтай бол хуучин үнийг зураастай)
 export const discPct = (fee, price) => Math.round((1 - Number(price) / Number(fee)) * 100);
