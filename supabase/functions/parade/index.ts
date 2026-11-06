@@ -728,7 +728,7 @@ function horsePatch(h: any): Record<string, unknown> {
   for (const k of HORSE_BOOL) if (k in h) p[k] = !!h[k];
   for (const k of HORSE_TS) if (k in h) p[k] = h[k] ? new Date(h[k]).toISOString() : null;
   if ('kind' in h) {
-    if (!['stallion', 'mare', 'colt', 'filly', 'gelding'].includes(h.kind)) throw new HttpError(400, 'Төрөл буруу байна.');
+    if (!['foal', 'yearling', 'shudlen', 'hyazaalan', 'soyolon', 'colt', 'stallion', 'gelding', 'filly', 'mare'].includes(h.kind)) throw new HttpError(400, 'Төрөл буруу байна.');
     p.kind = h.kind;
   }
   if ('sale_mode' in h) {

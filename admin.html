@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061156">
+<link rel="stylesheet" href="css/style.css?v=2611061214">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -302,9 +302,9 @@
 
 <div class="modal-bg" id="modal"><div class="modal"><div class="modal-head"><b id="mh">…</b><button type="button" id="mx">×</button></div><div class="modal-body" id="mb"></div></div></div>
 
-<script src="js/vendor/jsQR.js?v=2611061156"></script>
+<script src="js/vendor/jsQR.js?v=2611061214"></script>
 <script type="module">
-import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061156';
+import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061214';
 const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
 const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
 const opts = (list, sel) => '<option value="">—</option>' + list.map(a => `<option${a === sel ? ' selected' : ''}>${a}</option>`).join('');
@@ -354,7 +354,7 @@ function show(t) {
 }
 
 async function boot() {
-  if (!configured) { showLogin('js/config.js?v=2611061156 тохиргоо хийгдээгүй байна.'); return; }
+  if (!configured) { showLogin('js/config.js?v=2611061214 тохиргоо хийгдээгүй байна.'); return; }
   if (!auth.get()) { showLogin(); return; }
   try { me = await api('admin_me'); }
   catch (e) { auth.logout(); showLogin(e.message); return; }
