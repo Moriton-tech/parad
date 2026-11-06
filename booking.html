@@ -9,12 +9,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061230">
-<link rel="stylesheet" href="css/pm.css?v=2611061230">
-<link rel="modulepreload" href="js/app.js?v=2611061230">
-<link rel="modulepreload" href="js/config.js?v=2611061230">
-<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611061230">
-<link rel="modulepreload" href="js/pm-ui.js?v=2611061230">
+<link rel="stylesheet" href="css/style.css?v=2611061403">
+<link rel="stylesheet" href="css/pm.css?v=2611061403">
+<link rel="modulepreload" href="js/app.js?v=2611061403">
+<link rel="modulepreload" href="js/config.js?v=2611061403">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611061403">
+<link rel="modulepreload" href="js/pm-ui.js?v=2611061403">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -24,19 +24,39 @@
 <main class="container" id="root"></main>
 <footer class="site-footer" id="site-footer"></footer>
 <script type="module">
-import { api, esc, money, mnt, fmtDT, renderChrome, param, store, rememberStud, photoOf } from './js/app.js?v=2611061230';
+import { api, esc, money, mnt, fmtDT, renderChrome, param, store, rememberStud, photoOf } from './js/app.js?v=2611061403';
 const $root = document.getElementById('root');
 const STATUS = { pending: 'Баталгаажуулалт хүлээж байна', confirmed: 'Баталгаажсан', done: 'Хийгдсэн', cancelled: 'Цуцлагдсан', expired: 'Хугацаа дууссан' };
 renderChrome({}, 'booking');
 
 function lookupForm(msg = '') {
   const mine = store.get('stud', []);
-  $root.innerHTML = `<div class="bk-card"><div class="hd2"><div class="eyebrow">Миний захиалга</div><h1>Захиалгаа шалгах</h1></div><div class="bd2">
+  $root.innerHTML = `<div class="bk-card"><div class="hd2"><div class="eyebrow">Миний захиалга</div><h1>Миний захиалгууд</h1></div><div class="bd2">
     ${msg ? `<div class="alert error" style="margin-bottom:14px">${esc(msg)}</div>` : ''}
-    <form class="form" id="f" style="grid-template-columns:1fr auto;align-items:end"><div><label>Захиалгын код</label><input class="input" id="code" placeholder="GT-XXXXXX" autocapitalize="characters" maxlength="12" required></div><button class="btn btn-accent" type="submit">Шалгах</button></form>
-    ${mine.length ? '<p class="small muted" style="margin:16px 0 6px">Энэ төхөөрөмж дээрх захиалгууд:</p>' + mine.map(c => `<a class="btn btn-light btn-sm" style="margin:0 6px 6px 0" href="booking.html?code=${encodeURIComponent(c)}">${esc(c)}</a>`).join('') : ''}
+    <div id="mine">${mine.length ? '<p class="muted">Ачаалж байна…</p>' : '<p class="muted" style="margin:0 0 6px">Энэ төхөөрөмжөөс өгсөн захиалга алга. Өөр утаснаас өгсөн бол кодоороо доороос шалгана уу.</p>'}</div>
+    <form class="form" id="f" style="grid-template-columns:1fr auto;align-items:end;margin-top:18px"><div><label>Захиалгын кодоор шалгах</label><input class="input" id="code" placeholder="GT-XXXXXX" autocapitalize="characters" maxlength="12" required></div><button class="btn btn-accent" type="submit">Шалгах</button></form>
     </div></div>`;
   document.getElementById('f').onsubmit = e => { e.preventDefault(); location.href = 'booking.html?code=' + encodeURIComponent(document.getElementById('code').value.trim().toUpperCase().replace(/^GT-?/, 'GT-')); };
+  if (mine.length) loadMine(mine);
+}
+
+// Энэ төхөөрөмж дээр хадгалсан бүх захиалгыг нэг дор: хэдэн захиалга, хэдэн гүү, нийт дүн
+async function loadMine(codes) {
+  const res = await Promise.allSettled(codes.map(code => api('stud_status', { code })));
+  const ok = res.filter(r => r.status === 'fulfilled').map(r => r.value);
+  const box = document.getElementById('mine'); if (!box) return;
+  if (!ok.length) { box.innerHTML = '<p class="muted">Захиалгын мэдээллийг ачаалж чадсангүй. Дахин оролдоно уу.</p>'; return; }
+  const active = ok.filter(({ booking: b }) => !['cancelled', 'expired'].includes(b.status));
+  const mares = active.reduce((a, { booking: b }) => a + b.mares, 0);
+  const total = active.reduce((a, { booking: b }) => a + (b.amount || 0), 0);
+  box.innerHTML = `<div class="mine-sum"><div><b>${active.length}</b><span>идэвхтэй захиалга</span></div><div><b>${mares}</b><span>гүү</span></div><div><b>${total ? money(total) : '—'}</b><span>нийт дүн</span></div></div>
+    <div class="mine-list">${ok.map(({ booking: b, horse: h }) => {
+      const ph = h && photoOf(h, 0, true);
+      return `<a class="mine-row" href="booking.html?code=${encodeURIComponent(b.code)}">
+        <span class="mine-ph"${ph ? ` style="background-image:url('${esc(ph)}')"` : ''}></span>
+        <span class="mine-tx"><b>${esc(h ? h.name : '—')}</b><small>${esc(b.code)} · ${b.mares} гүү${b.status === 'confirmed' && b.queue_from ? ` · ${b.queue_from}-р дараалал` : ''} · ${esc(fmtDT(b.created_at))}</small></span>
+        <span class="mine-st"><span class="stat-pill ${b.status}">${STATUS[b.status] || b.status}</span>${b.amount ? `<small>${money(b.amount)}${b.paid ? ' ✓' : ''}</small>` : ''}</span></a>`;
+    }).join('')}</div>`;
 }
 
 async function load(code) {
@@ -65,7 +85,7 @@ async function load(code) {
         ${b.mare_info ? `<span class="muted">Гүүний мэдээлэл</span><b>${esc(b.mare_info)}</b>` : ''}
         <span class="muted">Үүсгэсэн</span><b>${esc(fmtDT(b.created_at))}</b></div>
       ${pay}
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">${h ? `<a class="btn btn-light" href="horse.html?s=${encodeURIComponent(h.slug)}">Азарганы хуудас</a>` : ''}<a class="btn btn-ghost" href="booking.html">Өөр код шалгах</a>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:18px">${h ? `<a class="btn btn-light" href="horse.html?s=${encodeURIComponent(h.slug)}">Азарганы хуудас</a>` : ''}<a class="btn btn-ghost" href="booking.html">Миний бүх захиалга</a>
       <a class="btn btn-accent" href="tel:${esc(String(site.phone).replace(/\D/g, ''))}">${esc(site.phone)}</a></div>
       <p class="small muted" style="margin:14px 0 0">Энэ хуудасны холбоосыг хадгалаарай — кодоороо хэзээ ч шалгаж болно.</p>
     </div></div>`;

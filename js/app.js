@@ -1,5 +1,5 @@
 // parad.mn — нийтлэг туслах функцууд
-import { CONFIG } from './config.js?v=2611061230';
+import { CONFIG } from './config.js?v=2611061403';
 import qrcode from './vendor/qrcode.mjs';
 
 export const configured = !/YOUR-PROJECT|YOUR-PUBLISHABLE/.test(CONFIG.SUPABASE_URL + CONFIG.SUPABASE_KEY);
@@ -222,14 +222,14 @@ export function renderChrome(info, active = '') {
     <nav class="nav">
       <a href="stallions.html"${active === 'horses' && !/[?&]f=sale/.test(location.search) ? ' class="on"' : ''}>Азарга</a>
       <a href="stallions.html?f=sale"${active === 'horses' && /[?&]f=sale/.test(location.search) ? ' class="on"' : ''}>Худалдах адуу</a>
-      <a href="booking.html" class="hide-sm${active === 'booking' ? ' on' : ''}">Захиалга шалгах</a>
+      <a href="booking.html" class="hide-sm${active === 'booking' ? ' on' : ''}">Миний захиалга</a>
       ${store.get('pass') ? `<a href="ticket.html?t=${encodeURIComponent(store.get('pass'))}" class="cta">Миний пасс</a>` : ev && info.sales_open ? '<a href="register.html#register" class="cta">Бүртгүүлэх</a>' : '<a href="register.html" class="cta">Парад</a>'}
     </nav></div>`;
   const f = document.getElementById('site-footer');
   const phone = (info && (info.phone || info.contact_phone)) || '';
   if (f) f.innerHTML = `<div class="container">
     <div><img class="foot-logo" src="img/parad-logo-onnavy.png" alt="Parad.mn — Үе дамжсан шилмэл удам"><br>Монгол гадаад азарганд үржүүлгийн гүүний бүртгэл<br>${phone ? `Утас: <a href="tel:${esc(String(phone).replace(/\D/g, ''))}">${esc(phone)}</a>` : ''}</div>
-    <div><a href="register.html">Парад · Бүртгэл</a> · <a href="stallions.html">Азарга</a> · <a href="booking.html">Захиалга шалгах</a></div></div>`;
+    <div><a href="register.html">Парад · Бүртгэл</a> · <a href="stallions.html">Азарга</a> · <a href="booking.html">Миний захиалга</a></div></div>`;
   if (!configured && !document.querySelector('.cfg-warn')) document.body.insertAdjacentHTML('afterbegin', '<div class="cfg-warn"><b>Тохиргоо дутуу:</b> js/config.js файлд Supabase-ийн URL, түлхүүрийг оруулна уу (README-г үзнэ үү).</div>');
 }
 

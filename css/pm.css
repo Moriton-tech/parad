@@ -123,3 +123,14 @@
 .tabs2 { display: flex; gap: 8px; flex-wrap: wrap; flex: none; }
 .tabs2 .chip { font-size: 15px; padding: 10px 20px; white-space: nowrap; flex: none; }
 .tabs2 .chip small { opacity: .7; font-weight: 600; margin-left: 4px; }
+.mine-sum { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+.mine-sum > div { background: var(--navy-l); border-radius: 12px; padding: 12px; text-align: center; }
+.mine-sum b { display: block; font-size: 20px; color: var(--navy); }
+.mine-sum span { font-size: 12px; color: var(--muted, #667); }
+.mine-list { display: grid; gap: 8px; }
+.mine-row { display: grid; grid-template-columns: 56px 1fr auto; gap: 12px; align-items: center; padding: 10px; border: 1px solid var(--line); border-radius: 12px; color: inherit; text-decoration: none; }
+.mine-row:hover { border-color: var(--navy); }
+.mine-ph { width: 56px; height: 42px; border-radius: 8px; background: var(--navy-l) center/cover no-repeat; }
+.mine-tx b { display: block; } .mine-tx small, .mine-st small { color: var(--muted, #667); font-size: 12px; }
+.mine-st { text-align: right; display: grid; gap: 4px; justify-items: end; }
+@media (max-width: 480px) { .mine-row { grid-template-columns: 48px 1fr; } .mine-st { grid-column: 2; justify-items: start; text-align: left; } .mine-sum b { font-size: 16px; } }
