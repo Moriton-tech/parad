@@ -58,6 +58,10 @@ const json = (data: unknown, status = 200) =>
 export const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул',
   'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
 export const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
+// Худалдан авагчийн сонирхол (асуумж) — register.html, ticket.html-тэй ижил
+export const INTERESTS = ['Уралдах эр даага', 'Удам сайтай гүү', 'Азарга', 'Унага, даага', 'Уралдааны морь', 'Бусад'];
+// Адууны амжилтын төрөл (Билигсайханы санал)
+export const ACHIEVEMENTS = ['Сумын ой', 'Аймгийн наадам', 'Аймгийн бүс', 'Улсын наадам', 'Улсын бүс', 'Их хурд'];
 
 const DB_ERRORS: Record<string, string> = {
   SALES_CLOSED: 'Онлайн борлуулалт түр хаагдсан байна.',
@@ -66,7 +70,9 @@ const DB_ERRORS: Record<string, string> = {
   BAD_INPUT: 'Нэр, утасны дугаараа бөглөнө үү.',
   TOO_MANY: 'Танд төлөгдөөгүй захиалга байна. Түүнийгээ төлөх эсвэл 20 минут хүлээгээд дахин оролдоно уу.',
   NO_CONSENT: 'Мэдээлэл цуглуулах зөвшөөрлийг заавал сонгоно уу.',
-  DEPOSIT_REQUIRED: 'Дуудлагад оролцохын тулд парад дээр бүртгүүлсэн байх бөгөөд оролцооны хураамжаа төлсөн байх ёстой. Бүртгэлийн пасс хуудсаараа төлнө үү.',
+  NO_INTERESTS: 'Ямар адуу авах сонирхолтойгоо дор хаяж нэгийг сонгоно уу.',
+  NO_NOTICE: 'Худалдан авагчийн санамжтай танилцаж, тэмдэглэнэ үү.',
+  DEPOSIT_REQUIRED: 'Дуудлагад зөвхөн «Адуу худалдан авагч» тасалбараа бүрэн төлсөн хүн оролцоно. Пасс хуудаснаасаа тасалбараа худалдан авагч болгож төлнө үү.',
   NOT_FOUND: 'Захиалга олдсонгүй.',
   NO_NUMBERS: 'Тасалбарын дугаар хүрэлцэхгүй байна.',
   NO_CANDIDATES: 'Сугалаанд оролцох тасалбар алга (өмнө нь бүгд хожсон эсвэл хэн ч ирээгүй).',
@@ -410,7 +416,14 @@ function cleanReg(b: any) {
   if (!AIMAGS.includes(aimag)) throw new HttpError(400, 'Аймгаа сонгоно уу.');
   if (sum.length < 2) throw new HttpError(400, 'Сум / дүүргээ бичнэ үү.');
   if (title && !TITLES.includes(title)) throw new HttpError(400, 'Цолоо зөв сонгоно уу.');
-  return { name, phone, phone2, email, aimag, sum, title, consent_data: b.consent_data === true, consent_mkt: b.consent_marketing === true };
+  const kind = b.kind === 'buyer' ? 'buyer' : 'viewer';
+  const interests = cleanInterests(b.interests);
+  return { name, phone, phone2, email, aimag, sum, title, consent_data: b.consent_data === true, consent_mkt: b.consent_marketing === true,
+    kind, interests, notice_ack: b.notice_ack === true };
+}
+function cleanInterests(v: unknown): string[] {
+  const arr = Array.isArray(v) ? v : [];
+  return [...new Set(arr.map(x => String(x || '').trim()).filter(x => INTERESTS.includes(x)))];
 }
 
 // Үнэгүй бүртгэл (онлайн) — QR пасс олгоно. Нэг утас = нэг бүртгэл.
@@ -426,10 +439,19 @@ async function actRegister(b: any, req: Request) {
   const r = await rpc('parade_register', {
     p_name: c.name, p_phone: c.phone, p_phone2: c.phone2, p_email: c.email, p_aimag: c.aimag, p_sum: c.sum, p_title: c.title,
     p_consent_data: c.consent_data, p_consent_mkt: c.consent_mkt, p_source: 'online', p_actor: null, p_ip: clientIp(req), p_note: null,
+    p_kind: c.kind, p_interests: c.interests, p_notice_ack: c.notice_ack,
   });
   if (!r.existing && c.email) background(sendOrderEmails(r.order.id, { notify: false }));
   const t = (r.tickets || [])[0];
-  return { token: t?.token, number: t?.number, existing: !!r.existing, name: r.order.name };
+  return { token: t?.token, number: t?.number, existing: !!r.existing, name: r.order.name, kind: r.order.kind };
+}
+
+// Үзэгч → худалдан авагч (пасс хуудаснаас). Зөрүүг дараа нь deposit_start-аар төлнө.
+async function actUpgrade(b: any) {
+  const o = await orderByToken(b.t);
+  await rpc('parade_upgrade', { p_order: o.id, p_interests: cleanInterests(b.interests), p_notice_ack: b.notice_ack === true });
+  const fresh = await q(db.from('parade_orders').select('*').eq('id', o.id).single());
+  return { deposit: depView(fresh, await getSettings()) };
 }
 
 // ---------- Дуудлагын оролцооны хураамж (QPay)
@@ -440,9 +462,18 @@ async function orderByToken(tok: unknown) {
   if (!tk || tk.status !== 'valid') throw new HttpError(404, 'Пасс олдсонгүй.');
   return await q(db.from('parade_orders').select('*').eq('id', tk.order_id).single());
 }
+const feeRequired = (o: any, s: any) => Number(o.kind === 'buyer' ? s.deposit_amount : s.viewer_price) || 0;
+const feeDue = (o: any, s: any) => Math.max(feeRequired(o, s) - (Number(o.fee_paid) || 0), 0);
 function depView(o: any, s: any) {
+  const required = feeRequired(o, s), due = feeDue(o, s);
   return {
-    status: o.dep_status, amount: o.dep_amount || s.deposit_amount, open: !!s.deposit_open, paid_at: o.dep_paid_at,
+    kind: o.kind || 'viewer', required, due, fee_paid: Number(o.fee_paid) || 0, paddle_no: o.paddle_no ?? null,
+    blacklisted: !!o.blacklisted, interests: o.interests || [], viewer_price: Number(s.viewer_price) || 0, buyer_price: Number(s.deposit_amount) || 0,
+    // «paid» = тухайн төрлийн тасалбар бүрэн төлөгдсөн (0₮ үзэгч бол төлбөр шаардахгүй)
+    status: required === 0 ? 'paid' : o.dep_status === 'paid' && due === 0 ? 'paid' : o.dep_status === 'paid' ? 'none' : o.dep_status,
+    amount: o.dep_status === 'pending' ? o.dep_amount : due,
+    // Үзэгчийн тасалбар үргэлж төлөгдөнө; худалдан авагчийн тасалбарыг админ «нээлттэй» болгосон үед
+    open: o.kind === 'buyer' ? !!s.deposit_open : true, paid_at: o.dep_paid_at,
     qpay: o.dep_status === 'pending' ? { qr_image: o.dep_qr_image, qr_text: o.dep_qr_text, short_url: o.dep_short_url, urls: o.dep_urls || [] } : null,
     bank_info: s.bank_info || '',
   };
@@ -460,15 +491,16 @@ async function actDepositStart(b: any) {
   let o = await orderByToken(b.t);
   const s = await getSettings();
   if (o.status !== 'paid') throw new HttpError(409, 'Бүртгэл идэвхгүй байна.');
-  if (o.dep_status === 'paid') return { deposit: depView(o, s) };
-  if (!s.deposit_open) throw new HttpError(409, 'Оролцооны хураамж төлөх хугацаа хараахан нээгдээгүй байна. Парадын дараа нээгдэнэ.');
+  if (o.blacklisted) throw new HttpError(409, 'Таны дуудлагад оролцох эрх хаагдсан байна. Зохион байгуулагчтай холбогдоно уу.');
+  if (feeDue(o, s) === 0) return { deposit: depView(o, s) };
+  if (o.kind === 'buyer' && !s.deposit_open) throw new HttpError(409, 'Худалдан авагчийн тасалбарын онлайн төлбөр хараахан нээгдээгүй байна. Зохион байгуулагчид бэлнээр/дансаар төлж болно.');
   if (!QPAY_ON) return { deposit: depView({ ...o, dep_status: 'none' }, s) };       // QPay байхгүй: данс/бэлнээр төлж ажилтан баталгаажуулна
   o = await depSync(o);
   if (o.dep_status === 'pending' && o.dep_qr_text) return { deposit: depView(o, s) };
-  const amount = s.deposit_amount;
+  const amount = feeDue(o, s);
   const j = await qpay('/invoice', 'POST', {
-    invoice_code: QPAY_INVOICE_CODE, sender_invoice_no: o.code + '-D', invoice_receiver_code: o.phone || 'terminal',
-    invoice_description: `${s.event_name} дуудлага худалдааны оролцооны хураамж (${o.code})`, amount,
+    invoice_code: QPAY_INVOICE_CODE, sender_invoice_no: `${o.code}-${o.kind === 'buyer' ? 'B' : 'V'}${Number(o.fee_paid) || 0}`, invoice_receiver_code: o.phone || 'terminal',
+    invoice_description: `${s.event_name} — ${o.kind === 'buyer' ? 'адуу худалдан авагчийн' : 'үзэгчийн'} тасалбар (${o.code})`, amount,
     callback_url: `${FUNC_URL}?action=deposit_callback&code=${encodeURIComponent(o.code)}`,
   });
   if (!j.invoice_id) throw new HttpError(502, 'QPay нэхэмжлэх үүсгэж чадсангүй.');
@@ -582,6 +614,28 @@ function dbError2(e: { message?: string }): HttpError | null {
 const cleanTxt = (v: unknown, max: number) => String(v ?? '').replace(/[<>\u0000-\u001F]/g, ' ').replace(/\s+/g, ' ').trim().slice(0, max);
 const cleanPhone = (v: unknown) => String(v ?? '').replace(/[^\d+]/g, '');
 const okPhone = (v: string) => /^\+?\d{8,15}$/.test(v);
+const okDate = (v: unknown) => { const t = String(v ?? '').trim(); return /^\d{4}-\d{2}-\d{2}$/.test(t) && !Number.isNaN(Date.parse(t)) ? t : null; };
+const phone8 = (v: unknown) => String(v ?? '').replace(/\D/g, '').slice(-8);
+// Гүү тавих захиалгын логистик (гүү хэзээ, хаана бэлэн; хариуцагч)
+function studLogistics(b: any) {
+  const cp = cleanPhone(b.contact_phone);
+  if (cp && !okPhone(cp)) throw new HttpError(400, 'Хариуцагчийн утасны дугаар буруу байна.');
+  return { p_ready_date: okDate(b.mare_ready_date), p_ready_place: cleanTxt(b.mare_ready_place, 200) || null,
+    p_contact_name: cleanTxt(b.contact_name, 80) || null, p_contact_phone: cp || null };
+}
+// Нэг эзэнд зарах адууны хязгаар (анхдагч 2, админ эзэн тус бүрээр нэмнэ)
+async function checkOwnerLimit(id: string | null, p: Record<string, unknown>) {
+  const cur = id ? await q(db.from('horses').select('owner_phone,sale_mode').eq('id', id).single()) : { owner_phone: null, sale_mode: 'none' };
+  const ph = String(('owner_phone' in p ? p.owner_phone : cur.owner_phone) || '');
+  const mode = String(('sale_mode' in p ? p.sale_mode : cur.sale_mode) || 'none');
+  if (!ph || mode === 'none') return;
+  const p8 = phone8(ph);
+  const lim = await rpc<number>('owner_horse_limit', { p_phone: ph });
+  const rows = await q(db.from('horses').select('id,name,owner_phone').neq('sale_mode', 'none').not('owner_phone', 'is', null));
+  const others = rows.filter((r: any) => r.id !== id && phone8(r.owner_phone) === p8);
+  if (others.length + 1 > lim)
+    throw new HttpError(409, `Энэ эзэнд (${p8}) зарах ${others.length} адуу бүртгэгдсэн, хязгаар ${lim}. Тохиргоо → «Эзний хязгаар»-аас нэмж болно. (${others.map((r: any) => r.name).join(', ')})`);
+}
 const maskName = (n: string) => String(n || '').trim().split(/\s+/).map(w => (w.length <= 1 ? w : w[0] + '.')).join(' ');
 const maskCode = (c: string) => String(c || '').replace(/^(.{3}).*(.{2})$/, '$1••••$2');
 
@@ -592,6 +646,9 @@ function publicSite(s: any) {
   return {
     season: s.stud_season, hold_hours: s.stud_hold_hours, max_mares: s.stud_max_mares, terms: s.stud_terms,
     sale_note: s.sale_note, phone: s.contact_phone, bank_info: s.bank_info, extend_min: s.auction_extend_min,
+    commission_pct: Number(s.commission_pct ?? 10), mare_org_fee: Number(s.mare_org_fee ?? 0), seller_reg_fee: Number(s.seller_reg_fee ?? 0),
+    stallion_reg_fee: Number(s.stallion_reg_fee ?? 0), seller_max_horses: s.seller_max_horses ?? 2, achievement_min_year: s.achievement_min_year ?? null,
+    pay_within_hours: s.pay_within_hours ?? 24, handover_hours: s.handover_hours ?? 48, payout_days: s.payout_days ?? 3,
   };
 }
 const pmNotify = (s: any) => String(s.notify_email || '').split(/[,;\s]+/).filter((x: string) => x.includes('@'));
@@ -645,12 +702,14 @@ async function actStudCreate(b: any, req: Request) {
   const slug = cleanTxt(b.slug, 70);
   const r = await rpc('stud_create', {
     p_slug: slug, p_name: name, p_phone: phone, p_mares: mares, p_mare_info: cleanTxt(b.mare_info, 500),
-    p_location: cleanTxt(b.location, 120), p_note: cleanTxt(b.note, 500), p_ip: clientIp(req),
+    p_location: cleanTxt(b.location, 120), p_note: cleanTxt(b.note, 500), p_ip: clientIp(req), ...studLogistics(b),
   });
   const h = await horseBySlug(slug).catch(() => null);
   background(pmMail(`Шинэ захиалга ${r.code}: ${h?.name || slug} азарга — ${name} (${mares} гүү)`, [
     ['Код', r.code], ['Азарга', h?.name || slug], ['Захиалагч', name], ['Утас', phone], ['Гүүний тоо', String(mares)],
     ['Гүүний мэдээлэл', r.mare_info || '—'], ['Аймаг, сум', r.location || '—'], ['Тайлбар', r.note || '—'],
+    ['Гүү бэлэн байх', [r.mare_ready_date, r.mare_ready_place].filter(Boolean).join(' · ') || '—'],
+    ['Хариуцагч', [r.contact_name, r.contact_phone].filter(Boolean).join(' · ') || '—'],
     ['Үнэ (нэг гүү)', fmtMnt(h?.stud_price)],
   ]));
   return { code: r.code };
@@ -670,7 +729,9 @@ async function studPublic(code: string) {
   return {
     booking: {
       code: bk.code, status, owner_name: bk.owner_name, phone: bk.phone, mares: bk.mares, mare_info: bk.mare_info, location: bk.location,
-      note: bk.note, queue_from: bk.queue_from, unit_price: unit, amount: bk.amount ?? (unit == null ? null : unit * bk.mares), paid: bk.paid,
+      note: bk.note, queue_from: bk.queue_from,
+      mare_ready_date: bk.mare_ready_date, mare_ready_place: bk.mare_ready_place, breeding_place: bk.breeding_place, breeding_date: bk.breeding_date,
+      contact_name: bk.contact_name, contact_phone: bk.contact_phone, unit_price: unit, amount: bk.amount ?? (unit == null ? null : unit * bk.mares), paid: bk.paid,
       created_at: bk.created_at, expires_at: expiresAt, confirmed_at: bk.confirmed_at, cancel_reason: bk.cancel_reason,
     },
     horse: h ? { slug: h.slug, name: h.name, name_en: h.name_en, photos: h.photos, stud_price: h.stud_price, stud_fee: h.stud_fee, stud_discount: h.stud_discount } : null,
@@ -714,10 +775,12 @@ async function actBid(b: any, req: Request) {
 }
 
 // ---------------------------------------------------------------- админ (адуу, гүү тавих, зарах)
-const HORSE_TEXT = ['name', 'name_en', 'color', 'breed', 'tamga', 'microchip', 'sire', 'dam', 'description', 'notes', 'pedigree_img', 'sold_to_name', 'sold_to_phone'];
-const HORSE_INT = ['foaled', 'sort', 'stud_discount', 'stud_capacity'];
+const HORSE_TEXT = ['name', 'name_en', 'color', 'breed', 'tamga', 'microchip', 'sire', 'dam', 'description', 'notes', 'pedigree_img', 'sold_to_name', 'sold_to_phone',
+  'owner_name', 'owner_aimag', 'owner_sum', 'passport_img', 'msuh_note'];
+const HORSE_INT = ['foaled', 'sort', 'stud_discount', 'stud_capacity', 'lot_no', 'sold_paddle'];
 const HORSE_BIG = ['stud_fee', 'stud_price_new', 'sale_price', 'auction_start_price', 'auction_step', 'sold_price'];
-const HORSE_BOOL = ['published', 'stud_enabled', 'stud_active', 'auction_closed'];
+const HORSE_BOOL = ['published', 'stud_enabled', 'stud_active', 'auction_closed', 'has_passport', 'reg_fee_paid'];
+const TEST_VALS = ['pending', 'negative', 'positive'];
 const HORSE_TS = ['auction_starts_at', 'auction_ends_at', 'sold_at'];
 
 function horsePatch(h: any): Record<string, unknown> {
@@ -738,6 +801,30 @@ function horsePatch(h: any): Record<string, unknown> {
   if ('sale_status' in h) {
     if (!['available', 'reserved', 'sold'].includes(h.sale_status)) throw new HttpError(400, 'Зарах төлөв буруу байна.');
     p.sale_status = h.sale_status;
+  }
+  if ('owner_phone' in h) {
+    const ph = cleanPhone(h.owner_phone);
+    if (ph && !okPhone(ph)) throw new HttpError(400, 'Эзний утасны дугаар буруу байна.');
+    p.owner_phone = ph || null;
+  }
+  for (const k of ['test_yam', 'test_niiluuleg', 'test_hachig']) if (k in h) {
+    if (!TEST_VALS.includes(h[k])) throw new HttpError(400, 'Шинжилгээний хариу буруу байна.');
+    p[k] = h[k];
+  }
+  if ('msuh_status' in h) {
+    if (!['pending', 'approved', 'rejected'].includes(h.msuh_status)) throw new HttpError(400, 'МСУХ-ын төлөв буруу байна.');
+    p.msuh_status = h.msuh_status;
+  }
+  if ('lot_no' in p && p.lot_no != null && ((p.lot_no as number) < 1 || (p.lot_no as number) > 9999)) throw new HttpError(400, 'Лотын дугаар 1–9999 байна.');
+  if ('sold_order' in h) p.sold_order = /^[0-9a-f-]{36}$/i.test(String(h.sold_order || '')) ? h.sold_order : null;
+  if ('achievements' in h) {
+    const arr = Array.isArray(h.achievements) ? h.achievements : [];
+    p.achievements = arr.slice(0, 30).map((x: any) => ({
+      t: ACHIEVEMENTS.includes(String(x?.t || '')) ? String(x.t) : cleanTxt(x?.t, 60),
+      y: x?.y === '' || x?.y == null ? null : Math.round(Number(x.y)),
+      w: cleanTxt(x?.w, 40) || null,
+      n: cleanTxt(x?.n, 200) || null,
+    })).filter((x: any) => x.t && (x.y == null || (x.y >= 1950 && x.y <= 2100)));
   }
   if ('photos' in h) {
     const arr = Array.isArray(h.photos) ? h.photos : [];
@@ -771,7 +858,11 @@ async function adminPm(action: string, b: any, me: { email: string; role: string
       const s = b.settings || {};
       const p: any = { updated_at: new Date().toISOString() };
       for (const k of ['stud_season', 'sale_note', 'contact_phone', 'notify_email', 'bank_info']) if (k in s) p[k] = cleanTxt(s[k], 1000);
-      for (const k of ['stud_hold_hours', 'stud_max_mares', 'stud_default_capacity', 'auction_extend_min']) if (k in s) p[k] = Math.round(Number(s[k]));
+      for (const k of ['stud_hold_hours', 'stud_max_mares', 'stud_default_capacity', 'auction_extend_min', 'seller_reg_fee', 'stallion_reg_fee',
+        'mare_org_fee', 'seller_max_horses', 'pay_within_hours', 'handover_hours', 'payout_days']) if (k in s) p[k] = Math.round(Number(s[k]));
+      if ('commission_pct' in s) p.commission_pct = Math.round(Number(s.commission_pct) * 100) / 100;
+      if ('achievement_min_year' in s) p.achievement_min_year = s.achievement_min_year === '' || s.achievement_min_year == null ? null : Math.round(Number(s.achievement_min_year));
+      for (const k of Object.keys(p)) if (typeof p[k] === 'number' && Number.isNaN(p[k])) throw new HttpError(400, `«${k}» утга буруу байна.`);
       if ('stud_terms' in s) p.stud_terms = (Array.isArray(s.stud_terms) ? s.stud_terms : String(s.stud_terms).split('\n')).map((x: any) => cleanTxt(x, 400)).filter(Boolean).slice(0, 20);
       const r = await q(db.from('pm_settings').update(p).eq('id', 1).select('*').single());
       log(me.email, 'pm_settings', p);
@@ -785,6 +876,11 @@ async function adminPm(action: string, b: any, me: { email: string; role: string
     case 'admin_horse_save': {
       const h = b.horse || {};
       const p = horsePatch(h);
+      await checkOwnerLimit(h.id || null, p);
+      if (p.lot_no != null) {
+        const dup = await q(db.from('horses').select('id,name').eq('lot_no', p.lot_no).maybeSingle());
+        if (dup && dup.id !== h.id) throw new HttpError(409, `${p.lot_no} лотын дугаар «${dup.name}»-д олгогдсон байна.`);
+      }
       if (!h.id) {
         if (!p.name) throw new HttpError(400, 'Адууны нэрийг оруулна уу.');
         let slug = cleanTxt(h.slug, 60).toLowerCase() || slugify(String(p.name)) || 'horse';
@@ -837,7 +933,7 @@ async function adminPm(action: string, b: any, me: { email: string; role: string
       const h = await q(db.from('horses').select('slug').eq('id', b.horse_id).single());
       const name = cleanTxt(b.name, 80), phone = cleanPhone(b.phone);
       if (name.length < 2 || !okPhone(phone)) throw new HttpError(400, 'Нэр, утасны дугаараа зөв оруулна уу.');
-      const r = await rpc('stud_create', { p_slug: h.slug, p_name: name, p_phone: phone, p_mares: Math.round(Number(b.mares)), p_mare_info: cleanTxt(b.mare_info, 500), p_location: cleanTxt(b.location, 120), p_note: cleanTxt(b.note, 500), p_ip: null });
+      const r = await rpc('stud_create', { p_slug: h.slug, p_name: name, p_phone: phone, p_mares: Math.round(Number(b.mares)), p_mare_info: cleanTxt(b.mare_info, 500), p_location: cleanTxt(b.location, 120), p_note: cleanTxt(b.note, 500), p_ip: null, ...studLogistics(b) });
       if (b.confirm) await rpc('stud_confirm', { p_code: r.code, p_actor: me.email });
       log(me.email, 'stud_add', { code: r.code, confirm: !!b.confirm });
       return { ok: true, code: r.code };
@@ -857,7 +953,9 @@ async function adminPm(action: string, b: any, me: { email: string; role: string
       const p: any = { updated_at: new Date().toISOString() };
       if ('paid' in b) p.paid = !!b.paid;
       if ('admin_note' in b) p.admin_note = cleanTxt(b.admin_note, 800) || null;
-      for (const k of ['owner_name', 'mare_info', 'location']) if (k in b) p[k] = cleanTxt(b[k], 500) || null;
+      for (const k of ['owner_name', 'mare_info', 'location', 'mare_ready_place', 'breeding_place', 'contact_name']) if (k in b) p[k] = cleanTxt(b[k], 500) || null;
+      for (const k of ['mare_ready_date', 'breeding_date']) if (k in b) p[k] = okDate(b[k]);
+      if ('contact_phone' in b) { const ph = cleanPhone(b.contact_phone); if (ph && !okPhone(ph)) throw new HttpError(400, 'Хариуцагчийн утас буруу.'); p.contact_phone = ph || null; }
       if ('phone' in b) { const ph = cleanPhone(b.phone); if (!okPhone(ph)) throw new HttpError(400, 'Утасны дугаар буруу.'); p.phone = ph; }
       if ('unit_price' in b) {
         p.unit_price = b.unit_price === '' || b.unit_price == null ? null : Math.round(Number(b.unit_price));
@@ -911,6 +1009,64 @@ async function adminPm(action: string, b: any, me: { email: string; role: string
       return { ok: true, added, skipped, errors: errors.slice(0, 30) };
     }
 
+    case 'admin_owner_limits':
+      return { limits: await q(db.from('horse_owner_limits').select('*').order('updated_at', { ascending: false })) };
+    case 'admin_owner_limit_set': {
+      const p8 = phone8(b.phone);
+      if (!/^\d{8}$/.test(p8)) throw new HttpError(400, 'Утасны дугаар буруу байна.');
+      if (b.max === '' || b.max == null) {
+        await q(db.from('horse_owner_limits').delete().eq('phone8', p8));
+      } else {
+        const max = Math.round(Number(b.max));
+        if (!Number.isFinite(max) || max < 1 || max > 100) throw new HttpError(400, 'Хязгаар 1–100 байна.');
+        await q(db.from('horse_owner_limits').upsert({ phone8: p8, max_horses: max, note: cleanTxt(b.note, 200) || null, updated_by: me.email, updated_at: new Date().toISOString() }));
+      }
+      log(me.email, 'owner_limit', { phone8: p8, max: b.max });
+      return { ok: true };
+    }
+
+    case 'admin_hall_sale': {                              // танхимд пайз өргөж хожсон хүнийг бүртгэх
+      const no = Math.round(Number(b.paddle_no)), price = Math.round(Number(b.price));
+      if (!Number.isFinite(no) || no < 1) throw new HttpError(400, 'Пайзны дугаараа оруулна уу.');
+      if (!Number.isFinite(price) || price <= 0) throw new HttpError(400, 'Хожсон үнээ оруулна уу.');
+      const o = await q(db.from('parade_orders').select('*').eq('paddle_no', no).maybeSingle());
+      if (!o) throw new HttpError(404, `${no} дугаартай пайз олдсонгүй.`);
+      if (o.blacklisted) throw new HttpError(409, `${no} пайз хар жагсаалтад байна (${o.blacklist_reason || 'татгалзсан'}).`);
+      if (o.kind !== 'buyer' || o.dep_status !== 'paid') throw new HttpError(409, `${no} пайзны тасалбар бүрэн төлөгдөөгүй байна.`);
+      await q(db.from('horses').update({
+        sold_to_name: o.name, sold_to_phone: o.phone, sold_paddle: no, sold_order: o.id, sold_price: price,
+        sale_status: 'reserved', auction_closed: true, sold_at: null, updated_at: new Date().toISOString(),
+      }).eq('id', b.id));
+      log(me.email, 'hall_sale', { horse: b.id, paddle: no, price });
+      return { ok: true, buyer: { name: o.name, phone: o.phone, aimag: o.aimag, sum: o.sum, title: o.title, paddle_no: no } };
+    }
+    case 'admin_hall_decline': {                           // хожсон хүн татгалзсан: хар жагсаалт + адууг чөлөөлөх, дараагийн санал
+      const h = await q(db.from('horses').select('*').eq('id', b.id).single());
+      const orderId = h.sold_order || (h.sold_to_phone ? (await q(db.from('parade_orders').select('id,phone').eq('status', 'paid')))
+        .find((x: any) => phone8(x.phone) === phone8(h.sold_to_phone))?.id : null);
+      if (orderId && b.blacklist !== false) {
+        await q(db.from('parade_orders').update({ blacklisted: true, blacklist_reason: cleanTxt(b.reason, 300) || `Хожоод татгалзсан: ${h.name}`, updated_at: new Date().toISOString() }).eq('id', orderId));
+      }
+      if (h.sold_to_phone) await q(db.from('bids').update({ voided: true }).eq('horse_id', h.id).eq('phone', h.sold_to_phone));
+      const next = (await q(db.from('bids').select('name,phone,amount').eq('horse_id', h.id).eq('voided', false).order('amount', { ascending: false }).limit(1)))[0] || null;
+      await q(db.from('horses').update({
+        sold_to_name: null, sold_to_phone: null, sold_paddle: null, sold_order: null, sold_price: null, sold_at: null,
+        sale_status: 'available', updated_at: new Date().toISOString(),
+      }).eq('id', h.id));
+      log(me.email, 'hall_decline', { horse: h.id, order: orderId, next });
+      return { ok: true, next };
+    }
+    case 'admin_contract': {                               // гэрээ хэвлэх өгөгдөл
+      const h = await q(db.from('horses').select('*').eq('id', b.id).single());
+      let buyer = null;
+      if (h.sold_order) buyer = await q(db.from('parade_orders').select('name,phone,aimag,sum,title,paddle_no,email').eq('id', h.sold_order).maybeSingle());
+      if (!buyer && h.sold_to_phone) {
+        const all = await q(db.from('parade_orders').select('name,phone,aimag,sum,title,paddle_no,email').eq('status', 'paid'));
+        buyer = all.find((x: any) => phone8(x.phone) === phone8(h.sold_to_phone)) || { name: h.sold_to_name, phone: h.sold_to_phone };
+      }
+      return { horse: h, buyer, site: publicSite(await pmSettings()), event: await rpc('parade_public_info') };
+    }
+
     case 'admin_inquiries': {
       let qy = db.from('sale_inquiries').select('*, horses(name,slug,sale_price)').order('created_at', { ascending: false }).limit(1000);
       if (b.status) qy = qy.eq('status', b.status);
@@ -954,13 +1110,13 @@ async function staffFrom(req: Request, need: 'admin' | 'staff') {
 const log = (actor: string, action: string, detail: unknown) =>
   db.from('parade_log').insert({ actor, action, detail }).then(() => {}, () => {});
 
-const ORDER_COLS = 'id,code,name,phone,phone2,aimag,sum,title,email,qty,unit_price,amount,status,source,pay_method,invoice_id,payment_id,paid_amount,paid_at,expires_at,email_sent_at,email_error,note,created_by,created_at,updated_at,consent_data,consent_marketing,dep_status,dep_amount,dep_method,dep_paid_at,dep_by';
+const ORDER_COLS = 'id,code,name,phone,phone2,aimag,sum,title,email,qty,unit_price,amount,status,source,pay_method,invoice_id,payment_id,paid_amount,paid_at,expires_at,email_sent_at,email_error,note,created_by,created_at,updated_at,consent_data,consent_marketing,dep_status,dep_amount,dep_method,dep_paid_at,dep_by,kind,interests,paddle_no,fee_paid,notice_ack_at,blacklisted,blacklist_reason,blacklisted_at';
 
 const SETTING_KEYS = ['event_name', 'event_at', 'sales_until', 'location', 'phone', 'price', 'start_no', 'total', 'max_per_order',
-  'hold_minutes', 'transfer_hold_hours', 'sales_open', 'event_public', 'bank_info', 'notify_email', 'site_url', 'deposit_amount', 'deposit_open'];
+  'hold_minutes', 'transfer_hold_hours', 'sales_open', 'event_public', 'bank_info', 'notify_email', 'site_url', 'deposit_amount', 'deposit_open', 'viewer_price', 'paddle_start'];
 
 async function admin(action: string, b: any, req: Request) {
-  const staffOnly = ['admin_me', 'admin_stats', 'admin_scan', 'admin_find', 'admin_register'];
+  const staffOnly = ['admin_me', 'admin_stats', 'admin_scan', 'admin_find', 'admin_register', 'admin_paddle'];
   const me = await staffFrom(req, staffOnly.includes(action) ? 'staff' : 'admin');
 
   switch (action) {
@@ -1041,7 +1197,17 @@ async function admin(action: string, b: any, req: Request) {
       if (b.sum !== undefined) patch.sum = String(b.sum).trim() || null;
       if (b.title !== undefined) patch.title = String(b.title).trim() || null;
       if (b.note !== undefined) patch.note = String(b.note);
+      if (b.interests !== undefined) patch.interests = cleanInterests(b.interests);
+      if (b.kind === 'viewer') {                       // худалдан авагчийг буцааж үзэгч болгох (пайз хэвээр, эрх хаагдана)
+        const cur = await q(db.from('parade_orders').select('kind').eq('id', b.id).single());
+        if (cur.kind === 'buyer') Object.assign(patch, { kind: 'viewer', dep_status: 'none', dep_invoice_id: null, dep_qr_text: null, dep_qr_image: null });
+      }
       await q(db.from('parade_orders').update(patch).eq('id', b.id));
+      if (b.kind === 'buyer') {                        // хаалган дээр үзэгчийг худалдан авагч болгох (ажилтан санамжийг уншиж өгсөн)
+        const cur = await q(db.from('parade_orders').select('interests').eq('id', b.id).single());
+        const ints = cleanInterests(b.interests ?? cur.interests);
+        await rpc('parade_upgrade', { p_order: b.id, p_interests: ints.length ? ints : ['Бусад'], p_notice_ack: true });
+      }
       if (patch.name) await q(db.from('parade_tickets').update({ holder_name: patch.name }).eq('order_id', b.id));
       log(me.email, 'update_order', { id: b.id, ...patch });
       return { ok: true };
@@ -1095,7 +1261,28 @@ async function admin(action: string, b: any, req: Request) {
 
     case 'admin_scan': {
       const mode = ['entry', 'food', 'drink', 'info'].includes(b.mode) ? b.mode : 'entry';
-      return await rpc('parade_scan', { p_code: String(b.code || ''), p_mode: mode, p_actor: me.email });
+      const r = await rpc('parade_scan', { p_code: String(b.code || ''), p_mode: mode, p_actor: me.email });
+      if (r?.order_code) {
+        const [o, s] = await Promise.all([q(db.from('parade_orders').select('*').eq('code', r.order_code).maybeSingle()), getSettings()]);
+        if (o) r.pass = { kind: o.kind, paddle_no: o.paddle_no, due: feeDue(o, s), required: feeRequired(o, s), blacklisted: o.blacklisted, aimag: o.aimag, sum: o.sum, title: o.title };
+      }
+      return r;
+    }
+
+    case 'admin_paddle': {                           // пайзны дугаараар хүнийг харах (танхимд)
+      const no = Math.round(Number(b.no));
+      if (!Number.isFinite(no) || no < 1) throw new HttpError(400, 'Пайзны дугаараа оруулна уу.');
+      const o = await q(db.from('parade_orders').select(ORDER_COLS).eq('paddle_no', no).maybeSingle());
+      if (!o) throw new HttpError(404, `${no} дугаартай пайз олдсонгүй.`);
+      const won = await q(db.from('horses').select('id,name,lot_no,sold_price,sale_status').eq('sold_order', o.id));
+      return { order: o, won };
+    }
+
+    case 'admin_order_blacklist': {                  // хожоод татгалзсан → хар жагсаалт (дахин бооцоо тавихгүй)
+      const on = b.on !== false;
+      await q(db.from('parade_orders').update({ blacklisted: on, blacklist_reason: on ? cleanTxt(b.reason, 300) || 'Хожоод татгалзсан' : null, updated_at: new Date().toISOString() }).eq('id', b.id));
+      log(me.email, 'blacklist', { id: b.id, on, reason: b.reason });
+      return { ok: true };
     }
 
     case 'admin_register': {                         // танхимд ажилтан гараар бүртгэх
@@ -1104,6 +1291,7 @@ async function admin(action: string, b: any, req: Request) {
         p_name: c.name, p_phone: c.phone, p_phone2: c.phone2, p_email: c.email, p_aimag: c.aimag, p_sum: c.sum, p_title: c.title,
         p_consent_data: b.consent_data === true, p_consent_mkt: b.consent_marketing === true, p_source: 'manual', p_actor: me.email, p_ip: null,
         p_note: b.note ? String(b.note).slice(0, 300) : null,
+        p_kind: c.kind, p_interests: c.interests, p_notice_ack: c.kind === 'buyer' ? true : c.notice_ack,
       });
       if (!r.existing && c.email) background(sendOrderEmails(r.order.id, { notify: false }));
       log(me.email, 'register', { code: r.order?.code, existing: r.existing });
@@ -1116,8 +1304,9 @@ async function admin(action: string, b: any, req: Request) {
         await q(db.from('parade_orders').update({ dep_status: 'none', dep_paid_at: null, dep_method: null, dep_by: me.email, updated_at: new Date().toISOString() }).eq('id', b.id));
       } else {
         const method = ['cash', 'transfer', 'card', 'qpay'].includes(b.method) ? b.method : 'cash';
+        const cur = await q(db.from('parade_orders').select('*').eq('id', b.id).single());
         await q(db.from('parade_orders').update({
-          dep_status: 'paid', dep_amount: s.deposit_amount, dep_method: method, dep_paid_at: new Date().toISOString(), dep_by: me.email, updated_at: new Date().toISOString(),
+          dep_status: 'paid', dep_amount: feeDue(cur, s) || feeRequired(cur, s), dep_method: method, dep_paid_at: new Date().toISOString(), dep_by: me.email, updated_at: new Date().toISOString(),
         }).eq('id', b.id).eq('status', 'paid'));
       }
       log(me.email, 'deposit_mark', { id: b.id, paid: b.paid !== false, method: b.method });
@@ -1164,7 +1353,7 @@ async function admin(action: string, b: any, req: Request) {
     case 'admin_settings_save': {
       const patch: any = { updated_at: new Date().toISOString() };
       for (const k of SETTING_KEYS) if (b.settings && k in b.settings) patch[k] = b.settings[k] === '' && ['sales_until'].includes(k) ? null : b.settings[k];
-      for (const k of ['price', 'start_no', 'total', 'max_per_order', 'hold_minutes', 'transfer_hold_hours', 'deposit_amount']) if (k in patch) patch[k] = Math.round(Number(patch[k]));
+      for (const k of ['price', 'start_no', 'total', 'max_per_order', 'hold_minutes', 'transfer_hold_hours', 'deposit_amount', 'viewer_price', 'paddle_start']) if (k in patch) patch[k] = Math.round(Number(patch[k]));
       if ('sales_open' in patch) patch.sales_open = !!patch.sales_open;
       if ('event_public' in patch) patch.event_public = !!patch.event_public;
       if ('deposit_open' in patch) patch.deposit_open = !!patch.deposit_open;
@@ -1243,6 +1432,7 @@ Deno.serve(async (req) => {
       case 'create': return json(await actCreate(body, req));
       case 'register': return json(await actRegister(body, req));
       case 'deposit_start': return json(await actDepositStart(body));
+      case 'upgrade': return json(await actUpgrade(body));
       case 'deposit_status': return json(await actDepositStatus(body));
       case 'deposit_callback': return await actDepositCallback(url);
       case 'status': return json(await actStatus(body));

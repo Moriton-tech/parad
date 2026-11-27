@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061845">
+<link rel="stylesheet" href="css/style.css?v=2611271330">
+<link rel="stylesheet" href="css/pm.css?v=2611271330">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>
@@ -135,6 +136,7 @@
       <div class="chips-row" id="sys"></div>
       <div class="kpis" id="kpis"></div>
       <div class="panel"><h3 class="h">Өдрөөр бүртгэл</h3><div class="days" id="days"></div></div>
+      <div class="panel" style="margin-top:16px"><h3 class="h">Худалдан авагчийн сонирхол (аймгаар)</h3><div id="interests" class="small"></div></div>
     </div>
 
     <!-- ЗАХИАЛГА -->
@@ -146,11 +148,12 @@
           <option value="expired">Хугацаа дууссан</option><option value="cancelled">Цуцалсан</option><option value="refund">Буцаалт хэрэгтэй</option>
         </select>
         <select class="input" id="o-src"><option value="">Онлайн + гараар</option><option value="online">Онлайн</option><option value="manual">Гараар</option></select>
+        <select class="input" id="o-kind"><option value="">Үзэгч + худалдан авагч</option><option value="viewer">Үзэгч</option><option value="buyer">Худалдан авагч</option><option value="bl">Хар жагсаалт</option></select>
         <button class="btn btn-light btn-sm" id="o-reload">↻ Шинэчлэх</button>
         <button class="btn btn-light btn-sm" id="o-csv">⬇ Excel (CSV)</button>
       </div>
       <div class="count-line" id="o-count"></div>
-      <div class="table-wrap"><table class="tbl"><thead><tr><th>Огноо</th><th>Код</th><th>Худалдан авагч</th><th>Тоо</th><th>Дүн</th><th>Дуудлагын хураамж</th><th>Төлөв</th><th>Тасалбар</th><th>Үйлдэл</th></tr></thead><tbody id="o-body"></tbody></table></div>
+      <div class="table-wrap"><table class="tbl"><thead><tr><th>Огноо</th><th>Код</th><th>Худалдан авагч</th><th>Тоо</th><th>Дүн</th><th>Тасалбар · пайз</th><th>Төлөв</th><th>Тасалбар</th><th>Үйлдэл</th></tr></thead><tbody id="o-body"></tbody></table></div>
     </div>
 
     <!-- ТАСАЛБАР -->
@@ -177,6 +180,10 @@
             <input class="input grow" id="m-code" placeholder="Тасалбарын дугаар (11111) эсвэл код" inputmode="numeric" autocomplete="off">
             <button class="btn btn-navy" type="submit">Шалгах</button>
           </form>
+          <form class="filters" id="paddle-form" style="margin-top:8px">
+            <input class="input grow" id="p-no" placeholder="Пайзны дугаар (жишээ 88)" inputmode="numeric" autocomplete="off">
+            <button class="btn btn-light" type="submit">Пайз харах</button>
+          </form>
         </div>
         <div>
           <div class="result" id="result"><div class="muted">QR уншуулах эсвэл дугаар оруулна уу.</div></div>
@@ -201,7 +208,11 @@
               <div><label>Аймаг / хот <span class="req">*</span></label><select class="input" name="aimag" id="i-aimag" required></select></div>
               <div><label>Сум / дүүрэг <span class="req">*</span></label><input class="input" name="sum" maxlength="60" required></div>
             </div>
-            <div><label>Цол</label><select class="input" name="title" id="i-title"></select></div>
+            <div class="row">
+              <div><label>Цол</label><select class="input" name="title" id="i-title"></select></div>
+              <div><label>Тасалбарын төрөл</label><select class="input" name="kind" id="i-kind"><option value="viewer">Үзэгч</option><option value="buyer">Адуу худалдан авагч</option></select></div>
+            </div>
+            <div id="i-int" hidden><label>Сонирхол *</label><div id="i-int-list"></div><p class="small muted" style="margin:4px 0 0">Худалдан авагчийн санамжийг (буцаагдахгүй, 24 цагт төлөх, татгалзвал хар жагсаалт) уншиж өгнө.</p></div>
             <label class="check"><input type="checkbox" name="consent_data"> <span>Мэдээлэл цуглуулж, ашиглахыг зөвшөөрсөн <span class="req">*</span></span></label>
             <label class="check"><input type="checkbox" name="consent_marketing"> <span>Мэдээ, санал мэдээлэл хүлээн авахыг зөвшөөрсөн</span></label>
             <div><label>Тэмдэглэл</label><input class="input" name="note" maxlength="200"></div>
@@ -265,7 +276,7 @@
           <form class="form" id="set-form">
             <label class="switch"><input type="checkbox" name="event_public"> Парадын огноо, мэдээллийг сайтад зарлах</label>
             <label class="switch"><input type="checkbox" name="sales_open"> Онлайн бүртгэл нээлттэй</label>
-            <label class="switch"><input type="checkbox" name="deposit_open"> Дуудлагын оролцооны хураамж төлөх хэсгийг нээх (парад дууссаны дараа)</label>
+            <label class="switch"><input type="checkbox" name="deposit_open"> «Адуу худалдан авагч» тасалбарыг онлайнаар (QPay) төлөх нээлттэй</label>
             <div><label>Арга хэмжээний нэр</label><input class="input" name="event_name"></div>
             <div class="row">
               <div><label>Парад эхлэх цаг (тоолуур)</label><input class="input" name="event_at" type="datetime-local"></div>
@@ -276,7 +287,11 @@
               <div><label>Утас</label><input class="input" name="phone"></div>
             </div>
             <div class="row">
-              <div><label>Дуудлагын оролцооны хураамж (₮)</label><input class="input" name="deposit_amount" type="text" inputmode="numeric" autocomplete="off" data-money></div>
+              <div><label>Үзэгчийн тасалбар (₮)</label><input class="input" name="viewer_price" type="text" inputmode="numeric" autocomplete="off" data-money><div class="hint">0 = үнэгүй. Хоол, ундаатай.</div></div>
+              <div><label>Адуу худалдан авагчийн тасалбар (₮)</label><input class="input" name="deposit_amount" type="text" inputmode="numeric" autocomplete="off" data-money><div class="hint">Пайзтай · буцаагдахгүй · дэнчингүй</div></div>
+            </div>
+            <div class="row">
+              <div><label>Пайзны эхлэх дугаар</label><input class="input" name="paddle_start" type="number" min="1"></div>
               <div><label>Нэг захиалгад дээд тоо</label><input class="input" name="max_per_order" type="number" min="1" max="100"></div>
             </div>
             <div class="row">
@@ -321,9 +336,9 @@
 
 <div class="modal-bg" id="modal"><div class="modal"><div class="modal-head"><b id="mh">…</b><button type="button" id="mx">×</button></div><div class="modal-body" id="mb"></div></div></div>
 
-<script src="js/vendor/jsQR.js?v=2611061845"></script>
+<script src="js/vendor/jsQR.js?v=2611271330"></script>
 <script type="module">
-import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611061845';
+import { api as rawApi, auth, esc, money, fmtDT, fmtTime, toast, qrSvg, ticketLink, siteBase, configured, formatMoneyInputs } from './js/app.js?v=2611271330';
 const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
 const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
 const opts = (list, sel) => '<option value="">—</option>' + list.map(a => `<option${a === sel ? ' selected' : ''}>${a}</option>`).join('');
@@ -373,7 +388,7 @@ function show(t) {
 }
 
 async function boot() {
-  if (!configured) { showLogin('js/config.js?v=2611061845 тохиргоо хийгдээгүй байна.'); return; }
+  if (!configured) { showLogin('js/config.js?v=2611271330 тохиргоо хийгдээгүй байна.'); return; }
   if (!auth.get()) { showLogin(); return; }
   try { me = await api('admin_me'); }
   catch (e) { auth.logout(); showLogin(e.message); return; }
@@ -403,7 +418,9 @@ async function loadStats() {
     k('Бүртгэл', s.sold, `Онлайн ${s.sold_online} · Гараар ${s.sold_manual}`) +
     k('Үүдээр орсон', s.entered, s.sold ? `${(s.entered / s.sold * 100).toFixed(0)}% нь ирсэн` : '', '', s.sold ? (s.entered / s.sold * 100).toFixed(1) : 0) +
     k('Маркетингийн зөвшөөрөл', s.consent_mkt, s.sold ? `${(s.consent_mkt / s.sold * 100).toFixed(0)}% зөвшөөрсөн` : '') +
-    k('Дуудлагын хураамж', `${s.dep_paid} хүн`, money(s.dep_amount)) +
+    k('Үзэгч / Худалдан авагч', `${s.viewers ?? '—'} / ${s.buyers ?? '—'}`, `Пайз авсан ${s.dep_paid} · ${money(s.dep_amount)}`) +
+    k('Тасалбарын орлого', money(s.revenue), s.revenue_qpay ? `QPay ${money(s.revenue_qpay)}` : '') +
+    (s.blacklisted ? k('Хар жагсаалт', s.blacklisted, 'Хожоод татгалзсан', 'warn') : '') +
     k('Аймгаар', (s.by_aimag || []).length, (s.by_aimag || []).slice(0, 4).map(x => `${esc(x.aimag)} ${x.qty}`).join(' · ')) +
     (s.refund_orders ? k('Буцаалт хэрэгтэй', s.refund_orders, 'Захиалга таб → «Буцаалт» шүүлтүүр', 'warn') : '') +
     (s.email_errors ? k('Имэйл очоогүй', s.email_errors, '<button class="btn btn-danger btn-sm" id="resend-failed" style="margin-top:6px">Бүгдэд дахин илгээх</button>', 'warn') : '');
@@ -418,6 +435,11 @@ async function loadStats() {
   };
   const days = s.by_day || [], max = Math.max(1, ...days.map(d => d.qty));
   $('days').innerHTML = days.length ? days.map(d => `<div><b>${d.qty}</b><i style="height:${(d.qty / max * 110).toFixed(0)}px"></i>${d.day.slice(5).replace('-', '.')}</div>`).join('') : '<p class="muted small">Борлуулалт хараахан алга.</p>';
+  const ints = s.interests || [], iba = s.interests_by_aimag || [];
+  const aimags = [...new Set(iba.map(x => x.aimag))];
+  $('interests').innerHTML = ints.length ? `<p style="margin:0 0 8px">${ints.map(x => `<span class="tag gray">${esc(x.interest)} ${x.qty}</span>`).join(' ')}</p>
+    <div class="table-wrap"><table class="tbl" style="min-width:420px"><thead><tr><th>Аймаг</th><th>Сонирхол</th></tr></thead><tbody>${aimags.map(a => `<tr><td>${esc(a)}</td><td>${iba.filter(x => x.aimag === a).map(x => `${esc(x.interest)} <b>${x.qty}</b>`).join(' · ')}</td></tr>`).join('')}</tbody></table></div>`
+    : '<p class="muted">Худалдан авагч хараахан бүртгүүлээгүй.</p>';
   const dot = $('dot-orders'); if (dot) { dot.textContent = s.refund_orders + s.email_errors; dot.classList.toggle('hidden', !(s.refund_orders + s.email_errors)); }
 }
 
@@ -428,14 +450,17 @@ async function loadOrders() {
   renderOrders();
 }
 function filteredOrders() {
-  const q = $('o-q').value.trim().toLowerCase(), st = $('o-st').value, src = $('o-src').value;
-  return orders.filter(o => (!st || o.status === st) && (!src || o.source === src) && (!q ||
-    [o.code, o.name, o.phone, o.phone2, o.email, o.aimag, o.sum, o.title, ...(o.parade_tickets || []).map(t => t.number)].join(' ').toLowerCase().includes(q)));
+  const q = $('o-q').value.trim().toLowerCase(), st = $('o-st').value, src = $('o-src').value, kd = $('o-kind').value;
+  const pq = q.match(/^(?:#|п|пайз\s*)(\d+)$/);                  // «#88» эсвэл «п88» → пайзны дугаар
+  return orders.filter(o => (!st || o.status === st) && (!src || o.source === src)
+    && (!kd || (kd === 'bl' ? o.blacklisted : o.kind === kd))
+    && (!q || (pq ? String(o.paddle_no) === pq[1] :
+    [o.code, o.name, o.phone, o.phone2, o.email, o.aimag, o.sum, o.title, ...(o.interests || []), ...(o.parade_tickets || []).map(t => t.number)].join(' ').toLowerCase().includes(q))));
 }
 function renderOrders() {
   const list = filteredOrders();
   const paid = list.filter(o => o.status === 'paid');
-  $('o-count').textContent = `${list.length} бүртгэл · хураамж төлсөн ${paid.filter(o => o.dep_status === 'paid').length} · мэдээ авах зөвшөөрөлтэй ${paid.filter(o => o.consent_marketing).length}`;
+  $('o-count').textContent = `${list.length} бүртгэл · худалдан авагч ${paid.filter(o => o.kind === 'buyer').length} (пайз ${paid.filter(o => o.paddle_no && o.kind === 'buyer').length}) · мэдээ авах зөвшөөрөлтэй ${paid.filter(o => o.consent_marketing).length} · «#88» гэж пайзаар хайна`;
   $('o-body').innerHTML = list.slice(0, 600).map(o => {
     const tk = (o.parade_tickets || []).filter(t => t.status === 'valid').map(t => t.number).sort((a, b) => a - b);
     const acts = [];
@@ -445,8 +470,13 @@ function renderOrders() {
     if (o.status === 'refund') acts.push(`<button class="btn btn-light btn-sm" data-a="refunded" data-id="${o.id}">Буцаасан ✓</button>`);
     if (o.status === 'cancelled' && o.paid_at) acts.push(`<button class="btn btn-ok btn-sm" data-a="restore" data-id="${o.id}">↩ Сэргээх</button>`);
     if (o.status === 'paid') {
-      if (o.dep_status === 'paid') acts.push(`<button class="btn btn-light btn-sm" data-a="dep-undo" data-id="${o.id}">Хураамж ✓ (буцаах)</button>`);
-      else { acts.push(`<button class="btn btn-ok btn-sm" data-a="dep-cash" data-id="${o.id}">Хураамж: бэлэн</button>`); acts.push(`<button class="btn btn-ok btn-sm" data-a="dep-transfer" data-id="${o.id}">Хураамж: данс</button>`); }
+      const need = o.kind === 'buyer' ? (settings?.deposit_amount ?? 0) : (settings?.viewer_price ?? 0);
+      if (o.dep_status === 'paid') acts.push(`<button class="btn btn-light btn-sm" data-a="dep-undo" data-id="${o.id}">Төлбөр ✓ (буцаах)</button>`);
+      else if (need > (o.fee_paid || 0)) { acts.push(`<button class="btn btn-ok btn-sm" data-a="dep-cash" data-id="${o.id}">Төлсөн: бэлэн</button>`); acts.push(`<button class="btn btn-ok btn-sm" data-a="dep-transfer" data-id="${o.id}">Төлсөн: данс</button>`); }
+      if (o.kind === 'viewer') acts.push(`<button class="btn btn-light btn-sm" data-a="to-buyer" data-id="${o.id}">→ Худалдан авагч</button>`);
+      if (o.kind === 'buyer') acts.push(o.blacklisted
+        ? `<button class="btn btn-light btn-sm" data-a="bl-off" data-id="${o.id}">Хар жагсаалтаас гаргах</button>`
+        : `<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="bl-on" data-id="${o.id}">Хар жагсаалт</button>`);
     }
     acts.push(`<button class="btn btn-light btn-sm" data-a="edit" data-id="${o.id}">Засах</button>`);
     if (['pending', 'paid'].includes(o.status)) acts.push(`<button class="btn btn-light btn-sm" style="color:var(--red)" data-a="cancel" data-id="${o.id}">Цуцлах</button>`);
@@ -456,13 +486,13 @@ function renderOrders() {
       <td><b>${esc(o.name)}</b>${o.title ? ` <span class="tag gray">${esc(o.title)}</span>` : ''}<small>${esc([o.phone, o.phone2].filter(Boolean).join(', '))}</small>${o.aimag ? `<small>${esc([o.aimag, o.sum].filter(Boolean).join(', '))}</small>` : ''}<small>${esc(o.email || '')}${o.email_error ? ` <span title="${esc(o.email_error)}" style="color:var(--red)">⚠ имэйл очоогүй</span>` : (o.email_sent_at && o.status === 'paid' && o.email ? ' ✓' : '')}</small>${o.note ? `<small style="color:#7a5b12">${esc(o.note)}</small>` : ''}</td>
       <td>${o.qty}</td>
       <td class="mono">${money(o.paid_amount ?? o.amount)}</td>
-      <td>${o.status === 'paid' ? (o.dep_status === 'paid' ? `<span class="tag paid">Хураамж ${METHOD[o.dep_method] || ''}</span>` : '<span class="tag gray">Хураамж —</span>') : (METHOD[o.pay_method] || esc(o.pay_method))}${o.consent_marketing ? '<small>Мэдээ ✓</small>' : ''}</td>
+      <td>${o.status === 'paid' ? `<span class="tag ${o.kind === 'buyer' ? 'paid' : 'gray'}">${o.kind === 'buyer' ? 'Худалдан авагч' : 'Үзэгч'}</span>${o.kind === 'buyer' && o.paddle_no ? ` <b class="mono">#${o.paddle_no}</b>` : ''}<small>${o.dep_status === 'paid' ? `Төлсөн ${money(o.fee_paid)} · ${METHOD[o.dep_method] || ''}` : (o.fee_paid ? `Төлсөн ${money(o.fee_paid)} · зөрүү төлөөгүй` : 'Төлбөр —')}</small>${o.blacklisted ? `<small style="color:var(--red)">⛔ ${esc(o.blacklist_reason || 'Хар жагсаалт')}</small>` : ''}${(o.interests || []).length ? `<small>${esc(o.interests.join(', '))}</small>` : ''}` : (METHOD[o.pay_method] || esc(o.pay_method))}${o.consent_marketing ? '<small>Мэдээ ✓</small>' : ''}</td>
       <td><span class="tag ${o.status}">${STATUS[o.status] || o.status}</span>${o.status === 'pending' ? `<small>${fmtTime(o.expires_at)} хүртэл</small>` : ''}</td>
       <td class="nums">${tk.join(', ') || '—'}</td>
       <td><div class="acts">${acts.join('')}</div></td></tr>`;
   }).join('') || '<tr><td colspan="9" class="muted">Захиалга алга.</td></tr>';
 }
-['o-q', 'o-st', 'o-src'].forEach(id => $(id).addEventListener('input', renderOrders));
+['o-q', 'o-st', 'o-src', 'o-kind'].forEach(id => $(id).addEventListener('input', renderOrders));
 $('o-reload').onclick = loadOrders;
 $('o-body').onclick = async e => {
   const b = e.target.closest('button[data-a]'); if (!b) return;
@@ -470,7 +500,10 @@ $('o-body').onclick = async e => {
   try {
     if (a === 'check') { b.disabled = true; const r = await api('admin_order_check', { id: o.id }); toast(r.after === 'paid' ? 'Төлөгдсөн байна — тасалбар олгогдлоо.' : (r.qpay?.error ? 'QPay: ' + r.qpay.error : 'Төлбөр ороогүй байна.')); }
     else if (a === 'dep-cash' || a === 'dep-transfer') { b.disabled = true; await api('admin_deposit_mark', { id: o.id, method: a === 'dep-cash' ? 'cash' : 'transfer' }); toast('Хураамж төлсөнөөр тэмдэглэлээ'); }
-    else if (a === 'dep-undo') { b.disabled = true; await api('admin_deposit_mark', { id: o.id, paid: false }); toast('Хураамжийн тэмдэглэгээг буцаалаа'); }
+    else if (a === 'dep-undo') { b.disabled = true; await api('admin_deposit_mark', { id: o.id, paid: false }); toast('Төлбөрийн тэмдэглэгээг буцаалаа'); }
+    else if (a === 'to-buyer') return buyerModal(o);
+    else if (a === 'bl-on') { const reason = prompt(`${o.name} (#${o.paddle_no || '—'}) — хар жагсаалтад оруулах шалтгаан:`, 'Хожоод татгалзсан'); if (reason == null) return; await api('admin_order_blacklist', { id: o.id, on: true, reason }); toast('Хар жагсаалтад орууллаа — дуудлагад оролцох эрх хаагдлаа'); }
+    else if (a === 'bl-off') { if (!confirm(`${o.name}-ийг хар жагсаалтаас гаргах уу?`)) return; await api('admin_order_blacklist', { id: o.id, on: false }); toast('Гаргалаа'); }
     else if (a === 'confirm') return confirmModal(o);
     else if (a === 'edit') return editModal(o);
     else if (a === 'resend') { b.disabled = true; await api('admin_resend', { id: o.id }); toast('Имэйл илгээлээ: ' + o.email); }
@@ -519,6 +552,24 @@ function cancelModal(o) {
     catch (ex) { $('xf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
   };
 }
+const INTERESTS = ['Уралдах эр даага', 'Удам сайтай гүү', 'Азарга', 'Унага, даага', 'Уралдааны морь', 'Бусад'];
+const intChecks = (sel = []) => `<div class="interest-pick">${INTERESTS.map(i => `<label class="chip-check"><input type="checkbox" name="interest" value="${i}"${sel.includes(i) ? ' checked' : ''}><span>${i}</span></label>`).join('')}</div>`;
+function buyerModal(o) {
+  const diff = Math.max((settings?.deposit_amount || 0) - (o.fee_paid || 0), 0);
+  modal('Үзэгчийг худалдан авагч болгох', `<p><b>${esc(o.name)}</b> · ${esc(o.phone)} · ${esc([o.aimag, o.sum].filter(Boolean).join(', '))}</p>
+    <form class="form" id="bf"><div><label>Сонирхол *</label>${intChecks(o.interests || [])}</div>
+    <div class="alert warn small">Санамжийг (тасалбар буцаагдахгүй, ${'24'} цагт төлөх, татгалзвал хар жагсаалт) хүнд уншиж өгсөн байх.</div>
+    <label class="check"><input type="checkbox" name="ack"> <span>Санамжийг уншиж өгсөн *</span></label>
+    <p class="small">Зөрүү: <b>${money(diff)}</b>. Хөрвүүлсний дараа «Төлсөн: бэлэн/данс» дарахад пайзны дугаар олгогдоно.</p>
+    <div id="bf-err"></div><button class="btn btn-ok btn-block">Худалдан авагч болгох</button></form>`);
+  $('bf').onsubmit = async e => {
+    e.preventDefault(); const f = e.target;
+    const interests = [...f.querySelectorAll('input[name=interest]:checked')].map(x => x.value);
+    if (!interests.length || !f.ack.checked) { $('bf-err').innerHTML = '<div class="alert error">Сонирхол, санамжийг тэмдэглэнэ үү.</div>'; return; }
+    try { await api('admin_order_update', { id: o.id, kind: 'buyer', interests }); closeModal(); toast('Худалдан авагч боллоо'); loadOrders(); }
+    catch (ex) { $('bf-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
+  };
+}
 function editModal(o) {
   modal('Захиалга засах', `<form class="form" id="ef">
     <div><label>Нэр</label><input class="input" name="name" value="${esc(o.name)}"></div>
@@ -526,11 +577,13 @@ function editModal(o) {
     <div class="row"><div><label>Аймаг / хот</label><select class="input" name="aimag">${opts(AIMAGS, o.aimag)}</select></div><div><label>Сум / дүүрэг</label><input class="input" name="sum" value="${esc(o.sum || '')}"></div></div>
     <div class="row"><div><label>Цол</label><select class="input" name="title">${opts(TITLES, o.title)}</select></div><div><label>Имэйл</label><input class="input" name="email" value="${esc(o.email || '')}"></div></div>
     <div><label>Тэмдэглэл</label><input class="input" name="note" value="${esc(o.note || '')}"></div>
+    ${o.kind === 'buyer' ? `<div><label>Сонирхол</label>${intChecks(o.interests || [])}</div>` : ''}
     <div id="ef-err"></div><button class="btn btn-navy btn-block">Хадгалах</button>
     ${o.status === 'paid' ? '<p class="small muted" style="margin:0">Имэйл буруу байсан бол засаад «Имэйл дахин» дарна.</p>' : ''}</form>`);
   $('ef').onsubmit = async e => {
     e.preventDefault(); const f = e.target;
-    try { await api('admin_order_update', { id: o.id, name: f.name.value, phone: f.phone.value, phone2: f.phone2.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, note: f.note.value }); closeModal(); toast('Хадгаллаа'); loadOrders(); }
+    const extra = o.kind === 'buyer' ? { interests: [...f.querySelectorAll('input[name=interest]:checked')].map(x => x.value) } : {};
+    try { await api('admin_order_update', { id: o.id, name: f.name.value, phone: f.phone.value, phone2: f.phone2.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, note: f.note.value, ...extra }); closeModal(); toast('Хадгаллаа'); loadOrders(); }
     catch (ex) { $('ef-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
   };
 }
@@ -660,7 +713,11 @@ async function handleCode(code) {
   try {
     const r = await api('admin_scan', { code, mode });
     const t = r.ticket || {};
-    const who = `<div>${esc(r.name || '')}${r.phone ? ' · ' + esc(String(r.phone).slice(-4).padStart(8, '•')) : ''}</div>`;
+    const ps = r.pass;
+    const who = `<div>${esc(r.name || '')}${r.phone ? ' · ' + esc(String(r.phone).slice(-4).padStart(8, '•')) : ''}</div>`
+      + (ps ? `<div style="margin-top:6px"><span class="tag ${ps.kind === 'buyer' ? 'paid' : 'gray'}">${ps.kind === 'buyer' ? 'Худалдан авагч' : 'Үзэгч'}</span>${ps.kind === 'buyer' && ps.paddle_no ? ` <b>Пайз #${ps.paddle_no}</b>` : ''}</div>`
+        + (ps.due > 0 ? `<div style="margin-top:6px;font-weight:700;color:#7a5b12">⚠ Тасалбарын төлбөр дутуу: ${money(ps.due)}</div>` : '')
+        + (ps.blacklisted ? '<div style="margin-top:6px;font-weight:700;color:var(--red)">⛔ Хар жагсаалт — дуудлагад оролцохгүй</div>' : '') : '');
     if (r.result === 'ok') { res.className = 'result ok'; res.innerHTML = `<div class="big">✓ ${mode === 'entry' ? 'Орж болно' : MODE_LBL[mode] + ' олгоно'}</div><div class="no">№${t.number}</div>${who}`; beep(true); }
     else if (r.result === 'already') { res.className = 'result already'; res.innerHTML = `<div class="big">${mode === 'entry' ? 'Аль хэдийн орсон' : MODE_LBL[mode] + ' авсан'}</div><div class="no">№${t.number}</div><div><b>${fmtTime(r.at)}</b>-д уншуулсан</div>${who}`; beep(false); }
     else if (r.result === 'cancelled') { res.className = 'result bad'; res.innerHTML = `<div class="big">Хүчингүй тасалбар</div><div class="no">№${t.number}</div>${who}`; beep(false); }
@@ -672,17 +729,35 @@ async function handleCode(code) {
   setTimeout(() => { busy = false; }, 1200);
 }
 
+$('paddle-form').onsubmit = async e => {
+  e.preventDefault();
+  const no = $('p-no').value.trim(); if (!no) return;
+  try {
+    const r = await api('admin_paddle', { no });
+    const o = r.order;
+    modal(`Пайз #${o.paddle_no}`, `<div class="paddle-no" style="text-align:center">#${o.paddle_no}</div>
+      <p style="text-align:center;margin:8px 0 14px"><b style="font-size:18px">${esc(o.name)}</b>${o.title ? ` <span class="tag gray">${esc(o.title)}</span>` : ''}<br>${esc([o.aimag, o.sum].filter(Boolean).join(', '))} · ${esc(o.phone)}</p>
+      ${o.blacklisted ? `<div class="alert error">⛔ Хар жагсаалт: ${esc(o.blacklist_reason || '')}</div>` : o.dep_status === 'paid' ? '<div class="alert ok">Тасалбар бүрэн төлөгдсөн · дуудлагад оролцоно</div>' : '<div class="alert warn">Тасалбар бүрэн төлөгдөөгүй</div>'}
+      ${(o.interests || []).length ? `<p class="small">Сонирхол: ${esc(o.interests.join(', '))}</p>` : ''}
+      ${(r.won || []).length ? `<p class="small"><b>Хожсон:</b> ${r.won.map(h => `${h.lot_no ? 'Лот ' + h.lot_no + ' · ' : ''}${esc(h.name)} — ${money(h.sold_price)}`).join('<br>')}</p>` : ''}`);
+  } catch (ex) { toast(ex.message, 4000); }
+};
+
 // ---------------- гараар олгох
 function issueHint() {}
 $('i-aimag').innerHTML = opts(AIMAGS); $('i-title').innerHTML = '<option value="">—</option>' + opts(TITLES);
+$('i-int-list').innerHTML = intChecks();
+$('i-kind').onchange = e => { $('i-int').hidden = e.target.value !== 'buyer'; };
 $('issue-form').onsubmit = async e => {
   e.preventDefault(); const f = e.target, btn = f.querySelector('button[type=submit]');
   $('i-err').innerHTML = ''; btn.disabled = true;
   try {
-    const r = await api('admin_register', { name: f.name.value, phone: f.phone.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, note: f.note.value, consent_data: f.consent_data.checked, consent_marketing: f.consent_marketing.checked });
+    const kind = f.kind.value, interests = [...f.querySelectorAll('#i-int-list input:checked')].map(x => x.value);
+    if (kind === 'buyer' && !interests.length) throw new Error('Худалдан авагчийн сонирхлыг сонгоно уу.');
+    const r = await api('admin_register', { name: f.name.value, phone: f.phone.value, aimag: f.aimag.value, sum: f.sum.value, title: f.title.value, email: f.email.value, note: f.note.value, consent_data: f.consent_data.checked, consent_marketing: f.consent_marketing.checked, kind, interests });
     $('issued').innerHTML = `<div class="alert ${r.existing ? 'warn' : 'ok'}">${r.existing ? 'Энэ утсаар өмнө нь бүртгэгдсэн байна — өмнөх пасс: ' : 'Бүртгэгдлээ: '}${esc(r.order.code)} · ${esc(r.order.name)}${!r.existing && r.order.email ? ' · имэйл илгээж байна' : ''}</div>
       <div class="mini-list">${(r.tickets || []).map(t => `<a class="mini" href="${ticketLink(t.token)}" target="_blank" rel="noopener"><div class="l"><small>ДУГААР</small><b>№${t.number}</b><span>${esc(r.order.name)} · Нээх →</span></div><div class="r">${qrSvg(ticketLink(t.token), { margin: 1 })}</div></a>`).join('')}</div>`;
-    f.reset(); toast(r.existing ? 'Өмнө бүртгэгдсэн' : 'Бүртгэлээ');
+    f.reset(); $('i-int').hidden = true; toast(r.existing ? 'Өмнө бүртгэгдсэн' : 'Бүртгэлээ');
   } catch (ex) { $('i-err').innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; }
   btn.disabled = false;
 };

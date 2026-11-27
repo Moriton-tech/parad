@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061845">
-<link rel="stylesheet" href="css/pm.css?v=2611061845">
+<link rel="stylesheet" href="css/style.css?v=2611271330">
+<link rel="stylesheet" href="css/pm.css?v=2611271330">
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 </head>
@@ -19,7 +19,7 @@
 <footer class="site-footer" id="site-footer"></footer>
 
 <script type="module">
-import { api, esc, money, fmtDay, fmtTime, fmtWeekday, qrSvg, ticketLink, param, startCountdown, renderChrome, toast } from './js/app.js?v=2611061845';
+import { api, esc, money, fmtDay, fmtTime, fmtWeekday, qrSvg, ticketLink, param, startCountdown, renderChrome, toast } from './js/app.js?v=2611271330';
 
 const root = document.getElementById('root');
 const token = (param('t') || '').toLowerCase();
@@ -29,36 +29,85 @@ function stub(label, at) {
 }
 
 let depTimer;
-function renderDeposit(dep, ev) {
-  clearTimeout(depTimer);
-  const box = document.getElementById('dep-box');
-  const amt = money(dep.amount);
-  if (dep.status === 'paid') {
-    box.innerHTML = `<div class="alert ok" style="text-align:left"><b>Дуудлага худалдаанд оролцох эрх идэвхтэй.</b><br>Оролцооны хураамж (${amt}) төлөгдсөн. Дуудлагын хуудсанд энэ утсаараа бооцоо тавина.</div><a class="btn btn-accent" href="stallions.html">Дуудлагын азарганууд →</a>`;
-    return;
-  }
-  if (!dep.open) {
-    box.innerHTML = `<div class="alert info" style="text-align:left"><b>Дуудлага худалдаа</b><br>Азаргын парад дууссаны дараа дуудлага худалдаа эхэлнэ. Оролцохын тулд ${amt} оролцооны хураамж төлсөн байх ёстой — төлбөр энэ хуудсанд нээгдэнэ.</div>`;
-    return;
-  }
+const INTERESTS = ['Уралдах эр даага', 'Удам сайтай гүү', 'Азарга', 'Унага, даага', 'Уралдааны морь', 'Бусад'];
+const NOTICE = dep => [
+  `Тасалбарын төлбөр (${money(dep.buyer_price)}) буцаагдахгүй. Дэнчин байршуулахгүй.`,
+  'Хожсон адууны үнийг 24 цагийн дотор зохион байгуулагчийн дансанд бүрэн төлнө; адууг төлбөр баталгаажсаны дараа 48 цагт хүлээлгэн өгнө.',
+  'Хожоод татгалзвал тасалбар хүчингүй болж, дуудлагад оролцох эрх хаагдана. Адууг дараагийн хамгийн өндөр санал өгсөн хүнд санал болгоно.',
+];
+
+function payBlock(dep, ev, label) {
+  const amt = money(dep.amount || dep.due);
   if (dep.status === 'pending' && dep.qpay && (dep.qpay.qr_text || dep.qpay.qr_image)) {
     const q = dep.qpay, banks = (q.urls || []).filter(u => u.link);
     const qr = q.qr_image ? `<img src="data:image/png;base64,${q.qr_image}" alt="QPay QR" style="width:220px;background:#fff;padding:8px;border-radius:12px">` : `<div style="width:220px;margin:0 auto;background:#fff;padding:8px;border-radius:12px">${qrSvg(q.qr_text, { margin: 1 })}</div>`;
-    box.innerHTML = `<div class="alert info" style="text-align:left"><b>Оролцооны хураамж ${amt}</b> — банкны аппаараа QR уншуулж төлнө үү. Төлөгдмөгц энэ хуудас шинэчлэгдэнэ.</div>
+    return `<div class="alert info" style="text-align:left"><b>${label} ${amt}</b> — банкны аппаараа QR уншуулж төлнө үү. Төлөгдмөгц энэ хуудас шинэчлэгдэнэ.</div>
       <div style="display:flex;justify-content:center">${qr}</div>
       ${banks.length ? `<div class="banks" style="margin-top:10px">${banks.slice(0, 8).map(b => `<a href="${esc(b.link)}" rel="noopener"><span>${esc(b.description || b.name)}</span></a>`).join('')}</div>` : ''}
       <button class="btn btn-ghost" id="dep-check" type="button">Төлбөр шалгах</button>`;
-    document.getElementById('dep-check').onclick = async () => { const r = await api('deposit_status', { t: token }); if (r.deposit.status === 'paid') load(); else toast('Төлбөр хараахан орж ирээгүй байна.'); };
-    depTimer = setTimeout(async () => { try { const r = await api('deposit_status', { t: token }); if (r.deposit.status === 'paid') load(); else renderDeposit(r.deposit, ev); } catch { renderDeposit(dep, ev); } }, 5000);
-    return;
   }
-  box.innerHTML = `<div class="alert info" style="text-align:left"><b>Дуудлага худалдаа нээгдлээ.</b> Оролцохын тулд ${amt} оролцооны хураамж төлнө.</div>
-    <button class="btn btn-accent btn-lg" id="dep-pay" type="button">${amt} төлөх (QPay)</button>
+  if (!dep.open) {
+    return `<div class="alert info" style="text-align:left"><b>${label}: ${amt}</b><br>Онлайн төлбөр удахгүй нээгдэнэ. Одоо ажилтанд бэлнээр/дансаар төлж баталгаажуулж болно: ${esc(ev.phone)}${dep.bank_info ? `<br>${esc(dep.bank_info)}` : ''}</div>`;
+  }
+  return `<button class="btn btn-accent btn-lg" id="dep-pay" type="button">${amt} төлөх (QPay)</button>
     <div class="tip">QPay ажиллахгүй бол ажилтанд бэлнээр/данс руу төлөөд баталгаажуулна: ${esc(ev.phone)}${dep.bank_info ? `<br>${esc(dep.bank_info)}` : ''}</div>`;
-  document.getElementById('dep-pay').onclick = async e => {
+}
+
+function upgradeForm(dep) {
+  return `<div class="panel" style="text-align:left;margin-top:10px;color:var(--ink)" id="up-form">
+    <b style="color:var(--navy)">Адуу худалдан авагч болох</b>
+    <p class="small muted" style="margin:4px 0 8px">Зөрүү: <b>${money(Math.max(dep.buyer_price - dep.fee_paid, 0))}</b>. Төлмөгц пайзны дугаар олгогдоно.</p>
+    <label class="small" style="font-weight:700">Ямар адуу авах сонирхолтой вэ? *</label>
+    <div class="interest-pick">${INTERESTS.map(i => `<label class="chip-check"><input type="checkbox" name="interest" value="${i}"${(dep.interests || []).includes(i) ? ' checked' : ''}><span>${i}</span></label>`).join('')}</div>
+    <div class="notice-box"><b>Худалдан авагчийн санамж</b><ul>${NOTICE(dep).map(t => `<li>${esc(t)}</li>`).join('')}</ul></div>
+    <label class="check"><input type="checkbox" id="up-ack"> <span>Санамжтай танилцсан, зөвшөөрч байна. *</span></label>
+    <div id="up-err" style="margin-top:8px"></div>
+    <button class="btn btn-accent btn-block" id="up-go" type="button" style="margin-top:8px">Худалдан авагч болгох</button>
+  </div>`;
+}
+
+function renderDeposit(dep, ev) {
+  clearTimeout(depTimer);
+  const box = document.getElementById('dep-box');
+  let html = '';
+  if (dep.blacklisted) {
+    html = `<div class="alert error" style="text-align:left"><b>Дуудлага худалдаанд оролцох эрх хаагдсан.</b><br>Зохион байгуулагчтай холбогдоно уу: ${esc(ev.phone)}</div>`;
+  } else if (dep.kind === 'buyer') {
+    html = dep.status === 'paid'
+      ? `<div class="alert ok" style="text-align:left"><b>Адуу худалдан авагч · дуудлагад оролцох эрх идэвхтэй.</b><br>Танхимд энэ дугаартай пайзаа өргөж оролцоно:</div>
+         <div class="paddle-no" style="text-align:center;color:#fff">№ ${esc(dep.paddle_no ?? '—')}</div>
+         <a class="btn btn-accent" href="stallions.html">Дуудлагын адуунууд →</a>`
+      : payBlock(dep, ev, 'Адуу худалдан авагчийн тасалбар');
+  } else {
+    html = dep.status === 'paid'
+      ? `<div class="alert info" style="text-align:left"><b>Үзэгчийн тасалбар${dep.required ? ' · төлөгдсөн' : ''}.</b><br>Үзэгчийн тасалбараар дуудлага худалдаанд оролцох боломжгүй. Адуу авах бол зөрүүг төлж «Адуу худалдан авагч» болгоно.</div>`
+      : payBlock(dep, ev, 'Үзэгчийн тасалбар');
+    html += `<button class="btn btn-ghost" id="up-open" type="button">Адуу худалдан авагч болох →</button>`;
+  }
+  box.innerHTML = html;
+  const chk = document.getElementById('dep-check');
+  if (chk) {
+    chk.onclick = async () => { const r = await api('deposit_status', { t: token }); if (r.deposit.status === 'paid') load(); else toast('Төлбөр хараахан орж ирээгүй байна.'); };
+    depTimer = setTimeout(async () => { try { const r = await api('deposit_status', { t: token }); if (r.deposit.status === 'paid') load(); else renderDeposit(r.deposit, ev); } catch { renderDeposit(dep, ev); } }, 5000);
+  }
+  const pay = document.getElementById('dep-pay');
+  if (pay) pay.onclick = async e => {
     e.target.disabled = true;
     try { const r = await api('deposit_start', { t: token }); renderDeposit(r.deposit, ev); if (!r.deposit.qpay && r.deposit.status !== 'paid') toast('QPay түр ажиллахгүй байна. Ажилтанд төлж баталгаажуулна уу.'); }
     catch (ex) { toast(ex.message); e.target.disabled = false; }
+  };
+  const open = document.getElementById('up-open');
+  if (open) open.onclick = () => {
+    open.insertAdjacentHTML('afterend', upgradeForm(dep)); open.remove();
+    document.getElementById('up-go').onclick = async e => {
+      const f = document.getElementById('up-form'), err = document.getElementById('up-err');
+      const interests = [...f.querySelectorAll('input[name=interest]:checked')].map(x => x.value);
+      if (!interests.length) { err.innerHTML = '<div class="alert error">Сонирхлоо сонгоно уу.</div>'; return; }
+      if (!document.getElementById('up-ack').checked) { err.innerHTML = '<div class="alert error">Санамжтай танилцсанаа тэмдэглэнэ үү.</div>'; return; }
+      e.target.disabled = true;
+      try { const r = await api('upgrade', { t: token, interests, notice_ack: true }); toast('Худалдан авагч болголоо. Зөрүүг төлнө үү.'); renderDeposit(r.deposit, ev); load(); }
+      catch (ex) { err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; e.target.disabled = false; }
+    };
   };
 }
 
@@ -75,7 +124,7 @@ async function load() {
       <article class="eticket">
         <div class="et-top">
           <div class="et-brand"><img src="img/parad-wordmark-onnavy.png" alt="Parad.mn"></div>
-          <div class="et-title"><span>Бүртгэлийн пасс</span><b>Парад</b></div>
+          <div class="et-title"><span>${dep.kind === 'buyer' ? 'Адуу худалдан авагч' : 'Үзэгчийн тасалбар'}</span><b>Парад</b></div>
           <div class="et-row">
             <div class="et-no"><small>СУГАЛААНЫ ДУГААР</small><b>№${t.number}</b></div>
             <div class="et-date">${fmtDay(ev.event_at)} · ${fmtTime(ev.event_at)}<small>${fmtWeekday(ev.event_at)} · ${esc(ev.location)}</small></div>
@@ -89,7 +138,7 @@ async function load() {
         </div>
         <div class="et-stubs">
           <div class="et-stub"><b>Сугалаа</b><small>№${t.number}</small></div>
-          <div class="et-stub ${dep.status === 'paid' ? 'used' : ''}"><b>Дуудлага</b><small>${dep.status === 'paid' ? '✓ Төлсөн' : 'Хураамж төлөөгүй'}</small></div>
+          <div class="et-stub ${dep.kind === 'buyer' && dep.status === 'paid' ? 'used' : ''}"><b>${dep.kind === 'buyer' ? 'Пайз' : 'Төрөл'}</b><small>${dep.kind === 'buyer' ? (dep.status === 'paid' ? '№ ' + esc(dep.paddle_no ?? '—') : 'Төлөөгүй') : 'Үзэгч'}</small></div>
         </div>
       </article>
       <div class="et-actions" id="dep-box" style="margin-top:14px"></div>

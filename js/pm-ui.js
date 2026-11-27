@@ -1,5 +1,5 @@
 // parad.mn — адууны карт, шошго (нүүр, каталогт нийтлэг)
-import { esc, money, mnt, million, KIND, photoOf, studPriceHtml, studState, auctionState, breedGroup } from './app.js?v=2611061845';
+import { esc, money, mnt, million, KIND, photoOf, studPriceHtml, studState, auctionState, breedGroup } from './app.js?v=2611271330';
 
 export function badges(h) {
   const out = [];
@@ -28,7 +28,7 @@ export function hcard(h) {
   if (h.sale_mode === 'auction') rows.push(`<div class="row"><span>${h.top_bid ? 'Одоогийн бооцоо' : 'Эхлэх үнэ'}</span><b>${money(h.top_bid || h.auction_start_price || 0)}</b></div>`);
   return `<a class="hc" href="horse.html?s=${encodeURIComponent(h.slug)}">
     <div class="ph${ph ? '' : ' empty'}"${ph ? ` style="background-image:url('${esc(ph)}')"` : ''}>${ph ? '' : 'М'}
-      ${h.sort && h.sort < 100 ? `<span class="no">№${h.sort}</span>` : ''}<div class="badges">${badges(h)}</div></div>
+      ${h.lot_no ? `<span class="no">Лот ${esc(h.lot_no)}</span>` : h.sort && h.sort < 100 ? `<span class="no">№${h.sort}</span>` : ''}<div class="badges">${badges(h)}</div></div>
     <div class="bd"><h3>${esc(h.name)}</h3>${h.name_en ? `<div class="en">${esc(h.name_en)}</div>` : ''}
       <div class="meta">${esc(KIND[h.kind] || '')}${h.foaled ? ' · ' + h.foaled + ' онд төрсөн' : ''}</div>
       ${h.breed ? `<div class="breed${breedGroup(h.breed) === 'Монгол азарга' ? ' mn' : ''}">${esc(h.breed)}</div>` : ''}

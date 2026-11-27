@@ -8,12 +8,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061845">
-<link rel="stylesheet" href="css/pm.css?v=2611061845">
-<link rel="modulepreload" href="js/app.js?v=2611061845">
-<link rel="modulepreload" href="js/config.js?v=2611061845">
-<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611061845">
-<link rel="modulepreload" href="js/pm-ui.js?v=2611061845">
+<link rel="stylesheet" href="css/style.css?v=2611271330">
+<link rel="stylesheet" href="css/pm.css?v=2611271330">
+<link rel="modulepreload" href="js/app.js?v=2611271330">
+<link rel="modulepreload" href="js/config.js?v=2611271330">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611271330">
+<link rel="modulepreload" href="js/pm-ui.js?v=2611271330">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -33,7 +33,7 @@
 <div class="lightbox" id="lb"><img alt=""></div>
 
 <script type="module">
-import { api, apiCached, esc, money, mnt, million, fmtDT, renderChrome, param, store, rememberStud, KIND, photoOf, studPriceHtml, studState, auctionState } from './js/app.js?v=2611061845';
+import { api, apiCached, esc, money, mnt, million, fmtDT, renderChrome, param, store, rememberStud, KIND, photoOf, studPriceHtml, studState, auctionState } from './js/app.js?v=2611271330';
 const $ = id => document.getElementById(id);
 const slug = param('s') || '';
 let D = null, offset = 0, cur = 0, poll = null, tick = null;
@@ -86,7 +86,7 @@ function saleCard(h, site) {
     let head = '', form = '';
     if (st === 'scheduled') head = `<div class="alert info">Дуудлага ${esc(fmtDT(h.auction_starts_at))}-д эхэлнэ.</div>`;
     else if (st === 'open') {
-      form = `<div class="alert info" style="margin-top:14px;font-size:13px">Дуудлагад зөвхөн <b>парадад бүртгүүлсэн, оролцооны хураамж төлсөн</b> оролцогч бооцоо тавина. Төлөөгүй бол <a href="${store.get('pass') ? 'ticket.html?t=' + encodeURIComponent(store.get('pass')) : 'register.html'}">бүртгэлийн пассаа нээж</a> төлнө үү.</div>
+      form = `<div class="alert info" style="margin-top:14px;font-size:13px">Дуудлагад зөвхөн <b>«Адуу худалдан авагч» тасалбараа бүрэн төлсөн</b> оролцогч бооцоо тавина. Тасалбаргүй бол <a href="${store.get('pass') ? 'ticket.html?t=' + encodeURIComponent(store.get('pass')) : 'register.html?kind=buyer'}">${store.get('pass') ? 'пассаа нээж худалдан авагч болгоно' : 'тасалбар авна'}</a> уу.</div>
       <form class="form" id="bid-form" novalidate style="margin-top:10px">
         <div style="display:none"><input name="website" tabindex="-1" autocomplete="off"></div>
         <div><label>Нэр <span class="req">*</span></label><input class="input" name="name" maxlength="80" autocomplete="name" required></div>
@@ -117,10 +117,12 @@ function render() {
     .filter(([, v]) => v);
   $('root').innerHTML = `<div class="hd"><div>${gallery(h)}</div><div>
     <div class="eyebrow">${esc(KIND[h.kind] || '')}${h.sort && h.sort < 100 ? ' · №' + h.sort : ''}</div>
+    ${h.lot_no || h.verified ? `<div style="display:flex;gap:6px;flex-wrap:wrap;margin:6px 0">${h.lot_no ? `<span class="lot-badge">Лот № ${esc(h.lot_no)}</span>` : ''}${h.verified ? '<span class="ver-badge">✓ МСУХ баталсан · шинжилгээ сөрөг</span>' : ''}</div>` : ''}
     <h1>${esc(h.name)}</h1>${h.name_en ? `<div class="muted" style="font-weight:700;letter-spacing:1px">${esc(h.name_en)}</div>` : ''}
     <div class="facts2">${facts.map(([k, v]) => `<div><small>${k}</small><b>${esc(v)}</b></div>`).join('')}</div>
     ${h.description ? `<p class="pre">${esc(h.description)}</p>` : ''}
     ${h.notes ? `<p class="pre muted small">${esc(h.notes)}</p>` : ''}
+    ${(h.achievements || []).length ? `<div class="panel" style="margin:14px 0"><h3 style="color:var(--navy);margin:0 0 8px;font-size:16px">Амжилт</h3><ul class="ach-list">${h.achievements.map(a => `<li><b>${esc(a.t)}</b>${a.y ? ` <span>${esc(a.y)} он</span>` : ''}${a.w ? ` <span>· ${esc(a.w)}</span>` : ''}${a.n ? ` <span>· ${esc(a.n)}</span>` : ''}</li>`).join('')}</ul></div>` : ''}
     ${studCard(h, site)}${saleCard(h, site)}
     ${!h.stud_enabled && h.sale_mode === 'none' ? '<div class="alert info" style="margin-top:16px">Энэ адуу одоогоор захиалга, худалдаанд ороогүй байна.</div>' : ''}
   </div></div>`;
@@ -190,7 +192,16 @@ function openStud() {
     ${field('mares', 'Гүүний тоо <span class="req">*</span>', `<select class="input" name="mares">${Array.from({ length: max }, (_, i) => `<option value="${i + 1}">${i + 1} гүү${h.stud_price ? ' — ' + money((i + 1) * h.stud_price) : ''}</option>`).join('')}</select>`)}
     ${field('loc', 'Аймаг, сум', `<input class="input" name="location" maxlength="120" value="${esc(b.location || '')}" placeholder="Жишээ: Төв, Зуунмод">`)}
     ${field('mi', 'Гүүний мэдээлэл', '<textarea class="input" name="mare_info" rows="2" maxlength="500" placeholder="Нас, зүс, тамга, өмнөх унагалалт…"></textarea>')}
+    <div class="row2">
+      ${field('rd', 'Гүү бэлэн байх огноо', '<input class="input" name="mare_ready_date" type="date">')}
+      ${field('rp', 'Гүү бэлэн байх газар', '<input class="input" name="mare_ready_place" maxlength="200" placeholder="Жишээ: Төв, Баян, ...">')}
+    </div>
+    <div class="row2">
+      ${field('cn', 'Хариуцагч (гүү хүргэх хүн)', `<input class="input" name="contact_name" maxlength="80" value="${esc(b.contact_name || '')}">`)}
+      ${field('cp', 'Хариуцагчийн утас', `<input class="input" name="contact_phone" type="tel" inputmode="tel" value="${esc(b.contact_phone || '')}">`)}
+    </div>
     ${field('note', 'Тайлбар', '<textarea class="input" name="note" rows="2" maxlength="500"></textarea>')}
+    <div class="alert info small" style="margin:0">Төлбөр төлөгдсөний дараа гүү бүртгэгдэж, дараалалд орно. Азарга хаана байрлах, үржил хийх газар, огноог ажилтан баталгаажуулахдаа мэдэгдэнэ.</div>
     <div id="sf-err"></div>
     <button class="btn btn-accent btn-lg btn-block" type="submit" id="sf-btn">Захиалга илгээх</button>
     <p class="small muted" style="margin:0;text-align:center">${site.hold_hours} цагийн дотор ажилтан баталгаажуулна. Үгүй бол хугацаа дуусна.</p></form>`);
@@ -202,8 +213,9 @@ function openStud() {
     if (!phoneOk(f.phone.value)) { err.innerHTML = '<div class="alert error">Утасны дугаараа зөв оруулна уу (8 оронтой).</div>'; return; }
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
     try {
-      const r = await api('stud_create', { slug, name: f.name.value, phone: f.phone.value, mares: Number(f.mares.value), location: f.location.value, mare_info: f.mare_info.value, note: f.note.value, website: f.website.value });
-      store.set('pm_buyer', { name: f.name.value.trim(), phone: f.phone.value.trim(), location: f.location.value.trim() });
+      const r = await api('stud_create', { slug, name: f.name.value, phone: f.phone.value, mares: Number(f.mares.value), location: f.location.value, mare_info: f.mare_info.value, note: f.note.value, website: f.website.value,
+        mare_ready_date: f.mare_ready_date.value, mare_ready_place: f.mare_ready_place.value, contact_name: f.contact_name.value, contact_phone: f.contact_phone.value });
+      store.set('pm_buyer', { name: f.name.value.trim(), phone: f.phone.value.trim(), location: f.location.value.trim(), contact_name: f.contact_name.value.trim(), contact_phone: f.contact_phone.value.trim() });
       rememberStud(r.code);
       location.href = 'booking.html?code=' + encodeURIComponent(r.code);
     } catch (ex) { err.innerHTML = `<div class="alert error">${esc(ex.message)}</div>`; btn.disabled = false; btn.textContent = 'Захиалга илгээх'; refresh(true); }

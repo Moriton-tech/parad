@@ -164,3 +164,31 @@ html.mine-lock { overflow: hidden; }
 }
 @media print { .mine-fab, .mine-dlg { display: none !important; } }
 .mine-panel .stat-pill { font-size: 12px; padding: 4px 10px; white-space: nowrap; }
+
+/* v2: тасалбарын төрөл, сонирхол, санамж, лот/амжилт */
+.kind-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.kind-opt { display: block; cursor: pointer; margin: 0; }
+.kind-opt input { position: absolute; opacity: 0; pointer-events: none; }
+.kind-opt span { display: flex; flex-direction: column; gap: 2px; height: 100%; border: 1.5px solid var(--line); border-radius: 12px; padding: 10px 12px; background: #fff; transition: border-color .15s, box-shadow .15s; }
+.kind-opt span b { font-size: 14px; color: var(--navy); }
+.kind-opt span small { font-weight: 800; font-size: 15px; color: var(--ink); }
+.kind-opt span em { font-style: normal; font-size: 12px; color: var(--muted, #667); line-height: 1.35; }
+.kind-opt input:checked + span { border-color: var(--navy); box-shadow: 0 0 0 3px var(--navy-l); }
+.kind-opt input:focus-visible + span { outline: 2px solid var(--navy); outline-offset: 2px; }
+.interest-pick { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 10px; }
+.chip-check { margin: 0; cursor: pointer; }
+.chip-check input { position: absolute; opacity: 0; pointer-events: none; }
+.chip-check span { color: var(--ink); display: inline-block; border: 1.5px solid var(--line); border-radius: 99px; padding: 6px 12px; font-size: 13px; font-weight: 600; background: #fff; }
+.chip-check input:checked + span { background: var(--navy); border-color: var(--navy); color: #fff; }
+.chip-check input:focus-visible + span { outline: 2px solid var(--navy); outline-offset: 2px; }
+.notice-box { background: var(--amber-l); color: #5b3d05; border-radius: 11px; padding: 10px 14px; font-size: 13px; margin-bottom: 10px; }
+.notice-box ul { margin: 6px 0 0; padding-left: 18px; }
+.notice-box li { margin: 3px 0; }
+.lot-badge { display: inline-block; background: var(--navy); color: #fff; border-radius: 8px; padding: 2px 9px; font-weight: 800; font-size: 13px; letter-spacing: .3px; }
+.ver-badge { display: inline-block; background: var(--ok-l); color: var(--ok); border-radius: 8px; padding: 2px 9px; font-weight: 700; font-size: 12.5px; }
+.ach-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.ach-list li { display: flex; gap: 8px; align-items: baseline; font-size: 14px; }
+.ach-list li b { color: var(--navy); }
+.ach-list li span { color: var(--muted, #667); font-size: 13px; }
+.paddle-no { font-family: Oswald, sans-serif; font-size: 44px; line-height: 1; color: var(--navy); }
+@media (max-width: 420px) { .kind-pick { grid-template-columns: 1fr; } }
