@@ -67,6 +67,11 @@ drop trigger if exists parade_orders_fee on public.parade_orders;
 create trigger parade_orders_fee before insert or update on public.parade_orders
   for each row execute function public.parade_orders_fee();
 
+-- Өмнө нь дуудлагын оролцооны хураамж (200,000₮) төлсөн хүмүүс → «Адуу худалдан авагч» (пайзтай)
+update public.parade_orders
+   set kind = 'buyer', fee_paid = greatest(fee_paid, coalesce(dep_amount, 0), (select deposit_amount from public.parade_settings where id = 1))
+ where status = 'paid' and dep_status = 'paid' and kind = 'viewer';
+
 -- Үнэгүй (тасалбар 0₮) үзэгч бол төлбөр шаардахгүй — dep_status 'none' хэвээр, fee_due = 0.
 
 -- Бүртгэл: төрөл, сонирхол, санамж (хуучин 13 аргументтэй хувилбарыг солино)
