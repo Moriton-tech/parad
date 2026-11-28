@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Парад — Бүртгэл | parad.mn</title>
+<title>Парад — Тасалбар, бүртгэл | parad.mn</title>
 <meta name="description" content="Үржүүлгийн парад — үнэгүй бүртгэл. Бүртгүүлж QR пассаа аваад үүдэнд уншуулж орно. Ирсэн оролцогчдын дунд эрхийн бичгийн сугалаа.">
 <meta property="og:title" content="Парад — Бүртгэл | Parad.mn">
 <meta property="og:description" content="Үржүүлгийн парад — үнэгүй бүртгэл, сугалаа.">
@@ -12,12 +12,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet" media="print" onload="this.media=\'all\'"><noscript><link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet"></noscript>
-<link rel="stylesheet" href="css/style.css?v=2611061845">
-<link rel="stylesheet" href="css/pm.css?v=2611061845">
-<link rel="modulepreload" href="js/app.js?v=2611061845">
-<link rel="modulepreload" href="js/config.js?v=2611061845">
-<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611061845">
-<link rel="modulepreload" href="js/pm-ui.js?v=2611061845">
+<link rel="stylesheet" href="css/style.css?v=2611271330">
+<link rel="stylesheet" href="css/pm.css?v=2611271330">
+<link rel="modulepreload" href="js/app.js?v=2611271330">
+<link rel="modulepreload" href="js/config.js?v=2611271330">
+<link rel="modulepreload" href="js/vendor/qrcode.mjs?v=2611271330">
+<link rel="modulepreload" href="js/pm-ui.js?v=2611271330">
 <link rel="preconnect" href="https://mfghbmsqdksbxpnbvmbs.supabase.co" crossorigin>
 <link rel="icon" href="favicon.png" type="image/png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -30,13 +30,13 @@
       <div>
         <div class="eyebrow" id="eyebrow">Parad.mn</div>
         <h1><span>Үржүүлгийн</span>Парад</h1>
-        <p class="lead">Парадад оролцоход <b>үнэгүй</b>. Урьдчилан бүртгүүлж QR пассаа аваад үүдэнд уншуулж орно. Ирсэн бүртгэлтэй оролцогчдын дунд эрхийн бичгийн сугалаа явуулна.</p>
+        <p class="lead" id="lead">Тасалбар 2 төрөл: <b>Үзэгч</b> ба <b>Адуу худалдан авагч</b>. Урьдчилан бүртгүүлж QR пассаа аваад үүдэнд уншуулж орно. Ирсэн бүртгэлтэй оролцогчдын дунд эрхийн бичгийн сугалаа явуулна.</p>
         <div class="facts" id="facts"></div>
         <div class="countdown" id="countdown"></div>
       </div>
 
       <aside class="buy-card" id="register">
-        <div class="top"><b>Үнэгүй бүртгэл</b><span>Нэг хүнд</span></div>
+        <div class="top"><b>Тасалбар авах</b><span>Нэг хүнд</span></div>
         <div class="body">
           <div id="reg-form-wrap">
             <form class="form" id="reg-form" novalidate>
@@ -50,12 +50,29 @@
                 <div><label for="f-title">Цол <span class="muted" style="font-weight:500">(заавал биш)</span></label><select class="input" id="f-title" name="title"><option value="">Сонгох…</option></select></div>
                 <div><label for="f-email">Имэйл <span class="muted" style="font-weight:500">(заавал биш)</span></label><input class="input" id="f-email" name="email" type="email" inputmode="email" autocomplete="email" placeholder="ner@gmail.com" maxlength="120"></div>
               </div>
+              <div>
+                <label>Тасалбарын төрөл <span class="req">*</span></label>
+                <div class="kind-pick" id="kind-pick">
+                  <label class="kind-opt"><input type="radio" name="kind" value="viewer" checked><span><b>Үзэгч</b><small data-price="viewer">—</small><em>Парад үзэх, хоол ундаа, сугалаа</em></span></label>
+                  <label class="kind-opt"><input type="radio" name="kind" value="buyer"><span><b>Адуу худалдан авагч</b><small data-price="buyer">—</small><em>+ дуудлага худалдаанд дугаартай пайз өргөж оролцоно</em></span></label>
+                </div>
+              </div>
+              <div class="alert info small" id="viewer-warn" style="margin:0;text-align:left"><b>Анхаар:</b> Үзэгчийн тасалбараар дуудлага худалдаанд оролцох боломжгүй. Дараа нь адуу авах бол пасс хуудаснаасаа зөрүүг төлж «Адуу худалдан авагч» болгоно.</div>
+              <div id="buyer-box" hidden>
+                <label>Ямар адуу авах сонирхолтой вэ? <span class="req">*</span> <span class="muted" style="font-weight:500">(нэг ба түүнээс дээш)</span></label>
+                <div class="interest-pick" id="interests"></div>
+                <div class="notice-box">
+                  <b>Худалдан авагчийн санамж</b>
+                  <ul id="notice-list"></ul>
+                </div>
+                <label class="check"><input type="checkbox" name="notice_ack" id="c-notice"> <span>Санамжтай танилцсан, зөвшөөрч байна. <span class="req">*</span></span></label>
+              </div>
               <div class="hp" aria-hidden="true"><label>Website<input name="website" tabindex="-1" autocomplete="off"></label></div>
               <label class="check"><input type="checkbox" name="consent_data" id="c-data"> <span>Парадын бүртгэл, ирцийн тооцоо, сугалаа, холбоо барих зорилгоор миний нэр, утас, аймаг сумын мэдээллийг цуглуулж, ашиглахыг зөвшөөрч байна. <span class="req">*</span></span></label>
               <label class="check"><input type="checkbox" name="consent_marketing" id="c-mkt"> <span>Parad.mn-ээс азарга, дуудлага худалдаа, дараагийн парадын талаарх мэдээ, санал мэдээлэл хүлээн авахыг зөвшөөрч байна. <span class="muted">(заавал биш)</span></span></label>
               <div id="f-err"></div>
               <button class="btn btn-accent btn-lg btn-block" type="submit" id="f-submit">Бүртгүүлэх</button>
-              <p class="small muted" style="margin:0;text-align:center">Бүртгүүлсний дараа QR пасс дэлгэц дээр гарна.</p>
+              <p class="small muted" style="margin:0;text-align:center" id="f-after">Бүртгүүлсний дараа QR пасс дэлгэц дээр гарна.</p>
             </form>
           </div>
           <div id="reg-msg" hidden></div>
@@ -86,7 +103,7 @@
         <div class="stub">
           <div class="ic" data-ic="gavel"></div>
           <h3>Дуудлага худалдаа</h3>
-          <p>Азаргын парад дууссаны дараа дуудлага худалдаа болно. Оролцохын тулд оролцооны хураамж (<b data-dep>200,000₮</b>) төлсөн байх ёстой.</p>
+          <p>Азаргын парад дууссаны дараа дуудлага худалдаа болно. «Адуу худалдан авагч» тасалбар (<b data-dep>100,000₮</b>) авсан хүнд дугаартай пайз олгогдож, пайзаа өргөж оролцоно.</p>
         </div>
       </div>
     </div>
@@ -120,10 +137,11 @@
       </div>
       <div class="panel">
         <h3 style="color:var(--navy);margin-bottom:6px">Түгээмэл асуулт</h3>
-        <details class="faq"><summary>Тасалбар авах шаардлагатай юу?</summary><p>Үгүй. Энэ удаагийн парадад орох тасалбар зарахгүй. Харин урьдчилан бүртгүүлж QR пасс авна.</p></details>
+        <details class="faq"><summary>Тасалбар авах шаардлагатай юу?</summary><p>Тийм. Орж буй хүн бүр (хоол, ундаатай) тасалбар авна. Үзэгч эсвэл Адуу худалдан авагч гэсэн 2 төрөл бий.</p></details>
+        <details class="faq"><summary>Үзэгчээр авчихаад адуу авахаар болвол?</summary><p>Пасс хуудсаа нээгээд «Адуу худалдан авагч болох»-ыг дарж үнийн зөрүүг төлнө. Шинэ тасалбар авах шаардлагагүй. Хаалган дээрх ажилтан ч сольж өгнө.</p></details>
         <details class="faq"><summary>Утасгүй, бүртгүүлж чадахгүй бол?</summary><p>Хаалган дээрх ажилтан таныг гараар бүртгэнэ. Нэр, утас, аймаг сумаа хэлнэ үү.</p></details>
         <details class="faq"><summary>Сугалаанд хэрхэн орох вэ?</summary><p>Бүртгүүлж, парадад ирж үүдэнд QR-аа уншуулсан бол сугалаанд оролцоно. Нийт 5 эрхийн бичиг тархана.</p></details>
-        <details class="faq"><summary>Дуудлага худалдаанд оролцохын тулд юу хийх вэ?</summary><p>Бүртгүүлсэн байх бөгөөд парад дууссаны дараа пассаа нээгээд оролцооны хураамжаа (<b data-dep>200,000₮</b>) төлнө. Төлсөн оролцогчид л бооцоо тавина.</p></details>
+        <details class="faq"><summary>Дуудлага худалдаанд оролцохын тулд юу хийх вэ?</summary><p>«Адуу худалдан авагч» тасалбар (<b data-dep>100,000₮</b>) авч бүрэн төлнө. Төлмөгц пасс дээр тань пайзны дугаар гарна. Танхимд тэр дугаартай пайзаа өргөж оролцоно. Дэнчин байршуулахгүй.</p></details>
         <details class="faq"><summary>Пассаа алдвал?</summary><p>Ижил утсаараа дахин бүртгүүлбэл өмнөх пасс тань дахин гарна.</p></details>
       </div>
     </div>
@@ -132,11 +150,33 @@
 <footer class="site-footer" id="site-footer"></footer>
 
 <script type="module">
-import { api, apiCached, esc, money, fmtDay, fmtWeekday, fmtTime, startCountdown, renderChrome, ICONS, toast, store, siteBase, configured, ticketLink } from './js/app.js?v=2611061845';
-import { hcard } from './js/pm-ui.js?v=2611061845';
+import { api, apiCached, esc, money, fmtDay, fmtWeekday, fmtTime, startCountdown, renderChrome, ICONS, toast, store, siteBase, configured, ticketLink } from './js/app.js?v=2611271330';
+import { hcard } from './js/pm-ui.js?v=2611271330';
 
 const $ = id => document.getElementById(id);
-let info = { event_at: '2027-10-10T02:00:00Z', event_public: false, location: '', phone: '7732-0404', sales_open: true, deposit_amount: 200000 };
+let info = { event_at: '2027-10-10T02:00:00Z', event_public: false, location: '', phone: '7732-0404', sales_open: true, deposit_amount: 100000, viewer_price: 0 };
+let site = { commission_pct: 10, pay_within_hours: 24, handover_hours: 48 };
+const INTERESTS = ['Уралдах эр даага', 'Удам сайтай гүү', 'Азарга', 'Унага, даага', 'Уралдааны морь', 'Бусад'];
+$('interests').innerHTML = INTERESTS.map(i => `<label class="chip-check"><input type="checkbox" name="interest" value="${i}"><span>${i}</span></label>`).join('');
+const priceTxt = n => Number(n) > 0 ? money(n) : 'Үнэгүй';
+function noticeItems() {
+  return [
+    `Тасалбарын төлбөр (${money(info.deposit_amount || 100000)}) буцаагдахгүй.`,
+    'Дэнчин байршуулахгүй. Хожсон бол батламж авч, гэрээнд гарын үсэг зурна.',
+    `Хожсон адууны үнийг ${site.pay_within_hours || 24} цагийн дотор зохион байгуулагчийн дансанд бүрэн төлнө. Адууг төлбөр баталгаажсаны дараа ${site.handover_hours || 48} цагийн дотор хүлээлгэн өгнө.`,
+    'Хожоод татгалзвал тасалбар хүчингүй болж, дараагийн дуудлагад оролцох эрхгүй болно. Адууг дараагийн хамгийн өндөр санал өгсөн хүнд санал болгоно.',
+  ];
+}
+function kindUi() {
+  const k = $('reg-form').kind.value;
+  $('buyer-box').hidden = k !== 'buyer';
+  $('viewer-warn').hidden = k !== 'viewer';
+  const price = k === 'buyer' ? info.deposit_amount : info.viewer_price;
+  $('f-submit').textContent = Number(price) > 0 ? `Бүртгүүлэх · ${money(price)}` : 'Бүртгүүлэх';
+  $('f-after').textContent = Number(price) > 0 ? 'Бүртгүүлсний дараа QR пасс гарч, тэндээс QPay-ээр төлнө.' : 'Бүртгүүлсний дараа QR пасс дэлгэц дээр гарна.';
+}
+document.querySelectorAll('input[name=kind]').forEach(r => r.onchange = kindUi);
+if (new URLSearchParams(location.search).get('kind') === 'buyer') document.querySelector('input[name=kind][value=buyer]').checked = true;
 
 const AIMAGS = ['Улаанбаатар', 'Архангай', 'Баян-Өлгий', 'Баянхонгор', 'Булган', 'Говь-Алтай', 'Говьсүмбэр', 'Дархан-Уул', 'Дорноговь', 'Дорнод', 'Дундговь', 'Завхан', 'Орхон', 'Өвөрхангай', 'Өмнөговь', 'Сүхбаатар', 'Сэлэнгэ', 'Төв', 'Увс', 'Ховд', 'Хөвсгөл', 'Хэнтий', 'Гадаад'];
 const TITLES = ['Сонирхогч', 'Залуу уяач', 'СУА', 'ААУ', 'НАУ', 'МУАУ', 'МУМУ', 'МУТМУ'];
@@ -156,7 +196,11 @@ function regState() {
 
 function render() {
   renderChrome(info, 'parade');
-  document.querySelectorAll('[data-dep]').forEach(e => e.textContent = money(info.deposit_amount || 200000));
+  document.querySelectorAll('[data-dep]').forEach(e => e.textContent = money(info.deposit_amount || 100000));
+  document.querySelector('[data-price=viewer]').textContent = priceTxt(info.viewer_price);
+  document.querySelector('[data-price=buyer]').textContent = priceTxt(info.deposit_amount);
+  $('notice-list').innerHTML = noticeItems().map(t => `<li>${esc(t)}</li>`).join('');
+  kindUi();
   if (!info.event_public) {
     $('eyebrow').textContent = 'Удахгүй';
     $('facts').innerHTML = `<span>${ICONS.phone}<a href="tel:${esc(String(info.phone).replace(/\D/g, ''))}">${esc(info.phone)}</a></span>`;
@@ -172,7 +216,7 @@ function render() {
       <div class="ic">${ICONS.cal}</div><div><small>Огноо, цаг</small><b>${fmtDay(info.event_at)}, ${fmtWeekday(info.event_at)} · ${fmtTime(info.event_at)}</b></div>
       <div class="ic">${ICONS.pin}</div><div><small>Байршил</small><b><a href="${mapUrl}" target="_blank" rel="noopener">${esc(info.location)}</a></b></div>
       <div class="ic">${ICONS.phone}</div><div><small>Лавлах утас</small><b><a href="tel:${esc(String(info.phone).replace(/\D/g, ''))}">${esc(info.phone)}</a></b></div>
-      <div class="ic">${ICONS.ticket.replace('<svg', '<svg class="ico"')}</div><div><small>Орох нөхцөл</small><b>Үнэгүй · урьдчилан бүртгүүлнэ</b></div>`;
+      <div class="ic">${ICONS.ticket.replace('<svg', '<svg class="ico"')}</div><div><small>Тасалбар</small><b>Үзэгч: ${priceTxt(info.viewer_price)} · Адуу худалдан авагч: ${priceTxt(info.deposit_amount)}</b></div>`;
   }
   const st = regState();
   $('reg-form-wrap').hidden = st !== 'open';
@@ -193,11 +237,16 @@ $('reg-form').addEventListener('submit', async e => {
     : sum.length < 2 ? 'Сум / дүүргээ бичнэ үү.'
     : email && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) ? 'Имэйл хаягаа зөв оруулна уу.'
     : !f.consent_data.checked ? 'Мэдээлэл цуглуулах зөвшөөрлийг сонгоно уу.' : '';
-  if (bad) { err.innerHTML = `<div class="alert error">${bad}</div>`; return; }
+  const kind = f.kind.value;
+  const interests = [...f.querySelectorAll('input[name=interest]:checked')].map(x => x.value);
+  const bad2 = bad || (kind === 'buyer' && !interests.length ? 'Ямар адуу авах сонирхолтойгоо сонгоно уу.'
+    : kind === 'buyer' && !f.notice_ack.checked ? 'Худалдан авагчийн санамжтай танилцсанаа тэмдэглэнэ үү.' : '');
+  if (bad2) { err.innerHTML = `<div class="alert error">${bad2}</div>`; return; }
   const label = btn.textContent;
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Түр хүлээнэ үү…';
   try {
-    const r = await api('register', { name, phone, email, aimag, sum, title, consent_data: true, consent_marketing: f.consent_marketing.checked, website: f.website.value, site: siteBase() });
+    const r = await api('register', { name, phone, email, aimag, sum, title, consent_data: true, consent_marketing: f.consent_marketing.checked, website: f.website.value, site: siteBase(),
+      kind, interests, notice_ack: kind === 'buyer' && f.notice_ack.checked });
     store.set('buyer', { name, phone, email, aimag, sum, title });
     store.set('pass', r.token);
     location.href = ticketLink(r.token) + (r.existing ? '&existing=1' : '&new=1');
@@ -226,6 +275,7 @@ try { const c = JSON.parse(localStorage.getItem('parad_info') || 'null'); if (c)
 render();
 loadInfo();
 apiCached('horses', {}, r => {
+  if (r.site) { site = { ...site, ...r.site }; render(); }
   const list = r.horses.filter(h => h.stud_enabled || h.sale_mode !== 'none').slice(0, 6);
   $('parade-horses').innerHTML = list.length ? list.map(hcard).join('') : '<div class="empty-box" style="grid-column:1/-1">Азарганы мэдээлэл удахгүй нэмэгдэнэ.</div>';
 }).catch(() => {});
